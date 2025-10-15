@@ -1,0 +1,12 @@
+build/
+*.o
+*.elf
+*.map
+*.debug
+*.strip.elf
+*.tar.gz
+.DS_Store
+
+# VS Code workspace stuff you may or may not want to commit
+# (we DO commit launch/tasks/settings here for team reuse)
+# .vscode/
