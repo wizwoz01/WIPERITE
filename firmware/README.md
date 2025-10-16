@@ -15,7 +15,7 @@ Cross-compile on Windows (MSYS2), deploy to the board, debug via gdbserver.
 
 ## Makefile knobs
 - BOARD_USER (default: wiperite)
-- BOARD_HOST (default: 192.168.191.114)
+- BOARD_HOST (default: BOARD IP)
 - BOARD_PORT (default: 22)
 - PORT       (default: 3333)
 - REMOTE_DIR (default: /tmp/fw)
@@ -33,3 +33,4 @@ Override at call time:
 - If port 3333 is in use: make PORT=4444 gdbserver and update VS Code address.
 - Ensure SSH keys or password auth works to the target.
 - Verify arm-linux-gnueabihf-gcc is on PATH in your shell used by VS Code tasks.
+
