@@ -225,7 +225,7 @@ int main(void){
   LED_Init();       // initialize LaunchPad I/O 
   ST7735_InitR(INITR_REDTAB);
   UART_OutString((uint8_t*)"WiFi WIPERITE Control\n\r");
-  ST7735_OutString("WiFi WIPERITE Control\n\r");
+  ST7735_OutString("WiFi WIPERITE Ctrl\n\r");
 
   // Initialize car control hardware 
   MotorControl_Init();
@@ -493,7 +493,11 @@ void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent){
         UART_OutUDec(b3); UART_OutChar('.');
         UART_OutUDec(b4); UART_OutString((uint8_t*)"\r\n");
         ST7735_OutString("IP: ");
-        // ST7735 has no number printing; reuse UART assembly via buffer not available, so keep UART only
+		ST7735_OutUDec(b1); ST7735_OutChar('.');
+        ST7735_OutUDec(b2); ST7735_OutChar('.');
+        ST7735_OutUDec(b3); ST7735_OutChar('.');
+        ST7735_OutUDec(b4); ST7735_OutString("\r\n");
+        
         /*
              * Information about the connected AP's ip, gateway, DNS etc
              * will be available in 'SlIpV4AcquiredAsync_t' - Applications
