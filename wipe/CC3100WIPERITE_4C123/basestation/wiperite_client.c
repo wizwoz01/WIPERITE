@@ -47,22 +47,24 @@ typedef struct {
     bool connected;
 } AppState;
 
+#ifdef NO_CURSES
 static void die(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
+#endif
 
-static void disable_raw_mode(void) {
 #ifdef NO_CURSES
+static void disable_raw_mode(void) {
     if (raw_enabled) {
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
         raw_enabled = false;
     }
-#endif
 }
+#endif
 
-static void enable_raw_mode(void) {
 #ifdef NO_CURSES
+static void enable_raw_mode(void) {
     if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
     struct termios raw = orig_termios;
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
@@ -73,8 +75,8 @@ static void enable_raw_mode(void) {
     raw.c_cc[VTIME] = 1; // 100ms read timeout
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
     raw_enabled = true;
-#endif
 }
+#endif
 
 static void on_signal(int sig) {
     (void)sig;
@@ -212,11 +214,13 @@ static int ui_get_key(void) {
 #endif
 
 // -------- non-curses raw input helpers --------
+#ifdef NO_CURSES
 static int kbd_read_raw(unsigned char *out) {
     unsigned char ch; ssize_t n = read(STDIN_FILENO, &ch, 1);
     if (n == 1) { *out = ch; return 1; }
     return 0;
 }
+#endif
 
 // Returns: 0 continue, 1 user-quit, -1 socket dropped
 static int interactive_session(AppState *st) {
