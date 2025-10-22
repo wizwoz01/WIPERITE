@@ -31,8 +31,10 @@
 #include <ncurses.h>
 #endif
 
+#ifdef NO_CURSES
 static struct termios orig_termios;
 static bool raw_enabled = false;
+#endif
 static volatile sig_atomic_t g_stop = 0;
 
 typedef struct {
@@ -51,13 +53,16 @@ static void die(const char *msg) {
 }
 
 static void disable_raw_mode(void) {
+#ifdef NO_CURSES
     if (raw_enabled) {
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
         raw_enabled = false;
     }
+#endif
 }
 
 static void enable_raw_mode(void) {
+#ifdef NO_CURSES
     if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
     struct termios raw = orig_termios;
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
@@ -68,6 +73,7 @@ static void enable_raw_mode(void) {
     raw.c_cc[VTIME] = 1; // 100ms read timeout
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
     raw_enabled = true;
+#endif
 }
 
 static void on_signal(int sig) {
@@ -76,25 +82,23 @@ static void on_signal(int sig) {
 }
 
 static void usage(const char *prog) {
-    fprintf(stderr,
-            "Usage: %s <ip> [port] [-c COMMANDS]\n"
-            "  ip       Target TM4C IP (as shown on LCD/UART)\n"
-            "  port     TCP port (default %d)\n"
-            "  -c str   Send command string then exit (non-interactive)\n"
-            "\nInteractive controls (no -c):\n"
-            "  w or Up Arrow     -> F (Forward)\n"
-            "  s or Down Arrow   -> B (Back)\n"
-            "  a or Left Arrow   -> L (Left)\n"
-            "  d or Right Arrow  -> R (Right)\n"
-            "  space             -> S (Stop)\n"
-            "  u                 -> U (Speed Up / lift)\n"
-            "  j                 -> D (Slow Down / lower)\n"
-            "  8                 -> 8 (custom)\n"
-            "  c                 -> C (custom)\n"
-            "  z                 -> Z (custom)\n"
-            "  q                 -> Q (quit)\n",
-            "\nUI: ncurses TUI enabled by default (disable with NO_CURSES=1 at build).\n",
-            prog, DEFAULT_PORT);
+    fprintf(stderr, "Usage: %s <ip> [port] [-c COMMANDS]\n", prog);
+    fputs("  ip       Target TM4C IP (as shown on LCD/UART)\n", stderr);
+    fprintf(stderr, "  port     TCP port (default %d)\n", DEFAULT_PORT);
+    fputs("  -c str   Send command string then exit (non-interactive)\n\n", stderr);
+    fputs("Interactive controls (no -c):\n", stderr);
+    fputs("  w or Up Arrow     -> F (Forward)\n", stderr);
+    fputs("  s or Down Arrow   -> B (Back)\n", stderr);
+    fputs("  a or Left Arrow   -> L (Left)\n", stderr);
+    fputs("  d or Right Arrow  -> R (Right)\n", stderr);
+    fputs("  space             -> S (Stop)\n", stderr);
+    fputs("  u                 -> U (Speed Up / lift)\n", stderr);
+    fputs("  j                 -> D (Slow Down / lower)\n", stderr);
+    fputs("  8                 -> 8 (custom)\n", stderr);
+    fputs("  c                 -> C (custom)\n", stderr);
+    fputs("  z                 -> Z (custom)\n", stderr);
+    fputs("  q                 -> Q (quit)\n\n", stderr);
+    fputs("UI: ncurses TUI enabled by default (disable with NO_CURSES=1 at build).\n", stderr);
 }
 
 static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) {
@@ -145,11 +149,6 @@ static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) 
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &rcv_to, sizeof(rcv_to));
 
     return sock;
-}
-
-static void send_char(int sock, char c) {
-    ssize_t n = send(sock, &c, 1, 0);
-    if (n != 1) die("send");
 }
 
 static char map_key(unsigned char k, const unsigned char *esc_seq, size_t esc_len) {
@@ -233,7 +232,10 @@ static int interactive_session(AppState *st) {
     if (gr > 0) {
         gbuf[gr] = '\0';
 #ifndef NO_CURSES
-        snprintf(st->last_server_msg, sizeof(st->last_server_msg), "%s", gbuf);
+        size_t cplen = (size_t)gr;
+        if (cplen > sizeof(st->last_server_msg)-1) cplen = sizeof(st->last_server_msg)-1;
+        memcpy(st->last_server_msg, gbuf, cplen);
+        st->last_server_msg[cplen] = '\0';
         ui_draw(st);
 #else
         printf("Server: %s", gbuf);
@@ -270,10 +272,15 @@ static int interactive_session(AppState *st) {
             }
             rbuf[n] = '\0';
 #ifndef NO_CURSES
-            // Keep last line-ish
-            size_t len = strlen(rbuf);
-            const char *start = (len > sizeof(st->last_server_msg)-1) ? rbuf + (len - (sizeof(st->last_server_msg)-1)) : rbuf;
-            snprintf(st->last_server_msg, sizeof(st->last_server_msg), "%s", start);
+            // Keep tail that fits
+            size_t len = (size_t)n;
+            const char *start = rbuf;
+            if (len > sizeof(st->last_server_msg)-1) {
+                start = rbuf + (len - (sizeof(st->last_server_msg)-1));
+                len = sizeof(st->last_server_msg)-1;
+            }
+            memcpy(st->last_server_msg, start, len);
+            st->last_server_msg[len] = '\0';
             ui_draw(st);
 #else
             printf("%s", rbuf); fflush(stdout);
