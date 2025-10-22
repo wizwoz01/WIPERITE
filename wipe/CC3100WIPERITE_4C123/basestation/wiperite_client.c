@@ -60,6 +60,8 @@ static void keymap_init_defaults(KeyMap *km) {
     km->map[(unsigned char)'a'] = 'L'; km->map[(unsigned char)'A'] = 'L';
     km->map[(unsigned char)'d'] = 'R'; km->map[(unsigned char)'D'] = 'R';
     km->map[(unsigned char)' '] = 'S';
+    // Square on b/B by default, sending 'S' (server interprets this accordingly)
+    km->map[(unsigned char)'b'] = 'S'; km->map[(unsigned char)'B'] = 'S';
     km->map[(unsigned char)'u'] = 'U'; km->map[(unsigned char)'U'] = 'U';
     km->map[(unsigned char)'j'] = 'D'; km->map[(unsigned char)'J'] = 'D';
     km->map[(unsigned char)'8'] = '8';
@@ -222,8 +224,27 @@ static void ui_draw(const AppState *st) {
     mvprintw(0, 0, "WIPERITE Base Station  |  Target %s:%u  |  Status: %s  |  Reconnects: %d",
              st->ip, st->port, st->connected ? "CONNECTED" : "OFFLINE", st->reconnects);
     mvhline(1, 0, '-', cols);
-    mvprintw(2, 0, "Controls: WASD/Arrows move, Space=Stop, U/J speed up/down, 8/C/Z custom, Q quit");
-    mvprintw(4, 0, "Last command: %c", st->last_cmd ? st->last_cmd : '-');
+    mvprintw(2, 0, "Controls: WASD/Arrows move, Space=Stop, B/b=Square, U/J speed up/down, 8/C/Z custom, Q quit");
+    const char *label = "-";
+    switch (st->last_cmd) {
+        case 'F': label = "Forward"; break;
+        case 'B': label = "Back"; break;
+        case 'L': label = "Left"; break;
+        case 'R': label = "Right"; break;
+        case 'S': label = "Stop"; break; // Also used for square per key mapping
+        case 'U': label = "SpeedUp"; break;
+        case 'D': label = "SlowDown"; break;
+        case '8': label = "Eight"; break;
+        case 'C': label = "Custom C"; break;
+        case 'Z': label = "Custom Z"; break;
+        case 'Q': label = "Quit"; break;
+        default: label = "-"; break;
+    }
+    if (st->last_cmd) {
+        mvprintw(4, 0, "Last command: %s (%c)", label, st->last_cmd);
+    } else {
+        mvprintw(4, 0, "Last command: -");
+    }
     mvprintw(6, 0, "Server: %s", st->last_server_msg[0] ? st->last_server_msg : "<none>");
     mvprintw(rows - 1, 0, "Press Q to quit");
     refresh();
