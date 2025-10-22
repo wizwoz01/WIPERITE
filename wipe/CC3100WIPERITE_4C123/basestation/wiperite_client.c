@@ -43,6 +43,7 @@ typedef struct {
     int sock;
     int reconnects;
     char last_cmd;
+    char last_key; // last raw key pressed (to distinguish Space vs b/B when both map to 'S')
     char last_server_msg[128];
     bool connected;
 } AppState;
@@ -231,7 +232,11 @@ static void ui_draw(const AppState *st) {
         case 'B': label = "Back"; break;
         case 'L': label = "Left"; break;
         case 'R': label = "Right"; break;
-        case 'S': label = "Stop"; break; // Also used for square per key mapping
+        case 'S':
+            if (st->last_key == ' ') label = "Stop"; // space bar
+            else if (st->last_key == 'b' || st->last_key == 'B') label = "Square"; // b/B pressed
+            else label = "Stop"; // default to Stop for any other mapping to 'S'
+            break;
         case 'U': label = "SpeedUp"; break;
         case 'D': label = "SlowDown"; break;
         case '8': label = "Eight"; break;
@@ -339,16 +344,18 @@ static int interactive_session(AppState *st, const KeyMap *km) {
             int ch = ui_get_key();
             if (ch == ERR) break;
             char cmd = 0;
+            int arrow = 0;
             switch (ch) {
-                case KEY_UP: cmd = 'F'; break;
-                case KEY_DOWN: cmd = 'B'; break;
-                case KEY_LEFT: cmd = 'L'; break;
-                case KEY_RIGHT: cmd = 'R'; break;
+                case KEY_UP: cmd = 'F'; arrow = 1; break;
+                case KEY_DOWN: cmd = 'B'; arrow = 1; break;
+                case KEY_LEFT: cmd = 'L'; arrow = 1; break;
+                case KEY_RIGHT: cmd = 'R'; arrow = 1; break;
                 default:
                     if (ch >= 0 && ch <= 255) cmd = map_key(km, (unsigned char)ch, NULL, 0);
                     break;
             }
             if (cmd) {
+                st->last_key = arrow ? 0 : (char)((ch >= 0 && ch <= 255) ? ch : 0);
                 st->last_cmd = cmd;
                 ui_draw(st);
                 if (send(st->sock, &cmd, 1, 0) != 1) return -1; // treat as drop
@@ -364,6 +371,7 @@ static int interactive_session(AppState *st, const KeyMap *km) {
                     if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; continue; }
                     char cmd = map_key(km, ch, NULL, 0);
                     if (cmd) {
+                        st->last_key = (char)ch;
                         st->last_cmd = cmd;
                         if (send(st->sock, &cmd, 1, 0) != 1) return -1;
                         if (cmd == 'Q') return 1;
@@ -373,6 +381,7 @@ static int interactive_session(AppState *st, const KeyMap *km) {
                     if (esc_len2 >= 2) {
                         char cmd = map_key(km, '\x1b', esc_buf2, esc_len2);
                         if (cmd) {
+                            st->last_key = 0; // arrow/escape-originated
                             st->last_cmd = cmd;
                             if (send(st->sock, &cmd, 1, 0) != 1) return -1;
                         }
@@ -447,7 +456,7 @@ int main(int argc, char **argv) {
     }
 
     // Interactive mode with auto-reconnect
-    AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .connected = false };
+    AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .last_key = 0, .connected = false };
     KeyMap km; keymap_init_defaults(&km);
     // Apply --map arguments for interactive mode
     for (int i = 2; i < argc; ++i) {
