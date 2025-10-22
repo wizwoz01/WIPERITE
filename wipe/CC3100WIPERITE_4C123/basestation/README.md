@@ -64,7 +64,7 @@ Send a sequence, then exit:
 ```
 
 ### Interactive mode (with TUI)
-- Use WASD or Arrow keys to drive; space to stop; `b/B` triggers your square action (both send `S`); `q` to quit.
+- Use WASD or Arrow keys to drive; space to stop (sends `H`), `b/B` triggers square (sends `S`); `q` to quit.
 - The client will send `Q` before closing.
 
 If built with `NO_CURSES=1`, the client falls back to raw terminal input (still interactive, but no UI panels).
@@ -76,7 +76,7 @@ You can remap keys to specific single-letter commands using `--map key:CMD` (rep
 ./wiperite_client <tm4c_ip> --map s:S --map b:Z --map B:Z
 ```
 
-- Maps `s` to Stop (`S`) and `b`/`B` to `Z` (a custom command your TM4C already recognizes). By default, this client maps `b/B` to `S` and space to `S`.
+- Maps `s` to Stop (`S`) and `b`/`B` to `Z` (a custom command your TM4C already recognizes). By default, this client maps space to `H` (Stop) and `b/B` to `S` (Square).
 - Valid CMD values: `F B L R S U D 8 C Z Q`.
 
 ## Networking notes

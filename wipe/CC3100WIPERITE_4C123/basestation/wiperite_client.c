@@ -60,7 +60,8 @@ static void keymap_init_defaults(KeyMap *km) {
     km->map[(unsigned char)'s'] = 'B'; km->map[(unsigned char)'S'] = 'B';
     km->map[(unsigned char)'a'] = 'L'; km->map[(unsigned char)'A'] = 'L';
     km->map[(unsigned char)'d'] = 'R'; km->map[(unsigned char)'D'] = 'R';
-    km->map[(unsigned char)' '] = 'S';
+    // Space = Stop using 'H' (Halt). Server will treat 'H' as Stop distinctly from 'S' (Square).
+    km->map[(unsigned char)' '] = 'H';
     // Square on b/B by default, sending 'S' (server interprets this accordingly)
     km->map[(unsigned char)'b'] = 'S'; km->map[(unsigned char)'B'] = 'S';
     km->map[(unsigned char)'u'] = 'U'; km->map[(unsigned char)'U'] = 'U';
@@ -77,7 +78,7 @@ static int keymap_set(KeyMap *km, const char *spec) {
     if (!colon || colon == spec || colon[1] == '\0') return -1;
     unsigned char key = (unsigned char)spec[0];
     unsigned char cmd = (unsigned char)colon[1];
-    const char *valid = "FBLRSUD8CZQ";
+    const char *valid = "FBLRSUD8CZQH"; // include 'H' (Halt/Stop)
     if (!strchr(valid, (cmd >= 'a' && cmd <= 'z') ? (cmd - 32) : cmd)) return -2;
     if (cmd >= 'a' && cmd <= 'z') cmd -= 32; // uppercase
     km->map[key] = cmd;
@@ -232,11 +233,9 @@ static void ui_draw(const AppState *st) {
         case 'B': label = "Back"; break;
         case 'L': label = "Left"; break;
         case 'R': label = "Right"; break;
-        case 'S':
-            if (st->last_key == ' ') label = "Stop"; // space bar
-            else if (st->last_key == 'b' || st->last_key == 'B') label = "Square"; // b/B pressed
-            else label = "Stop"; // default to Stop for any other mapping to 'S'
-            break;
+        case 'H': label = "Stop"; break; // 'H' (Halt) = Stop
+        case 's': label = "Stop"; break; // backward compatibility if sent
+        case 'S': label = "Square"; break; // uppercase S = Square (b/B)
         case 'U': label = "SpeedUp"; break;
         case 'D': label = "SlowDown"; break;
         case '8': label = "Eight"; break;
@@ -246,7 +245,7 @@ static void ui_draw(const AppState *st) {
         default: label = "-"; break;
     }
     if (st->last_cmd) {
-        mvprintw(4, 0, "Last command: %s (%c)", label, st->last_cmd);
+    mvprintw(4, 0, "Last command: %s (%c)", label, st->last_cmd);
     } else {
         mvprintw(4, 0, "Last command: -");
     }

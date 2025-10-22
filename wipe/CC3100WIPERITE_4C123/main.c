@@ -277,13 +277,30 @@ int main(void){
       for(int idx=0; idx<n; idx++){
         char c = cmdBuf[idx];
         if(c=='\r' || c=='\n') continue;
-        // Echo command receipt on UART0 and ST7735
-        UART_OutString((uint8_t*)"CMD Received: ");
-        UART_OutChar(c);
-        UART_OutString((uint8_t*)"\r\n");
-        ST7735_OutString("CMD Received: ");
-        ST7735_OutChar(c);
-        ST7735_OutString("\r\n");
+        // Echo command receipt on UART0 and ST7735, with differentiation for Stop vs Square
+        if(c=='H'){ // New Stop command (Halt)
+          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+          ST7735_OutString("CMD Received: Stop\r\n");
+          c = 'S'; // normalize to 'S' for existing Car_ProcessCommand stop behavior
+        } else if(c==' '){ // raw space from simple clients maps to Stop
+          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+          ST7735_OutString("CMD Received: Stop\r\n");
+          c = 'S'; // normalize to uppercase for command processing
+        } else if(c=='s'){
+          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+          ST7735_OutString("CMD Received: Stop\r\n");
+          c = 'S'; // normalize to uppercase for command processing
+        } else if(c=='S'){
+          UART_OutString((uint8_t*)"CMD Received: Square (S)\r\n");
+          ST7735_OutString("CMD Received: Square (S)\r\n");
+        } else {
+          UART_OutString((uint8_t*)"CMD Received: ");
+          UART_OutChar(c);
+          UART_OutString((uint8_t*)"\r\n");
+          ST7735_OutString("CMD Received: ");
+          ST7735_OutChar(c);
+          ST7735_OutString("\r\n");
+        }
         if(c=='Q' || c=='q'){
           const char *bye = "Bye\r\n";
           sl_Send(ClientSock, bye, (int)strlen(bye), 0);
