@@ -6,13 +6,20 @@ CC ?= $(CROSS_COMPILE)gcc
 CFLAGS ?= -O2 -Wall -Wextra -pedantic
 LDFLAGS ?=
 
+# Enable ncurses TUI by default; disable with NO_CURSES=1
+ifeq ($(NO_CURSES),1)
+	CFLAGS += -DNO_CURSES
+else
+	LDLIBS += -lncurses
+endif
+
 TARGET := wiperite_client
 SRC := wiperite_client.c
 
 all: $(TARGET)
 
 $(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:
 	rm -f $(TARGET) *.o

@@ -2,6 +2,10 @@
 // Connects to TM4C/CC3100 TCP server on port 5000 and sends single-letter commands.
 // Interactive mode supports WASD/arrow keys and specific letters; 'q' quits.
 // One-shot mode supports sending a string via -c "...".
+//
+// Enhancements:
+// - ncurses TUI with status, last command, server messages (disable with NO_CURSES=1)
+// - Auto-reconnect on socket drop with exponential backoff, preserves UI
 
 #define _GNU_SOURCE
 #include <arpa/inet.h>
@@ -23,8 +27,23 @@
 
 #define DEFAULT_PORT 5000
 
+#ifndef NO_CURSES
+#include <ncurses.h>
+#endif
+
 static struct termios orig_termios;
 static bool raw_enabled = false;
+static volatile sig_atomic_t g_stop = 0;
+
+typedef struct {
+    const char *ip;
+    uint16_t port;
+    int sock;
+    int reconnects;
+    char last_cmd;
+    char last_server_msg[128];
+    bool connected;
+} AppState;
 
 static void die(const char *msg) {
     perror(msg);
@@ -53,9 +72,7 @@ static void enable_raw_mode(void) {
 
 static void on_signal(int sig) {
     (void)sig;
-    disable_raw_mode();
-    // Don't terminate aggressively; let main handle
-    exit(0);
+    g_stop = 1;
 }
 
 static void usage(const char *prog) {
@@ -76,17 +93,18 @@ static void usage(const char *prog) {
             "  c                 -> C (custom)\n"
             "  z                 -> Z (custom)\n"
             "  q                 -> Q (quit)\n",
+            "\nUI: ncurses TUI enabled by default (disable with NO_CURSES=1 at build).\n",
             prog, DEFAULT_PORT);
 }
 
 static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) die("socket");
+    if (sock < 0) { perror("socket"); return -1; }
 
     // Set non-blocking for connect timeout
     int flags = fcntl(sock, F_GETFL, 0);
-    if (flags < 0) die("fcntl get");
-    if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) < 0) die("fcntl set");
+    if (flags < 0) { perror("fcntl get"); close(sock); return -1; }
+    if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) < 0) { perror("fcntl set"); close(sock); return -1; }
 
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
@@ -94,11 +112,12 @@ static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) 
     addr.sin_port = htons(port);
     if (inet_pton(AF_INET, ip, &addr.sin_addr) != 1) {
         fprintf(stderr, "Invalid IP address: %s\n", ip);
-        exit(EXIT_FAILURE);
+        close(sock);
+        return -1;
     }
 
     int rc = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
-    if (rc < 0 && errno != EINPROGRESS) die("connect");
+    if (rc < 0 && errno != EINPROGRESS) { perror("connect"); close(sock); return -1; }
 
     if (rc != 0) {
         fd_set wfds; FD_ZERO(&wfds); FD_SET(sock, &wfds);
@@ -107,17 +126,19 @@ static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) 
         if (rc <= 0) {
             fprintf(stderr, "Connect timeout or error\n");
             close(sock);
-            exit(EXIT_FAILURE);
+            return -1;
         }
         int so_error = 0; socklen_t len = sizeof(so_error);
         if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0 || so_error != 0) {
             errno = so_error;
-            die("connect (post-select)");
+            perror("connect (post-select)");
+            close(sock);
+            return -1;
         }
     }
 
     // Restore blocking mode
-    if (fcntl(sock, F_SETFL, flags) < 0) die("fcntl restore");
+    if (fcntl(sock, F_SETFL, flags) < 0) { perror("fcntl restore"); close(sock); return -1; }
 
     // Optional: small recv timeout
     struct timeval rcv_to = { .tv_sec = 2, .tv_usec = 0 };
@@ -157,76 +178,168 @@ static char map_key(unsigned char k, const unsigned char *esc_seq, size_t esc_le
     }
 }
 
-static void interactive_loop(int sock) {
+#ifndef NO_CURSES
+// -------- ncurses UI helpers --------
+static bool ui_inited = false;
+static void ui_init(void) {
+    if (ui_inited) return;
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    nodelay(stdscr, TRUE);
+    curs_set(0);
+    ui_inited = true;
+}
+static void ui_shutdown(void) {
+    if (ui_inited) { endwin(); ui_inited = false; }
+}
+static void ui_draw(const AppState *st) {
+    int rows, cols; getmaxyx(stdscr, rows, cols);
+    erase();
+    mvprintw(0, 0, "WIPERITE Base Station  |  Target %s:%u  |  Status: %s  |  Reconnects: %d",
+             st->ip, st->port, st->connected ? "CONNECTED" : "OFFLINE", st->reconnects);
+    mvhline(1, 0, '-', cols);
+    mvprintw(2, 0, "Controls: WASD/Arrows move, Space=Stop, U/J speed up/down, 8/C/Z custom, Q quit");
+    mvprintw(4, 0, "Last command: %c", st->last_cmd ? st->last_cmd : '-');
+    mvprintw(6, 0, "Server: %s", st->last_server_msg[0] ? st->last_server_msg : "<none>");
+    mvprintw(rows - 1, 0, "Press Q to quit");
+    refresh();
+}
+static int ui_get_key(void) {
+    int ch = getch();
+    return ch; // ERR if none
+}
+#endif
+
+// -------- non-curses raw input helpers --------
+static int kbd_read_raw(unsigned char *out) {
+    unsigned char ch; ssize_t n = read(STDIN_FILENO, &ch, 1);
+    if (n == 1) { *out = ch; return 1; }
+    return 0;
+}
+
+// Returns: 0 continue, 1 user-quit, -1 socket dropped
+static int interactive_session(AppState *st) {
+#ifndef NO_CURSES
+    ui_draw(st);
+#else
     printf("Connected. Interactive control ready. Press 'q' to quit.\n");
+#endif
 
     // Try to read greeting without blocking the loop
-    char buf[256];
-    ssize_t gr = recv(sock, buf, sizeof(buf)-1, MSG_DONTWAIT);
+    char gbuf[256];
+    ssize_t gr = recv(st->sock, gbuf, sizeof(gbuf)-1, MSG_DONTWAIT);
     if (gr > 0) {
-        buf[gr] = '\0';
-        printf("Server: %s", buf);
+        gbuf[gr] = '\0';
+#ifndef NO_CURSES
+        snprintf(st->last_server_msg, sizeof(st->last_server_msg), "%s", gbuf);
+        ui_draw(st);
+#else
+        printf("Server: %s", gbuf);
+#endif
     }
 
+#ifdef NO_CURSES
     enable_raw_mode();
     atexit(disable_raw_mode);
-
     unsigned char esc_buf[8] = {0};
-    size_t esc_len = 0;
-    bool in_escape = false;
+    size_t esc_len = 0; bool in_escape = false;
+#endif
 
-    for (;;) {
-        fd_set rfds; FD_ZERO(&rfds);
-        FD_SET(STDIN_FILENO, &rfds);
-        FD_SET(sock, &rfds);
-        int maxfd = (STDIN_FILENO > sock ? STDIN_FILENO : sock) + 1;
-        struct timeval tv = { .tv_sec = 0, .tv_usec = 200000 }; // 200ms
-        int rc = select(maxfd, &rfds, NULL, NULL, &tv);
+    while (!g_stop) {
+        // Socket readability wait with small timeout to pace the loop
+        fd_set rfds; FD_ZERO(&rfds); FD_SET(st->sock, &rfds);
+        struct timeval tv = { .tv_sec = 0, .tv_usec = 100000 }; // 100ms
+        int rc = select(st->sock + 1, &rfds, NULL, NULL, &tv);
         if (rc < 0) {
             if (errno == EINTR) continue;
-            die("select");
+            return -1;
         }
-
-        if (FD_ISSET(sock, &rfds)) {
+        if (FD_ISSET(st->sock, &rfds)) {
             char rbuf[256];
-            ssize_t n = recv(sock, rbuf, sizeof(rbuf)-1, 0);
+            ssize_t n = recv(st->sock, rbuf, sizeof(rbuf)-1, 0);
             if (n <= 0) {
+#ifndef NO_CURSES
+                snprintf(st->last_server_msg, sizeof(st->last_server_msg), "<connection dropped>");
+                ui_draw(st);
+#else
                 printf("\nServer closed connection.\n");
-                break;
+#endif
+                return -1; // dropped
             }
             rbuf[n] = '\0';
-            printf("%s", rbuf);
-            fflush(stdout);
+#ifndef NO_CURSES
+            // Keep last line-ish
+            size_t len = strlen(rbuf);
+            const char *start = (len > sizeof(st->last_server_msg)-1) ? rbuf + (len - (sizeof(st->last_server_msg)-1)) : rbuf;
+            snprintf(st->last_server_msg, sizeof(st->last_server_msg), "%s", start);
+            ui_draw(st);
+#else
+            printf("%s", rbuf); fflush(stdout);
+#endif
         }
 
-        if (FD_ISSET(STDIN_FILENO, &rfds)) {
+        // Process keyboard
+#ifndef NO_CURSES
+        for (;;) {
+            int ch = ui_get_key();
+            if (ch == ERR) break;
+            char cmd = 0;
+            switch (ch) {
+                case KEY_UP: cmd = 'F'; break;
+                case KEY_DOWN: cmd = 'B'; break;
+                case KEY_LEFT: cmd = 'L'; break;
+                case KEY_RIGHT: cmd = 'R'; break;
+                case 'w': case 'W': cmd = 'F'; break;
+                case 's': case 'S': cmd = 'B'; break;
+                case 'a': case 'A': cmd = 'L'; break;
+                case 'd': case 'D': cmd = 'R'; break;
+                case ' ': cmd = 'S'; break;
+                case 'u': case 'U': cmd = 'U'; break;
+                case 'j': case 'J': cmd = 'D'; break;
+                case '8': cmd = '8'; break;
+                case 'c': case 'C': cmd = 'C'; break;
+                case 'z': case 'Z': cmd = 'Z'; break;
+                case 'q': case 'Q': cmd = 'Q'; break;
+                default: break;
+            }
+            if (cmd) {
+                st->last_cmd = cmd;
+                ui_draw(st);
+                if (send(st->sock, &cmd, 1, 0) != 1) return -1; // treat as drop
+                if (cmd == 'Q') return 1; // user quit
+            }
+        }
+#else
+        if (1) {
             unsigned char ch;
-            ssize_t n = read(STDIN_FILENO, &ch, 1);
-            if (n == 1) {
-                if (!in_escape) {
-                    if (ch == '\x1b') { // ESC
-                        in_escape = true;
-                        esc_len = 0;
-                        continue;
-                    }
+            while (kbd_read_raw(&ch)) {
+                static unsigned char esc_buf2[8]; static size_t esc_len2 = 0; static bool in_esc2 = false;
+                if (!in_esc2) {
+                    if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; continue; }
                     char cmd = map_key(ch, NULL, 0);
                     if (cmd) {
-                        send_char(sock, cmd);
-                        if (cmd == 'Q') break;
+                        st->last_cmd = cmd;
+                        if (send(st->sock, &cmd, 1, 0) != 1) return -1;
+                        if (cmd == 'Q') return 1;
                     }
                 } else {
-                    // reading escape sequence
-                    if (esc_len < sizeof(esc_buf)) esc_buf[esc_len++] = ch;
-                    if (esc_len >= 2) { // we have at least "[" + code
-                        char cmd = map_key('\x1b', esc_buf, esc_len);
-                        if (cmd) send_char(sock, cmd);
-                        in_escape = false;
-                        esc_len = 0;
+                    if (esc_len2 < sizeof(esc_buf2)) esc_buf2[esc_len2++] = ch;
+                    if (esc_len2 >= 2) {
+                        char cmd = map_key('\x1b', esc_buf2, esc_len2);
+                        if (cmd) {
+                            st->last_cmd = cmd;
+                            if (send(st->sock, &cmd, 1, 0) != 1) return -1;
+                        }
+                        in_esc2 = false; esc_len2 = 0;
                     }
                 }
             }
         }
+#endif
     }
+    return 1; // stop requested
 }
 
 int main(int argc, char **argv) {
@@ -253,28 +366,109 @@ int main(int argc, char **argv) {
         }
     }
 
-    int sock = connect_with_timeout(ip, port, 5);
-
+    // One-shot mode: simple connect/send/close; minimal reconnect (one retry)
     if (cmdstr) {
-        size_t len = strlen(cmdstr);
-        for (size_t i = 0; i < len; ++i) {
-            char cmd = map_key((unsigned char)cmdstr[i], NULL, 0);
-            if (!cmd) cmd = cmdstr[i]; // allow raw letters like 'F'
-            send_char(sock, cmd);
+        int attempts = 0;
+        size_t idx = 0, len = strlen(cmdstr);
+        int sock = -1;
+        while (idx < len && attempts < 2) {
+            if (sock < 0) {
+                sock = connect_with_timeout(ip, port, 5);
+            }
+            while (idx < len) {
+                char cmd = map_key((unsigned char)cmdstr[idx], NULL, 0);
+                if (!cmd) cmd = cmdstr[idx];
+                ssize_t n = send(sock, &cmd, 1, 0);
+                if (n != 1) { close(sock); sock = -1; attempts++; break; }
+                idx++;
+            }
         }
-        // Try to read any immediate response
-        char buf[256];
-        ssize_t n = recv(sock, buf, sizeof(buf)-1, 0);
-        if (n > 0) { buf[n] = '\0'; printf("%s", buf); }
-        close(sock);
-        return 0;
+        if (sock >= 0) {
+            char buf[256]; ssize_t n = recv(sock, buf, sizeof(buf)-1, 0);
+            if (n > 0) { buf[n] = '\0'; printf("%s", buf); }
+            close(sock);
+        }
+        return (idx == len) ? 0 : 1;
     }
 
-    interactive_loop(sock);
+    // Interactive mode with auto-reconnect
+    AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .connected = false };
+#ifndef NO_CURSES
+    ui_init();
+    atexit(ui_shutdown);
+#endif
 
-    // Send polite quit if still open
-    send_char(sock, 'Q');
-    close(sock);
+    int backoff = 1;
+    while (!g_stop) {
+        // Connect
+        if (st.sock >= 0) { close(st.sock); st.sock = -1; }
+        st.connected = false;
+        // Attempt (and re-attempt) connection with backoff until success or stop
+        int s = -1; int local_backoff = 1;
+        for (;;) {
+#ifndef NO_CURSES
+            snprintf(st.last_server_msg, sizeof(st.last_server_msg), "Connecting to %s:%u...", st.ip, st.port);
+            ui_draw(&st);
+#else
+            fprintf(stderr, "Connecting to %s:%u...\n", st.ip, st.port);
+#endif
+            s = connect_with_timeout(ip, port, 5);
+            if (s >= 0 || g_stop) break;
+#ifndef NO_CURSES
+            snprintf(st.last_server_msg, sizeof(st.last_server_msg), "Connect failed. Retrying in %ds...", local_backoff);
+            ui_draw(&st);
+#else
+            fprintf(stderr, "Connect failed. Retrying in %ds...\n", local_backoff);
+#endif
+            for (int i = 0; i < local_backoff * 10 && !g_stop; ++i) {
+                struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000L };
+                nanosleep(&ts, NULL);
+            }
+            if (local_backoff < 5) local_backoff *= 2;
+        }
+        if (g_stop) break;
+        st.sock = s;
+        st.connected = true;
+        st.reconnects++;
+#ifndef NO_CURSES
+        snprintf(st.last_server_msg, sizeof(st.last_server_msg), "Connected.");
+        ui_draw(&st);
+#else
+        printf("Connected.\n");
+#endif
+
+        int res = interactive_session(&st);
+        if (res == 1) { // user quit
+            if (st.sock >= 0) {
+                // Try to send polite quit
+                char q = 'Q'; send(st.sock, &q, 1, 0);
+                close(st.sock); st.sock = -1;
+            }
+            break;
+        }
+        // dropped
+        if (st.sock >= 0) { close(st.sock); st.sock = -1; }
+        st.connected = false;
+#ifndef NO_CURSES
+        snprintf(st.last_server_msg, sizeof(st.last_server_msg), "Disconnected. Reconnecting in %ds...", backoff);
+        ui_draw(&st);
+#else
+        fprintf(stderr, "Disconnected. Reconnecting in %ds...\n", backoff);
+#endif
+        for (int i = 0; i < backoff * 10 && !g_stop; ++i) { // sleep with 100ms steps
+#ifndef NO_CURSES
+            // Keep UI responsive during wait
+            int ch = ui_get_key();
+            if (ch == 'q' || ch == 'Q') { g_stop = 1; break; }
+#endif
+            struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000L };
+            nanosleep(&ts, NULL);
+        }
+        if (backoff < 5) backoff *= 2; // exponential backoff up to 5s
+    }
+
+#ifdef NO_CURSES
     disable_raw_mode();
+#endif
     return 0;
 }

@@ -5,6 +5,8 @@ This is a simple TCP client that connects to the TM4C/CC3100 robot server (from 
 ## Features
 - Connect by IP and port (default 5000)
 - Interactive control with WASD and Arrow keys
+- ncurses TUI shows connection status, last command, and server messages
+- Auto-reconnect on socket drop with exponential backoff
 - One-shot mode to send a command string and exit (`-c`)
 - Prints any responses from the server (e.g., greeting or "Bye")
 
@@ -27,13 +29,18 @@ These map directly to what the TM4C server expects in your `main.c`.
 
 On the Zynq device (PetaLinux) or in the PetaLinux SDK environment:
 
-```sh
+```
 cd basestation
 make
 ```
 
 - If cross-compiling with an SDK toolchain, set `CROSS_COMPILE` (e.g., `export CROSS_COMPILE=arm-linux-gnueabihf-`).
 - Otherwise, building directly on the Zynq target uses the system `gcc`.
+- By default, builds with ncurses TUI. If your PetaLinux image lacks `libncurses`, build without TUI:
+
+```
+make NO_CURSES=1
+```
 
 This produces the `wiperite_client` binary.
 
@@ -55,9 +62,11 @@ Send a sequence, then exit:
 ./wiperite_client 192.168.1.47 -c "FFFS"
 ```
 
-### Interactive mode
+### Interactive mode (with TUI)
 - Use WASD or Arrow keys to drive; space to stop; `q` to quit.
 - The client will send `Q` before closing.
+
+If built with `NO_CURSES=1`, the client falls back to raw terminal input (still interactive, but no UI panels).
 
 ## Networking notes
 - The Zynq and TM4C must be on the same network (same SSID/subnet).
@@ -68,3 +77,4 @@ Send a sequence, then exit:
 - If connection fails: verify IP, port (5000), and that the TM4C shows "Listening on TCP port 5000" over UART.
 - If keystrokes don’t move the robot: ensure your terminal has focus and supports arrow keys; try WASD.
 - If no greeting appears: that’s okay; the client still sends commands. The TM4C sends a welcome string on connect.
+- If you see compile errors on Windows for headers like `arpa/inet.h`, that’s expected—this client is intended to build/run on Linux/PetaLinux. Use the Zynq target or Linux SDK.
