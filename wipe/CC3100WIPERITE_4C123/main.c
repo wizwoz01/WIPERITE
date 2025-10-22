@@ -277,6 +277,13 @@ int main(void){
       for(int idx=0; idx<n; idx++){
         char c = cmdBuf[idx];
         if(c=='\r' || c=='\n') continue;
+        // Echo command receipt on UART0 and ST7735
+        UART_OutString((uint8_t*)"CMD Received: ");
+        UART_OutChar(c);
+        UART_OutString((uint8_t*)"\r\n");
+        ST7735_OutString("CMD Received: ");
+        ST7735_OutChar(c);
+        ST7735_OutString("\r\n");
         if(c=='Q' || c=='q'){
           const char *bye = "Bye\r\n";
           sl_Send(ClientSock, bye, (int)strlen(bye), 0);

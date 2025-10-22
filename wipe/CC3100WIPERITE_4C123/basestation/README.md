@@ -9,6 +9,7 @@ This is a simple TCP client that connects to the TM4C/CC3100 robot server (from 
 - Auto-reconnect on socket drop with exponential backoff
 - One-shot mode to send a command string and exit (`-c`)
 - Prints any responses from the server (e.g., greeting or "Bye")
+ - Customizable key bindings via `--map key:CMD` (e.g., `--map s:S --map b:Z`)
 
 ## Key mappings
 - `w` or Up Arrow -> `F` (Forward)
@@ -67,6 +68,16 @@ Send a sequence, then exit:
 - The client will send `Q` before closing.
 
 If built with `NO_CURSES=1`, the client falls back to raw terminal input (still interactive, but no UI panels).
+
+### Custom key bindings
+You can remap keys to specific single-letter commands using `--map key:CMD` (repeatable). Example:
+
+```sh
+./wiperite_client <tm4c_ip> --map s:S --map b:Z --map B:Z
+```
+
+- Maps `s` to Stop (`S`) and `b`/`B` to `Z` (a custom command your TM4C already recognizes).
+- Valid CMD values: `F B L R S U D 8 C Z Q`.
 
 ## Networking notes
 - The Zynq and TM4C must be on the same network (same SSID/subnet).

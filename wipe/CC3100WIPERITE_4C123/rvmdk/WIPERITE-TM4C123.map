@@ -964,6 +964,8 @@ Section Cross References
     main.o(.text.main) refers to led.o(.text.LED_GreenOn) for LED_GreenOn
     main.o(.text.main) refers to socket.o(.text.sl_Send) for sl_Send
     main.o(.text.main) refers to socket.o(.text.sl_Recv) for sl_Recv
+    main.o(.text.main) refers to uart0.o(.text.UART_OutChar) for UART_OutChar
+    main.o(.text.main) refers to st7735.o(.text.ST7735_OutChar) for ST7735_OutChar
     main.o(.text.main) refers to motor.o(.text.Car_ProcessCommand) for Car_ProcessCommand
     main.o(.text.main) refers to socket.o(.text.sl_Close) for sl_Close
     main.o(.text.main) refers to led.o(.text.LED_GreenOff) for LED_GreenOff
@@ -2335,138 +2337,140 @@ Image Symbol Table
     [Anonymous Symbol]                       0x00002bbc   Section        0  board.o(.text.initClk)
     __arm_cp.0_0                             0x00002bd0   Number         4  board.o(.text.initClk)
     [Anonymous Symbol]                       0x00002bd4   Section        0  main.o(.text.main)
-    __arm_cp.1_2                             0x00002e50   Number         4  main.o(.text.main)
-    __arm_cp.1_3                             0x00002e54   Number         4  main.o(.text.main)
-    __arm_cp.1_4                             0x00002e58   Number         4  main.o(.text.main)
-    __arm_cp.1_7                             0x00002e74   Number         4  main.o(.text.main)
-    __arm_cp.1_9                             0x00002e90   Number         4  main.o(.text.main)
-    pushColor                                0x00002ebd   Thumb Code    20  st7735.o(.text.pushColor)
-    [Anonymous Symbol]                       0x00002ebc   Section        0  st7735.o(.text.pushColor)
-    [Anonymous Symbol]                       0x00002ed0   Section        0  board.o(.text.registerInterruptHandler)
-    __arm_cp.2_0                             0x00002ed8   Number         4  board.o(.text.registerInterruptHandler)
-    setAddrWindow                            0x00002edd   Thumb Code    96  st7735.o(.text.setAddrWindow)
-    [Anonymous Symbol]                       0x00002edc   Section        0  st7735.o(.text.setAddrWindow)
-    __arm_cp.10_0                            0x00002f3c   Number         4  st7735.o(.text.setAddrWindow)
-    __arm_cp.10_1                            0x00002f40   Number         4  st7735.o(.text.setAddrWindow)
-    __arm_cp.10_2                            0x00002f44   Number         4  st7735.o(.text.setAddrWindow)
-    [Anonymous Symbol]                       0x00002f48   Section        0  socket.o(.text.sl_Accept)
-    __arm_cp.12_0                            0x00003044   Number         4  socket.o(.text.sl_Accept)
-    __arm_cp.12_1                            0x00003048   Number         4  socket.o(.text.sl_Accept)
-    __arm_cp.12_2                            0x0000304c   Number         4  socket.o(.text.sl_Accept)
-    [Anonymous Symbol]                       0x00003050   Section        0  socket.o(.text.sl_Bind)
-    [Anonymous Symbol]                       0x000030a4   Section        0  socket.o(.text.sl_Close)
-    __arm_cp.4_0                             0x000030bc   Number         4  socket.o(.text.sl_Close)
-    [Anonymous Symbol]                       0x000030c0   Section        0  device.o(.text.sl_DevGet)
-    __arm_cp.8_0                             0x00003124   Number         4  device.o(.text.sl_DevGet)
-    __arm_cp.8_1                             0x00003128   Number         4  device.o(.text.sl_DevGet)
-    [Anonymous Symbol]                       0x0000312c   Section        0  socket.o(.text.sl_Htons)
-    [Anonymous Symbol]                       0x00003130   Section        0  socket.o(.text.sl_Listen)
-    __arm_cp.11_0                            0x0000314c   Number         4  socket.o(.text.sl_Listen)
-    [Anonymous Symbol]                       0x00003150   Section        0  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
-    __arm_cp.3_0                             0x000031c8   Number         4  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
-    [Anonymous Symbol]                       0x000031cc   Section        0  netapp.o(.text.sl_NetAppMDNSUnRegisterService)
-    [Anonymous Symbol]                       0x000031e0   Section        0  netapp.o(.text.sl_NetAppSendTokenValue)
-    __arm_cp.15_0                            0x00003228   Number         4  netapp.o(.text.sl_NetAppSendTokenValue)
-    [Anonymous Symbol]                       0x0000322c   Section        0  netcfg.o(.text.sl_NetCfgSet)
-    __arm_cp.0_0                             0x00003264   Number         4  netcfg.o(.text.sl_NetCfgSet)
-    [Anonymous Symbol]                       0x00003268   Section        0  socket.o(.text.sl_Recv)
-    __arm_cp.16_0                            0x000032a4   Number         4  socket.o(.text.sl_Recv)
-    [Anonymous Symbol]                       0x000032a8   Section        0  socket.o(.text.sl_Send)
-    __arm_cp.10_0                            0x0000333c   Number         4  socket.o(.text.sl_Send)
-    __arm_cp.10_1                            0x00003340   Number         4  socket.o(.text.sl_Send)
-    [Anonymous Symbol]                       0x00003344   Section        0  socket.o(.text.sl_Socket)
-    __arm_cp.3_0                             0x00003370   Number         4  socket.o(.text.sl_Socket)
-    [Anonymous Symbol]                       0x00003374   Section        0  device.o(.text.sl_Start)
-    __arm_cp.2_2                             0x00003410   Number         4  device.o(.text.sl_Start)
-    [Anonymous Symbol]                       0x00003414   Section        0  device.o(.text.sl_Stop)
-    __arm_cp.5_0                             0x000034c4   Number         4  device.o(.text.sl_Stop)
-    __arm_cp.5_1                             0x000034c8   Number         4  device.o(.text.sl_Stop)
-    __arm_cp.5_2                             0x000034cc   Number         4  device.o(.text.sl_Stop)
-    [Anonymous Symbol]                       0x000034d0   Section        0  wlan.o(.text.sl_WlanConnect)
-    __arm_cp.0_0                             0x00003650   Number         4  wlan.o(.text.sl_WlanConnect)
-    [Anonymous Symbol]                       0x00003654   Section        0  wlan.o(.text.sl_WlanDisconnect)
-    [Anonymous Symbol]                       0x0000365c   Section        0  wlan.o(.text.sl_WlanPolicySet)
-    __arm_cp.2_0                             0x00003690   Number         4  wlan.o(.text.sl_WlanPolicySet)
-    [Anonymous Symbol]                       0x00003694   Section        0  wlan.o(.text.sl_WlanProfileDel)
-    __arm_cp.6_0                             0x000036ac   Number         4  wlan.o(.text.sl_WlanProfileDel)
-    [Anonymous Symbol]                       0x000036b0   Section        0  wlan.o(.text.sl_WlanSet)
-    __arm_cp.17_0                            0x000036e8   Number         4  wlan.o(.text.sl_WlanSet)
-    [Anonymous Symbol]                       0x000036ec   Section        0  wlan.o(.text.sl_WlanSetMode)
-    __arm_cp.16_0                            0x00003704   Number         4  wlan.o(.text.sl_WlanSetMode)
-    [Anonymous Symbol]                       0x00003708   Section        0  spi.o(.text.spi_Close)
-    [Anonymous Symbol]                       0x00003714   Section        0  spi.o(.text.spi_Open)
-    __arm_cp.1_0                             0x000037d8   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_1                             0x000037dc   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_2                             0x000037e0   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_3                             0x000037e4   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_4                             0x000037e8   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_5                             0x000037ec   Number         4  spi.o(.text.spi_Open)
-    __arm_cp.1_6                             0x000037f0   Number         4  spi.o(.text.spi_Open)
-    [Anonymous Symbol]                       0x000037f4   Section        0  spi.o(.text.spi_Read)
-    [Anonymous Symbol]                       0x00003840   Section        0  spi.o(.text.spi_Write)
-    __arm_cp.2_0                             0x00003888   Number         4  spi.o(.text.spi_Write)
-    writecommand                             0x0000388d   Thumb Code    24  st7735.o(.text.writecommand)
-    [Anonymous Symbol]                       0x0000388c   Section        0  st7735.o(.text.writecommand)
-    writedata                                0x000038a5   Thumb Code    20  st7735.o(.text.writedata)
-    [Anonymous Symbol]                       0x000038a4   Section        0  st7735.o(.text.writedata)
-    __arm_cp.8_0                             0x000038b8   Number         4  st7735.o(.text.writedata)
-    __arm_cp.8_1                             0x000038bc   Number         4  st7735.o(.text.writedata)
-    i.FPUEnable                              0x000038c0   Section        0  fpu.o(i.FPUEnable)
-    i.FPULazyStackingEnable                  0x000038d0   Section        0  fpu.o(i.FPULazyStackingEnable)
-    i.GPIODirModeSet                         0x000038e0   Section        0  gpio.o(i.GPIODirModeSet)
-    i.GPIOIntClear                           0x00003908   Section        0  gpio.o(i.GPIOIntClear)
-    i.GPIOIntDisable                         0x0000390e   Section        0  gpio.o(i.GPIOIntDisable)
-    i.GPIOIntEnable                          0x0000391c   Section        0  gpio.o(i.GPIOIntEnable)
-    i.GPIOIntStatus                          0x0000392a   Section        0  gpio.o(i.GPIOIntStatus)
-    i.GPIOIntTypeSet                         0x00003938   Section        0  gpio.o(i.GPIOIntTypeSet)
-    i.GPIOPadConfigSet                       0x00003988   Section        0  gpio.o(i.GPIOPadConfigSet)
-    i.GPIOPinConfigure                       0x00003ac4   Section        0  gpio.o(i.GPIOPinConfigure)
-    i.GPIOPinTypeGPIOInput                   0x00003b0c   Section        0  gpio.o(i.GPIOPinTypeGPIOInput)
-    i.GPIOPinTypeGPIOOutput                  0x00003b28   Section        0  gpio.o(i.GPIOPinTypeGPIOOutput)
-    i.GPIOPinTypeSSI                         0x00003b44   Section        0  gpio.o(i.GPIOPinTypeSSI)
-    i.GPIOPinWrite                           0x00003b60   Section        0  gpio.o(i.GPIOPinWrite)
-    i.IntEnable                              0x00003b68   Section        0  interrupt.o(i.IntEnable)
-    i.IntMasterEnable                        0x00003bcc   Section        0  interrupt.o(i.IntMasterEnable)
-    i.SSIConfigSetExpClk                     0x00003bda   Section        0  ssi.o(i.SSIConfigSetExpClk)
-    i.SSIDataGetNonBlocking                  0x00003c24   Section        0  ssi.o(i.SSIDataGetNonBlocking)
-    i.SSIDataPutNonBlocking                  0x00003c38   Section        0  ssi.o(i.SSIDataPutNonBlocking)
-    i.SSIEnable                              0x00003c48   Section        0  ssi.o(i.SSIEnable)
-    i.SysCtlClockGet                         0x00003c54   Section        0  sysctl.o(i.SysCtlClockGet)
-    i.SysCtlClockSet                         0x00003db8   Section        0  sysctl.o(i.SysCtlClockSet)
-    i.SysCtlPeripheralEnable                 0x00003ed8   Section        0  sysctl.o(i.SysCtlPeripheralEnable)
-    i.__scatterload_copy                     0x00003f00   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x00003f0e   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x00003f10   Section       14  handlers.o(i.__scatterload_zeroinit)
-    g_ppui32GPIOIntMapBlizzard               0x00003f20   Data         192  gpio.o(.constdata)
-    .constdata                               0x00003f20   Section      528  gpio.o(.constdata)
-    g_ppui32GPIOIntMapSnowflake              0x00003fe0   Data         192  gpio.o(.constdata)
-    g_pui32GPIOBaseAddrs                     0x000040a0   Data         144  gpio.o(.constdata)
-    g_pui32Priority                          0x00004130   Data          32  interrupt.o(.constdata)
-    .constdata                               0x00004130   Section      268  interrupt.o(.constdata)
-    g_pui32Regs                              0x00004150   Data         156  interrupt.o(.constdata)
-    g_pui32EnRegs                            0x000041ec   Data          20  interrupt.o(.constdata)
-    g_pui32Dii16Regs                         0x00004200   Data          20  interrupt.o(.constdata)
-    g_pui32PendRegs                          0x00004214   Data          20  interrupt.o(.constdata)
-    g_pui32UnpendRegs                        0x00004228   Data          20  interrupt.o(.constdata)
-    g_pui32VCOFrequencies                    0x0000423c   Data           8  sysctl.o(.constdata)
-    .constdata                               0x0000423c   Section      452  sysctl.o(.constdata)
-    g_pui32Xtals                             0x00004244   Data         108  sysctl.o(.constdata)
-    g_pppui32XTALtoVCO                       0x000042b0   Data         288  sysctl.o(.constdata)
-    g_sXTALtoMEMTIM                          0x000043d0   Data          48  sysctl.o(.constdata)
-    Font                                     0x00004400   Data        1275  st7735.o(.rodata.Font)
-    [Anonymous Symbol]                       0x00004400   Section        0  st7735.o(.rodata.Font)
-    Rcmd1                                    0x000048fb   Data          59  st7735.o(.rodata.Rcmd1)
-    [Anonymous Symbol]                       0x000048fb   Section        0  st7735.o(.rodata.Rcmd1)
-    Rcmd2green                               0x00004936   Data          13  st7735.o(.rodata.Rcmd2green)
-    [Anonymous Symbol]                       0x00004936   Section        0  st7735.o(.rodata.Rcmd2green)
-    Rcmd2red                                 0x00004943   Data          13  st7735.o(.rodata.Rcmd2red)
-    [Anonymous Symbol]                       0x00004943   Section        0  st7735.o(.rodata.Rcmd2red)
-    Rcmd3                                    0x00004950   Data          43  st7735.o(.rodata.Rcmd3)
-    [Anonymous Symbol]                       0x00004950   Section        0  st7735.o(.rodata.Rcmd3)
-    g_ui32UARTInt                            0x00004a00   Data          12  uartstdio.o(.rodata.g_ui32UARTInt)
-    [Anonymous Symbol]                       0x00004a00   Section        0  uartstdio.o(.rodata.g_ui32UARTInt)
-    [Anonymous Symbol]                       0x00004a0c   Section        0  main.o(.rodata.str1.1)
-    [Anonymous Symbol]                       0x00004af3   Section        0  motor.o(.rodata.str1.1)
+    __arm_cp.1_2                             0x00002e74   Number         4  main.o(.text.main)
+    __arm_cp.1_3                             0x00002e78   Number         4  main.o(.text.main)
+    __arm_cp.1_4                             0x00002e7c   Number         4  main.o(.text.main)
+    __arm_cp.1_7                             0x00002e98   Number         4  main.o(.text.main)
+    __arm_cp.1_9                             0x00002eb4   Number         4  main.o(.text.main)
+    __arm_cp.1_11                            0x00002ed8   Number         4  main.o(.text.main)
+    __arm_cp.1_12                            0x00002edc   Number         4  main.o(.text.main)
+    pushColor                                0x00002ee9   Thumb Code    20  st7735.o(.text.pushColor)
+    [Anonymous Symbol]                       0x00002ee8   Section        0  st7735.o(.text.pushColor)
+    [Anonymous Symbol]                       0x00002efc   Section        0  board.o(.text.registerInterruptHandler)
+    __arm_cp.2_0                             0x00002f04   Number         4  board.o(.text.registerInterruptHandler)
+    setAddrWindow                            0x00002f09   Thumb Code    96  st7735.o(.text.setAddrWindow)
+    [Anonymous Symbol]                       0x00002f08   Section        0  st7735.o(.text.setAddrWindow)
+    __arm_cp.10_0                            0x00002f68   Number         4  st7735.o(.text.setAddrWindow)
+    __arm_cp.10_1                            0x00002f6c   Number         4  st7735.o(.text.setAddrWindow)
+    __arm_cp.10_2                            0x00002f70   Number         4  st7735.o(.text.setAddrWindow)
+    [Anonymous Symbol]                       0x00002f74   Section        0  socket.o(.text.sl_Accept)
+    __arm_cp.12_0                            0x00003070   Number         4  socket.o(.text.sl_Accept)
+    __arm_cp.12_1                            0x00003074   Number         4  socket.o(.text.sl_Accept)
+    __arm_cp.12_2                            0x00003078   Number         4  socket.o(.text.sl_Accept)
+    [Anonymous Symbol]                       0x0000307c   Section        0  socket.o(.text.sl_Bind)
+    [Anonymous Symbol]                       0x000030d0   Section        0  socket.o(.text.sl_Close)
+    __arm_cp.4_0                             0x000030e8   Number         4  socket.o(.text.sl_Close)
+    [Anonymous Symbol]                       0x000030ec   Section        0  device.o(.text.sl_DevGet)
+    __arm_cp.8_0                             0x00003150   Number         4  device.o(.text.sl_DevGet)
+    __arm_cp.8_1                             0x00003154   Number         4  device.o(.text.sl_DevGet)
+    [Anonymous Symbol]                       0x00003158   Section        0  socket.o(.text.sl_Htons)
+    [Anonymous Symbol]                       0x0000315c   Section        0  socket.o(.text.sl_Listen)
+    __arm_cp.11_0                            0x00003178   Number         4  socket.o(.text.sl_Listen)
+    [Anonymous Symbol]                       0x0000317c   Section        0  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
+    __arm_cp.3_0                             0x000031f4   Number         4  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
+    [Anonymous Symbol]                       0x000031f8   Section        0  netapp.o(.text.sl_NetAppMDNSUnRegisterService)
+    [Anonymous Symbol]                       0x0000320c   Section        0  netapp.o(.text.sl_NetAppSendTokenValue)
+    __arm_cp.15_0                            0x00003254   Number         4  netapp.o(.text.sl_NetAppSendTokenValue)
+    [Anonymous Symbol]                       0x00003258   Section        0  netcfg.o(.text.sl_NetCfgSet)
+    __arm_cp.0_0                             0x00003290   Number         4  netcfg.o(.text.sl_NetCfgSet)
+    [Anonymous Symbol]                       0x00003294   Section        0  socket.o(.text.sl_Recv)
+    __arm_cp.16_0                            0x000032d0   Number         4  socket.o(.text.sl_Recv)
+    [Anonymous Symbol]                       0x000032d4   Section        0  socket.o(.text.sl_Send)
+    __arm_cp.10_0                            0x00003368   Number         4  socket.o(.text.sl_Send)
+    __arm_cp.10_1                            0x0000336c   Number         4  socket.o(.text.sl_Send)
+    [Anonymous Symbol]                       0x00003370   Section        0  socket.o(.text.sl_Socket)
+    __arm_cp.3_0                             0x0000339c   Number         4  socket.o(.text.sl_Socket)
+    [Anonymous Symbol]                       0x000033a0   Section        0  device.o(.text.sl_Start)
+    __arm_cp.2_2                             0x0000343c   Number         4  device.o(.text.sl_Start)
+    [Anonymous Symbol]                       0x00003440   Section        0  device.o(.text.sl_Stop)
+    __arm_cp.5_0                             0x000034f0   Number         4  device.o(.text.sl_Stop)
+    __arm_cp.5_1                             0x000034f4   Number         4  device.o(.text.sl_Stop)
+    __arm_cp.5_2                             0x000034f8   Number         4  device.o(.text.sl_Stop)
+    [Anonymous Symbol]                       0x000034fc   Section        0  wlan.o(.text.sl_WlanConnect)
+    __arm_cp.0_0                             0x0000367c   Number         4  wlan.o(.text.sl_WlanConnect)
+    [Anonymous Symbol]                       0x00003680   Section        0  wlan.o(.text.sl_WlanDisconnect)
+    [Anonymous Symbol]                       0x00003688   Section        0  wlan.o(.text.sl_WlanPolicySet)
+    __arm_cp.2_0                             0x000036bc   Number         4  wlan.o(.text.sl_WlanPolicySet)
+    [Anonymous Symbol]                       0x000036c0   Section        0  wlan.o(.text.sl_WlanProfileDel)
+    __arm_cp.6_0                             0x000036d8   Number         4  wlan.o(.text.sl_WlanProfileDel)
+    [Anonymous Symbol]                       0x000036dc   Section        0  wlan.o(.text.sl_WlanSet)
+    __arm_cp.17_0                            0x00003714   Number         4  wlan.o(.text.sl_WlanSet)
+    [Anonymous Symbol]                       0x00003718   Section        0  wlan.o(.text.sl_WlanSetMode)
+    __arm_cp.16_0                            0x00003730   Number         4  wlan.o(.text.sl_WlanSetMode)
+    [Anonymous Symbol]                       0x00003734   Section        0  spi.o(.text.spi_Close)
+    [Anonymous Symbol]                       0x00003740   Section        0  spi.o(.text.spi_Open)
+    __arm_cp.1_0                             0x00003804   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_1                             0x00003808   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_2                             0x0000380c   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_3                             0x00003810   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_4                             0x00003814   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_5                             0x00003818   Number         4  spi.o(.text.spi_Open)
+    __arm_cp.1_6                             0x0000381c   Number         4  spi.o(.text.spi_Open)
+    [Anonymous Symbol]                       0x00003820   Section        0  spi.o(.text.spi_Read)
+    [Anonymous Symbol]                       0x0000386c   Section        0  spi.o(.text.spi_Write)
+    __arm_cp.2_0                             0x000038b4   Number         4  spi.o(.text.spi_Write)
+    writecommand                             0x000038b9   Thumb Code    24  st7735.o(.text.writecommand)
+    [Anonymous Symbol]                       0x000038b8   Section        0  st7735.o(.text.writecommand)
+    writedata                                0x000038d1   Thumb Code    20  st7735.o(.text.writedata)
+    [Anonymous Symbol]                       0x000038d0   Section        0  st7735.o(.text.writedata)
+    __arm_cp.8_0                             0x000038e4   Number         4  st7735.o(.text.writedata)
+    __arm_cp.8_1                             0x000038e8   Number         4  st7735.o(.text.writedata)
+    i.FPUEnable                              0x000038ec   Section        0  fpu.o(i.FPUEnable)
+    i.FPULazyStackingEnable                  0x000038fc   Section        0  fpu.o(i.FPULazyStackingEnable)
+    i.GPIODirModeSet                         0x0000390c   Section        0  gpio.o(i.GPIODirModeSet)
+    i.GPIOIntClear                           0x00003934   Section        0  gpio.o(i.GPIOIntClear)
+    i.GPIOIntDisable                         0x0000393a   Section        0  gpio.o(i.GPIOIntDisable)
+    i.GPIOIntEnable                          0x00003948   Section        0  gpio.o(i.GPIOIntEnable)
+    i.GPIOIntStatus                          0x00003956   Section        0  gpio.o(i.GPIOIntStatus)
+    i.GPIOIntTypeSet                         0x00003964   Section        0  gpio.o(i.GPIOIntTypeSet)
+    i.GPIOPadConfigSet                       0x000039b4   Section        0  gpio.o(i.GPIOPadConfigSet)
+    i.GPIOPinConfigure                       0x00003af0   Section        0  gpio.o(i.GPIOPinConfigure)
+    i.GPIOPinTypeGPIOInput                   0x00003b38   Section        0  gpio.o(i.GPIOPinTypeGPIOInput)
+    i.GPIOPinTypeGPIOOutput                  0x00003b54   Section        0  gpio.o(i.GPIOPinTypeGPIOOutput)
+    i.GPIOPinTypeSSI                         0x00003b70   Section        0  gpio.o(i.GPIOPinTypeSSI)
+    i.GPIOPinWrite                           0x00003b8c   Section        0  gpio.o(i.GPIOPinWrite)
+    i.IntEnable                              0x00003b94   Section        0  interrupt.o(i.IntEnable)
+    i.IntMasterEnable                        0x00003bf8   Section        0  interrupt.o(i.IntMasterEnable)
+    i.SSIConfigSetExpClk                     0x00003c06   Section        0  ssi.o(i.SSIConfigSetExpClk)
+    i.SSIDataGetNonBlocking                  0x00003c50   Section        0  ssi.o(i.SSIDataGetNonBlocking)
+    i.SSIDataPutNonBlocking                  0x00003c64   Section        0  ssi.o(i.SSIDataPutNonBlocking)
+    i.SSIEnable                              0x00003c74   Section        0  ssi.o(i.SSIEnable)
+    i.SysCtlClockGet                         0x00003c80   Section        0  sysctl.o(i.SysCtlClockGet)
+    i.SysCtlClockSet                         0x00003de4   Section        0  sysctl.o(i.SysCtlClockSet)
+    i.SysCtlPeripheralEnable                 0x00003f04   Section        0  sysctl.o(i.SysCtlPeripheralEnable)
+    i.__scatterload_copy                     0x00003f2c   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x00003f3a   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x00003f3c   Section       14  handlers.o(i.__scatterload_zeroinit)
+    g_ppui32GPIOIntMapBlizzard               0x00003f4c   Data         192  gpio.o(.constdata)
+    .constdata                               0x00003f4c   Section      528  gpio.o(.constdata)
+    g_ppui32GPIOIntMapSnowflake              0x0000400c   Data         192  gpio.o(.constdata)
+    g_pui32GPIOBaseAddrs                     0x000040cc   Data         144  gpio.o(.constdata)
+    g_pui32Priority                          0x0000415c   Data          32  interrupt.o(.constdata)
+    .constdata                               0x0000415c   Section      268  interrupt.o(.constdata)
+    g_pui32Regs                              0x0000417c   Data         156  interrupt.o(.constdata)
+    g_pui32EnRegs                            0x00004218   Data          20  interrupt.o(.constdata)
+    g_pui32Dii16Regs                         0x0000422c   Data          20  interrupt.o(.constdata)
+    g_pui32PendRegs                          0x00004240   Data          20  interrupt.o(.constdata)
+    g_pui32UnpendRegs                        0x00004254   Data          20  interrupt.o(.constdata)
+    g_pui32VCOFrequencies                    0x00004268   Data           8  sysctl.o(.constdata)
+    .constdata                               0x00004268   Section      452  sysctl.o(.constdata)
+    g_pui32Xtals                             0x00004270   Data         108  sysctl.o(.constdata)
+    g_pppui32XTALtoVCO                       0x000042dc   Data         288  sysctl.o(.constdata)
+    g_sXTALtoMEMTIM                          0x000043fc   Data          48  sysctl.o(.constdata)
+    Font                                     0x0000442c   Data        1275  st7735.o(.rodata.Font)
+    [Anonymous Symbol]                       0x0000442c   Section        0  st7735.o(.rodata.Font)
+    Rcmd1                                    0x00004927   Data          59  st7735.o(.rodata.Rcmd1)
+    [Anonymous Symbol]                       0x00004927   Section        0  st7735.o(.rodata.Rcmd1)
+    Rcmd2green                               0x00004962   Data          13  st7735.o(.rodata.Rcmd2green)
+    [Anonymous Symbol]                       0x00004962   Section        0  st7735.o(.rodata.Rcmd2green)
+    Rcmd2red                                 0x0000496f   Data          13  st7735.o(.rodata.Rcmd2red)
+    [Anonymous Symbol]                       0x0000496f   Section        0  st7735.o(.rodata.Rcmd2red)
+    Rcmd3                                    0x0000497c   Data          43  st7735.o(.rodata.Rcmd3)
+    [Anonymous Symbol]                       0x0000497c   Section        0  st7735.o(.rodata.Rcmd3)
+    g_ui32UARTInt                            0x00004a2c   Data          12  uartstdio.o(.rodata.g_ui32UARTInt)
+    [Anonymous Symbol]                       0x00004a2c   Section        0  uartstdio.o(.rodata.g_ui32UARTInt)
+    [Anonymous Symbol]                       0x00004a38   Section        0  main.o(.rodata.str1.1)
+    [Anonymous Symbol]                       0x00004b2e   Section        0  motor.o(.rodata.str1.1)
     ColStart                                 0x20000008   Data           1  st7735.o(.bss..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000008   Section        0  st7735.o(.bss..L_MergedGlobals)
     RowStart                                 0x20000009   Data           1  st7735.o(.bss..L_MergedGlobals)
@@ -2616,79 +2620,79 @@ Image Symbol Table
     _sl_TruncatePayloadByProtocol            0x000029cd   Thumb Code    28  socket.o(.text._sl_TruncatePayloadByProtocol)
     fillmessage                              0x00002b85   Thumb Code    52  st7735.o(.text.fillmessage)
     initClk                                  0x00002bbd   Thumb Code    20  board.o(.text.initClk)
-    main                                     0x00002bd5   Thumb Code   588  main.o(.text.main)
-    registerInterruptHandler                 0x00002ed1   Thumb Code     8  board.o(.text.registerInterruptHandler)
-    sl_Accept                                0x00002f49   Thumb Code   252  socket.o(.text.sl_Accept)
-    sl_Bind                                  0x00003051   Thumb Code    82  socket.o(.text.sl_Bind)
-    sl_Close                                 0x000030a5   Thumb Code    24  socket.o(.text.sl_Close)
-    sl_DevGet                                0x000030c1   Thumb Code   100  device.o(.text.sl_DevGet)
-    sl_Htons                                 0x0000312d   Thumb Code     4  socket.o(.text.sl_Htons)
-    sl_Listen                                0x00003131   Thumb Code    28  socket.o(.text.sl_Listen)
-    sl_NetAppMDNSRegisterUnregisterService   0x00003151   Thumb Code   120  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
-    sl_NetAppMDNSUnRegisterService           0x000031cd   Thumb Code    20  netapp.o(.text.sl_NetAppMDNSUnRegisterService)
-    sl_NetAppSendTokenValue                  0x000031e1   Thumb Code    72  netapp.o(.text.sl_NetAppSendTokenValue)
-    sl_NetCfgSet                             0x0000322d   Thumb Code    56  netcfg.o(.text.sl_NetCfgSet)
-    sl_Recv                                  0x00003269   Thumb Code    60  socket.o(.text.sl_Recv)
-    sl_Send                                  0x000032a9   Thumb Code   148  socket.o(.text.sl_Send)
-    sl_Socket                                0x00003345   Thumb Code    44  socket.o(.text.sl_Socket)
-    sl_Start                                 0x00003375   Thumb Code   156  device.o(.text.sl_Start)
-    sl_Stop                                  0x00003415   Thumb Code   176  device.o(.text.sl_Stop)
-    sl_WlanConnect                           0x000034d1   Thumb Code   384  wlan.o(.text.sl_WlanConnect)
-    sl_WlanDisconnect                        0x00003655   Thumb Code     8  wlan.o(.text.sl_WlanDisconnect)
-    sl_WlanPolicySet                         0x0000365d   Thumb Code    52  wlan.o(.text.sl_WlanPolicySet)
-    sl_WlanProfileDel                        0x00003695   Thumb Code    24  wlan.o(.text.sl_WlanProfileDel)
-    sl_WlanSet                               0x000036b1   Thumb Code    56  wlan.o(.text.sl_WlanSet)
-    sl_WlanSetMode                           0x000036ed   Thumb Code    24  wlan.o(.text.sl_WlanSetMode)
-    spi_Close                                0x00003709   Thumb Code    10  spi.o(.text.spi_Close)
-    spi_Open                                 0x00003715   Thumb Code   196  spi.o(.text.spi_Open)
-    spi_Read                                 0x000037f5   Thumb Code    76  spi.o(.text.spi_Read)
-    spi_Write                                0x00003841   Thumb Code    72  spi.o(.text.spi_Write)
-    FPUEnable                                0x000038c1   Thumb Code    12  fpu.o(i.FPUEnable)
-    FPULazyStackingEnable                    0x000038d1   Thumb Code    12  fpu.o(i.FPULazyStackingEnable)
-    GPIODirModeSet                           0x000038e1   Thumb Code    40  gpio.o(i.GPIODirModeSet)
-    GPIOIntClear                             0x00003909   Thumb Code     6  gpio.o(i.GPIOIntClear)
-    GPIOIntDisable                           0x0000390f   Thumb Code    14  gpio.o(i.GPIOIntDisable)
-    GPIOIntEnable                            0x0000391d   Thumb Code    14  gpio.o(i.GPIOIntEnable)
-    GPIOIntStatus                            0x0000392b   Thumb Code    14  gpio.o(i.GPIOIntStatus)
-    GPIOIntTypeSet                           0x00003939   Thumb Code    80  gpio.o(i.GPIOIntTypeSet)
-    GPIOPadConfigSet                         0x00003989   Thumb Code   314  gpio.o(i.GPIOPadConfigSet)
-    GPIOPinConfigure                         0x00003ac5   Thumb Code    64  gpio.o(i.GPIOPinConfigure)
-    GPIOPinTypeGPIOInput                     0x00003b0d   Thumb Code    28  gpio.o(i.GPIOPinTypeGPIOInput)
-    GPIOPinTypeGPIOOutput                    0x00003b29   Thumb Code    28  gpio.o(i.GPIOPinTypeGPIOOutput)
-    GPIOPinTypeSSI                           0x00003b45   Thumb Code    28  gpio.o(i.GPIOPinTypeSSI)
-    GPIOPinWrite                             0x00003b61   Thumb Code     6  gpio.o(i.GPIOPinWrite)
-    IntEnable                                0x00003b69   Thumb Code    92  interrupt.o(i.IntEnable)
-    IntMasterEnable                          0x00003bcd   Thumb Code    14  interrupt.o(i.IntMasterEnable)
-    SSIConfigSetExpClk                       0x00003bdb   Thumb Code    74  ssi.o(i.SSIConfigSetExpClk)
-    SSIDataGetNonBlocking                    0x00003c25   Thumb Code    20  ssi.o(i.SSIDataGetNonBlocking)
-    SSIDataPutNonBlocking                    0x00003c39   Thumb Code    16  ssi.o(i.SSIDataPutNonBlocking)
-    SSIEnable                                0x00003c49   Thumb Code    10  ssi.o(i.SSIEnable)
-    SysCtlClockGet                           0x00003c55   Thumb Code   314  sysctl.o(i.SysCtlClockGet)
-    SysCtlClockSet                           0x00003db9   Thumb Code   270  sysctl.o(i.SysCtlClockSet)
-    SysCtlPeripheralEnable                   0x00003ed9   Thumb Code    36  sysctl.o(i.SysCtlPeripheralEnable)
-    __scatterload_copy                       0x00003f01   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x00003f0f   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x00003f11   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    _SlAcceptCmdCtrl                         0x0000497c   Data           4  socket.o(.rodata._SlAcceptCmdCtrl)
-    _SlActionLookupTable                     0x00004980   Data          56  driver.o(.rodata._SlActionLookupTable)
-    _SlDeviceGetCmdCtrl                      0x000049b8   Data           4  device.o(.rodata._SlDeviceGetCmdCtrl)
-    _SlListenCmdCtrl                         0x000049bc   Data           4  socket.o(.rodata._SlListenCmdCtrl)
-    _SlNetAppSendTokenValueCmdCtrl           0x000049c0   Data           4  netapp.o(.rodata._SlNetAppSendTokenValueCmdCtrl)
-    _SlNetCfgSetCmdCtrl                      0x000049c4   Data           4  netcfg.o(.rodata._SlNetCfgSetCmdCtrl)
-    _SlPolicySetCmdCtrl                      0x000049c8   Data           4  wlan.o(.rodata._SlPolicySetCmdCtrl)
-    _SlProfileDelCmdCtrl                     0x000049cc   Data           4  wlan.o(.rodata._SlProfileDelCmdCtrl)
-    _SlRecvCmdCtrl                           0x000049d0   Data           4  socket.o(.rodata._SlRecvCmdCtrl)
-    _SlRegisterServiceCtrl                   0x000049d4   Data           4  netapp.o(.rodata._SlRegisterServiceCtrl)
-    _SlSendCmdCtrl                           0x000049d8   Data           4  socket.o(.rodata._SlSendCmdCtrl)
-    _SlSockCloseCmdCtrl                      0x000049dc   Data           4  socket.o(.rodata._SlSockCloseCmdCtrl)
-    _SlSockSocketCmdCtrl                     0x000049e0   Data           4  socket.o(.rodata._SlSockSocketCmdCtrl)
-    _SlStopCmdCtrl                           0x000049e4   Data           4  device.o(.rodata._SlStopCmdCtrl)
-    _SlWlanCfgSetCmdCtrl                     0x000049e8   Data           4  wlan.o(.rodata._SlWlanCfgSetCmdCtrl)
-    _SlWlanSetModeCmdCtrl                    0x000049ec   Data           4  wlan.o(.rodata._SlWlanSetModeCmdCtrl)
-    g_H2NCnysPattern                         0x000049f0   Data           8  driver.o(.rodata.g_H2NCnysPattern)
-    g_H2NSyncPattern                         0x000049f8   Data           8  driver.o(.rodata.g_H2NSyncPattern)
-    Region$$Table$$Base                      0x00004b10   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00004b30   Number         0  anon$$obj.o(Region$$Table)
+    main                                     0x00002bd5   Thumb Code   624  main.o(.text.main)
+    registerInterruptHandler                 0x00002efd   Thumb Code     8  board.o(.text.registerInterruptHandler)
+    sl_Accept                                0x00002f75   Thumb Code   252  socket.o(.text.sl_Accept)
+    sl_Bind                                  0x0000307d   Thumb Code    82  socket.o(.text.sl_Bind)
+    sl_Close                                 0x000030d1   Thumb Code    24  socket.o(.text.sl_Close)
+    sl_DevGet                                0x000030ed   Thumb Code   100  device.o(.text.sl_DevGet)
+    sl_Htons                                 0x00003159   Thumb Code     4  socket.o(.text.sl_Htons)
+    sl_Listen                                0x0000315d   Thumb Code    28  socket.o(.text.sl_Listen)
+    sl_NetAppMDNSRegisterUnregisterService   0x0000317d   Thumb Code   120  netapp.o(.text.sl_NetAppMDNSRegisterUnregisterService)
+    sl_NetAppMDNSUnRegisterService           0x000031f9   Thumb Code    20  netapp.o(.text.sl_NetAppMDNSUnRegisterService)
+    sl_NetAppSendTokenValue                  0x0000320d   Thumb Code    72  netapp.o(.text.sl_NetAppSendTokenValue)
+    sl_NetCfgSet                             0x00003259   Thumb Code    56  netcfg.o(.text.sl_NetCfgSet)
+    sl_Recv                                  0x00003295   Thumb Code    60  socket.o(.text.sl_Recv)
+    sl_Send                                  0x000032d5   Thumb Code   148  socket.o(.text.sl_Send)
+    sl_Socket                                0x00003371   Thumb Code    44  socket.o(.text.sl_Socket)
+    sl_Start                                 0x000033a1   Thumb Code   156  device.o(.text.sl_Start)
+    sl_Stop                                  0x00003441   Thumb Code   176  device.o(.text.sl_Stop)
+    sl_WlanConnect                           0x000034fd   Thumb Code   384  wlan.o(.text.sl_WlanConnect)
+    sl_WlanDisconnect                        0x00003681   Thumb Code     8  wlan.o(.text.sl_WlanDisconnect)
+    sl_WlanPolicySet                         0x00003689   Thumb Code    52  wlan.o(.text.sl_WlanPolicySet)
+    sl_WlanProfileDel                        0x000036c1   Thumb Code    24  wlan.o(.text.sl_WlanProfileDel)
+    sl_WlanSet                               0x000036dd   Thumb Code    56  wlan.o(.text.sl_WlanSet)
+    sl_WlanSetMode                           0x00003719   Thumb Code    24  wlan.o(.text.sl_WlanSetMode)
+    spi_Close                                0x00003735   Thumb Code    10  spi.o(.text.spi_Close)
+    spi_Open                                 0x00003741   Thumb Code   196  spi.o(.text.spi_Open)
+    spi_Read                                 0x00003821   Thumb Code    76  spi.o(.text.spi_Read)
+    spi_Write                                0x0000386d   Thumb Code    72  spi.o(.text.spi_Write)
+    FPUEnable                                0x000038ed   Thumb Code    12  fpu.o(i.FPUEnable)
+    FPULazyStackingEnable                    0x000038fd   Thumb Code    12  fpu.o(i.FPULazyStackingEnable)
+    GPIODirModeSet                           0x0000390d   Thumb Code    40  gpio.o(i.GPIODirModeSet)
+    GPIOIntClear                             0x00003935   Thumb Code     6  gpio.o(i.GPIOIntClear)
+    GPIOIntDisable                           0x0000393b   Thumb Code    14  gpio.o(i.GPIOIntDisable)
+    GPIOIntEnable                            0x00003949   Thumb Code    14  gpio.o(i.GPIOIntEnable)
+    GPIOIntStatus                            0x00003957   Thumb Code    14  gpio.o(i.GPIOIntStatus)
+    GPIOIntTypeSet                           0x00003965   Thumb Code    80  gpio.o(i.GPIOIntTypeSet)
+    GPIOPadConfigSet                         0x000039b5   Thumb Code   314  gpio.o(i.GPIOPadConfigSet)
+    GPIOPinConfigure                         0x00003af1   Thumb Code    64  gpio.o(i.GPIOPinConfigure)
+    GPIOPinTypeGPIOInput                     0x00003b39   Thumb Code    28  gpio.o(i.GPIOPinTypeGPIOInput)
+    GPIOPinTypeGPIOOutput                    0x00003b55   Thumb Code    28  gpio.o(i.GPIOPinTypeGPIOOutput)
+    GPIOPinTypeSSI                           0x00003b71   Thumb Code    28  gpio.o(i.GPIOPinTypeSSI)
+    GPIOPinWrite                             0x00003b8d   Thumb Code     6  gpio.o(i.GPIOPinWrite)
+    IntEnable                                0x00003b95   Thumb Code    92  interrupt.o(i.IntEnable)
+    IntMasterEnable                          0x00003bf9   Thumb Code    14  interrupt.o(i.IntMasterEnable)
+    SSIConfigSetExpClk                       0x00003c07   Thumb Code    74  ssi.o(i.SSIConfigSetExpClk)
+    SSIDataGetNonBlocking                    0x00003c51   Thumb Code    20  ssi.o(i.SSIDataGetNonBlocking)
+    SSIDataPutNonBlocking                    0x00003c65   Thumb Code    16  ssi.o(i.SSIDataPutNonBlocking)
+    SSIEnable                                0x00003c75   Thumb Code    10  ssi.o(i.SSIEnable)
+    SysCtlClockGet                           0x00003c81   Thumb Code   314  sysctl.o(i.SysCtlClockGet)
+    SysCtlClockSet                           0x00003de5   Thumb Code   270  sysctl.o(i.SysCtlClockSet)
+    SysCtlPeripheralEnable                   0x00003f05   Thumb Code    36  sysctl.o(i.SysCtlPeripheralEnable)
+    __scatterload_copy                       0x00003f2d   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x00003f3b   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x00003f3d   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    _SlAcceptCmdCtrl                         0x000049a8   Data           4  socket.o(.rodata._SlAcceptCmdCtrl)
+    _SlActionLookupTable                     0x000049ac   Data          56  driver.o(.rodata._SlActionLookupTable)
+    _SlDeviceGetCmdCtrl                      0x000049e4   Data           4  device.o(.rodata._SlDeviceGetCmdCtrl)
+    _SlListenCmdCtrl                         0x000049e8   Data           4  socket.o(.rodata._SlListenCmdCtrl)
+    _SlNetAppSendTokenValueCmdCtrl           0x000049ec   Data           4  netapp.o(.rodata._SlNetAppSendTokenValueCmdCtrl)
+    _SlNetCfgSetCmdCtrl                      0x000049f0   Data           4  netcfg.o(.rodata._SlNetCfgSetCmdCtrl)
+    _SlPolicySetCmdCtrl                      0x000049f4   Data           4  wlan.o(.rodata._SlPolicySetCmdCtrl)
+    _SlProfileDelCmdCtrl                     0x000049f8   Data           4  wlan.o(.rodata._SlProfileDelCmdCtrl)
+    _SlRecvCmdCtrl                           0x000049fc   Data           4  socket.o(.rodata._SlRecvCmdCtrl)
+    _SlRegisterServiceCtrl                   0x00004a00   Data           4  netapp.o(.rodata._SlRegisterServiceCtrl)
+    _SlSendCmdCtrl                           0x00004a04   Data           4  socket.o(.rodata._SlSendCmdCtrl)
+    _SlSockCloseCmdCtrl                      0x00004a08   Data           4  socket.o(.rodata._SlSockCloseCmdCtrl)
+    _SlSockSocketCmdCtrl                     0x00004a0c   Data           4  socket.o(.rodata._SlSockSocketCmdCtrl)
+    _SlStopCmdCtrl                           0x00004a10   Data           4  device.o(.rodata._SlStopCmdCtrl)
+    _SlWlanCfgSetCmdCtrl                     0x00004a14   Data           4  wlan.o(.rodata._SlWlanCfgSetCmdCtrl)
+    _SlWlanSetModeCmdCtrl                    0x00004a18   Data           4  wlan.o(.rodata._SlWlanSetModeCmdCtrl)
+    g_H2NCnysPattern                         0x00004a1c   Data           8  driver.o(.rodata.g_H2NCnysPattern)
+    g_H2NSyncPattern                         0x00004a24   Data           8  driver.o(.rodata.g_H2NSyncPattern)
+    Region$$Table$$Base                      0x00004b48   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x00004b68   Number         0  anon$$obj.o(Region$$Table)
     StTextColor                              0x20000000   Data           2  st7735.o(.data.StTextColor)
     g_mode                                   0x20000002   Data           1  motor.o(.data.g_mode)
     StX                                      0x20000010   Data           4  st7735.o(.bss..L_MergedGlobals)
@@ -2721,9 +2725,9 @@ Memory Map of the image
 
   Image Entry point : 0x0000026d
 
-  Load Region LR_IROM (Base: 0x00000000, Size: 0x00004b38, Max: 0x00040000, ABSOLUTE)
+  Load Region LR_IROM (Base: 0x00000000, Size: 0x00004b70, Max: 0x00040000, ABSOLUTE)
 
-    Execution Region ER_IROM (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00004b30, Max: 0x00040000, ABSOLUTE)
+    Execution Region ER_IROM (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00004b68, Max: 0x00040000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2885,110 +2889,109 @@ Memory Map of the image
     0x00002a60   0x00002a60   0x00000124   Code   RO          553    .text.commonInit    st7735.o
     0x00002b84   0x00002b84   0x00000038   Code   RO          597    .text.fillmessage   st7735.o
     0x00002bbc   0x00002bbc   0x00000018   Code   RO            2    .text.initClk       board.o
-    0x00002bd4   0x00002bd4   0x000002e8   Code   RO          867    .text.main          main.o
-    0x00002ebc   0x00002ebc   0x00000014   Code   RO          571    .text.pushColor     st7735.o
-    0x00002ed0   0x00002ed0   0x0000000c   Code   RO            6    .text.registerInterruptHandler  board.o
-    0x00002edc   0x00002edc   0x0000006c   Code   RO          569    .text.setAddrWindow  st7735.o
-    0x00002f48   0x00002f48   0x00000108   Code   RO          363    .text.sl_Accept     socket.o
-    0x00003050   0x00003050   0x00000052   Code   RO          349    .text.sl_Bind       socket.o
-    0x000030a2   0x000030a2   0x00000002   PAD
-    0x000030a4   0x000030a4   0x0000001c   Code   RO          347    .text.sl_Close      socket.o
-    0x000030c0   0x000030c0   0x0000006c   Code   RO           77    .text.sl_DevGet     device.o
-    0x0000312c   0x0000312c   0x00000004   Code   RO          367    .text.sl_Htons      socket.o
-    0x00003130   0x00003130   0x00000020   Code   RO          361    .text.sl_Listen     socket.o
-    0x00003150   0x00003150   0x0000007c   Code   RO          256    .text.sl_NetAppMDNSRegisterUnregisterService  netapp.o
-    0x000031cc   0x000031cc   0x00000014   Code   RO          260    .text.sl_NetAppMDNSUnRegisterService  netapp.o
-    0x000031e0   0x000031e0   0x0000004c   Code   RO          280    .text.sl_NetAppSendTokenValue  netapp.o
-    0x0000322c   0x0000322c   0x0000003c   Code   RO          308    .text.sl_NetCfgSet  netcfg.o
-    0x00003268   0x00003268   0x00000040   Code   RO          371    .text.sl_Recv       socket.o
-    0x000032a8   0x000032a8   0x0000009c   Code   RO          359    .text.sl_Send       socket.o
-    0x00003344   0x00003344   0x00000030   Code   RO          345    .text.sl_Socket     socket.o
-    0x00003374   0x00003374   0x000000a0   Code   RO           65    .text.sl_Start      device.o
-    0x00003414   0x00003414   0x000000bc   Code   RO           71    .text.sl_Stop       device.o
-    0x000034d0   0x000034d0   0x00000184   Code   RO          444    .text.sl_WlanConnect  wlan.o
-    0x00003654   0x00003654   0x00000008   Code   RO          446    .text.sl_WlanDisconnect  wlan.o
-    0x0000365c   0x0000365c   0x00000038   Code   RO          448    .text.sl_WlanPolicySet  wlan.o
-    0x00003694   0x00003694   0x0000001c   Code   RO          456    .text.sl_WlanProfileDel  wlan.o
-    0x000036b0   0x000036b0   0x0000003c   Code   RO          478    .text.sl_WlanSet    wlan.o
-    0x000036ec   0x000036ec   0x0000001c   Code   RO          476    .text.sl_WlanSetMode  wlan.o
-    0x00003708   0x00003708   0x0000000a   Code   RO          418    .text.spi_Close     spi.o
-    0x00003712   0x00003712   0x00000002   PAD
-    0x00003714   0x00003714   0x000000e0   Code   RO          420    .text.spi_Open      spi.o
-    0x000037f4   0x000037f4   0x0000004c   Code   RO          424    .text.spi_Read      spi.o
-    0x00003840   0x00003840   0x0000004c   Code   RO          422    .text.spi_Write     spi.o
-    0x0000388c   0x0000388c   0x00000018   Code   RO          563    .text.writecommand  st7735.o
-    0x000038a4   0x000038a4   0x0000001c   Code   RO          565    .text.writedata     st7735.o
-    0x000038c0   0x000038c0   0x00000010   Code   RO          990    i.FPUEnable         driverlib.lib(fpu.o)
-    0x000038d0   0x000038d0   0x00000010   Code   RO          993    i.FPULazyStackingEnable  driverlib.lib(fpu.o)
-    0x000038e0   0x000038e0   0x00000028   Code   RO         1067    i.GPIODirModeSet    driverlib.lib(gpio.o)
-    0x00003908   0x00003908   0x00000006   Code   RO         1068    i.GPIOIntClear      driverlib.lib(gpio.o)
-    0x0000390e   0x0000390e   0x0000000e   Code   RO         1069    i.GPIOIntDisable    driverlib.lib(gpio.o)
-    0x0000391c   0x0000391c   0x0000000e   Code   RO         1070    i.GPIOIntEnable     driverlib.lib(gpio.o)
-    0x0000392a   0x0000392a   0x0000000e   Code   RO         1072    i.GPIOIntStatus     driverlib.lib(gpio.o)
-    0x00003938   0x00003938   0x00000050   Code   RO         1074    i.GPIOIntTypeSet    driverlib.lib(gpio.o)
-    0x00003988   0x00003988   0x0000013a   Code   RO         1077    i.GPIOPadConfigSet  driverlib.lib(gpio.o)
-    0x00003ac2   0x00003ac2   0x00000002   PAD
-    0x00003ac4   0x00003ac4   0x00000048   Code   RO         1078    i.GPIOPinConfigure  driverlib.lib(gpio.o)
-    0x00003b0c   0x00003b0c   0x0000001c   Code   RO         1087    i.GPIOPinTypeGPIOInput  driverlib.lib(gpio.o)
-    0x00003b28   0x00003b28   0x0000001c   Code   RO         1088    i.GPIOPinTypeGPIOOutput  driverlib.lib(gpio.o)
-    0x00003b44   0x00003b44   0x0000001c   Code   RO         1101    i.GPIOPinTypeSSI    driverlib.lib(gpio.o)
-    0x00003b60   0x00003b60   0x00000006   Code   RO         1109    i.GPIOPinWrite      driverlib.lib(gpio.o)
-    0x00003b66   0x00003b66   0x00000002   PAD
-    0x00003b68   0x00003b68   0x00000064   Code   RO         1383    i.IntEnable         driverlib.lib(interrupt.o)
-    0x00003bcc   0x00003bcc   0x0000000e   Code   RO         1386    i.IntMasterEnable   driverlib.lib(interrupt.o)
-    0x00003bda   0x00003bda   0x0000004a   Code   RO         1503    i.SSIConfigSetExpClk  driverlib.lib(ssi.o)
-    0x00003c24   0x00003c24   0x00000014   Code   RO         1507    i.SSIDataGetNonBlocking  driverlib.lib(ssi.o)
-    0x00003c38   0x00003c38   0x00000010   Code   RO         1509    i.SSIDataPutNonBlocking  driverlib.lib(ssi.o)
-    0x00003c48   0x00003c48   0x0000000a   Code   RO         1511    i.SSIEnable         driverlib.lib(ssi.o)
-    0x00003c52   0x00003c52   0x00000002   PAD
-    0x00003c54   0x00003c54   0x00000164   Code   RO         1650    i.SysCtlClockGet    driverlib.lib(sysctl.o)
-    0x00003db8   0x00003db8   0x00000120   Code   RO         1652    i.SysCtlClockSet    driverlib.lib(sysctl.o)
-    0x00003ed8   0x00003ed8   0x00000028   Code   RO         1681    i.SysCtlPeripheralEnable  driverlib.lib(sysctl.o)
-    0x00003f00   0x00003f00   0x0000000e   Code   RO         2037    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x00003f0e   0x00003f0e   0x00000002   Code   RO         2038    i.__scatterload_null  mc_w.l(handlers.o)
-    0x00003f10   0x00003f10   0x0000000e   Code   RO         2039    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x00003f1e   0x00003f1e   0x00000002   PAD
-    0x00003f20   0x00003f20   0x00000210   Data   RO         1110    .constdata          driverlib.lib(gpio.o)
-    0x00004130   0x00004130   0x0000010c   Data   RO         1399    .constdata          driverlib.lib(interrupt.o)
-    0x0000423c   0x0000423c   0x000001c4   Data   RO         1702    .constdata          driverlib.lib(sysctl.o)
-    0x00004400   0x00004400   0x000004fb   Data   RO          665    .rodata.Font        st7735.o
-    0x000048fb   0x000048fb   0x0000003b   Data   RO          661    .rodata.Rcmd1       st7735.o
-    0x00004936   0x00004936   0x0000000d   Data   RO          662    .rodata.Rcmd2green  st7735.o
-    0x00004943   0x00004943   0x0000000d   Data   RO          663    .rodata.Rcmd2red    st7735.o
-    0x00004950   0x00004950   0x0000002b   Data   RO          664    .rodata.Rcmd3       st7735.o
-    0x0000497b   0x0000497b   0x00000001   PAD
-    0x0000497c   0x0000497c   0x00000004   Data   RO          404    .rodata._SlAcceptCmdCtrl  socket.o
-    0x00004980   0x00004980   0x00000038   Data   RO          192    .rodata._SlActionLookupTable  driver.o
-    0x000049b8   0x000049b8   0x00000004   Data   RO           94    .rodata._SlDeviceGetCmdCtrl  device.o
-    0x000049bc   0x000049bc   0x00000004   Data   RO          403    .rodata._SlListenCmdCtrl  socket.o
-    0x000049c0   0x000049c0   0x00000004   Data   RO          297    .rodata._SlNetAppSendTokenValueCmdCtrl  netapp.o
-    0x000049c4   0x000049c4   0x00000004   Data   RO          312    .rodata._SlNetCfgSetCmdCtrl  netcfg.o
-    0x000049c8   0x000049c8   0x00000004   Data   RO          484    .rodata._SlPolicySetCmdCtrl  wlan.o
-    0x000049cc   0x000049cc   0x00000004   Data   RO          487    .rodata._SlProfileDelCmdCtrl  wlan.o
-    0x000049d0   0x000049d0   0x00000004   Data   RO          405    .rodata._SlRecvCmdCtrl  socket.o
-    0x000049d4   0x000049d4   0x00000004   Data   RO          293    .rodata._SlRegisterServiceCtrl  netapp.o
-    0x000049d8   0x000049d8   0x00000004   Data   RO          402    .rodata._SlSendCmdCtrl  socket.o
-    0x000049dc   0x000049dc   0x00000004   Data   RO          400    .rodata._SlSockCloseCmdCtrl  socket.o
-    0x000049e0   0x000049e0   0x00000004   Data   RO          399    .rodata._SlSockSocketCmdCtrl  socket.o
-    0x000049e4   0x000049e4   0x00000004   Data   RO           91    .rodata._SlStopCmdCtrl  device.o
-    0x000049e8   0x000049e8   0x00000004   Data   RO          494    .rodata._SlWlanCfgSetCmdCtrl  wlan.o
-    0x000049ec   0x000049ec   0x00000004   Data   RO          493    .rodata._SlWlanSetModeCmdCtrl  wlan.o
-    0x000049f0   0x000049f0   0x00000008   Data   RO          191    .rodata.g_H2NCnysPattern  driver.o
-    0x000049f8   0x000049f8   0x00000008   Data   RO          190    .rodata.g_H2NSyncPattern  driver.o
-    0x00004a00   0x00004a00   0x0000000c   Data   RO          708    .rodata.g_ui32UARTInt  uartstdio.o
-    0x00004a0c   0x00004a0c   0x000000e7   Data   RO          889    .rodata.str1.1      main.o
-    0x00004af3   0x00004af3   0x0000001a   Data   RO          965    .rodata.str1.1      motor.o
-    0x00004b0d   0x00004b0d   0x00000003   PAD
-    0x00004b10   0x00004b10   0x00000020   Data   RO         2036    Region$$Table       anon$$obj.o
+    0x00002bd4   0x00002bd4   0x00000314   Code   RO          867    .text.main          main.o
+    0x00002ee8   0x00002ee8   0x00000014   Code   RO          571    .text.pushColor     st7735.o
+    0x00002efc   0x00002efc   0x0000000c   Code   RO            6    .text.registerInterruptHandler  board.o
+    0x00002f08   0x00002f08   0x0000006c   Code   RO          569    .text.setAddrWindow  st7735.o
+    0x00002f74   0x00002f74   0x00000108   Code   RO          363    .text.sl_Accept     socket.o
+    0x0000307c   0x0000307c   0x00000052   Code   RO          349    .text.sl_Bind       socket.o
+    0x000030ce   0x000030ce   0x00000002   PAD
+    0x000030d0   0x000030d0   0x0000001c   Code   RO          347    .text.sl_Close      socket.o
+    0x000030ec   0x000030ec   0x0000006c   Code   RO           77    .text.sl_DevGet     device.o
+    0x00003158   0x00003158   0x00000004   Code   RO          367    .text.sl_Htons      socket.o
+    0x0000315c   0x0000315c   0x00000020   Code   RO          361    .text.sl_Listen     socket.o
+    0x0000317c   0x0000317c   0x0000007c   Code   RO          256    .text.sl_NetAppMDNSRegisterUnregisterService  netapp.o
+    0x000031f8   0x000031f8   0x00000014   Code   RO          260    .text.sl_NetAppMDNSUnRegisterService  netapp.o
+    0x0000320c   0x0000320c   0x0000004c   Code   RO          280    .text.sl_NetAppSendTokenValue  netapp.o
+    0x00003258   0x00003258   0x0000003c   Code   RO          308    .text.sl_NetCfgSet  netcfg.o
+    0x00003294   0x00003294   0x00000040   Code   RO          371    .text.sl_Recv       socket.o
+    0x000032d4   0x000032d4   0x0000009c   Code   RO          359    .text.sl_Send       socket.o
+    0x00003370   0x00003370   0x00000030   Code   RO          345    .text.sl_Socket     socket.o
+    0x000033a0   0x000033a0   0x000000a0   Code   RO           65    .text.sl_Start      device.o
+    0x00003440   0x00003440   0x000000bc   Code   RO           71    .text.sl_Stop       device.o
+    0x000034fc   0x000034fc   0x00000184   Code   RO          444    .text.sl_WlanConnect  wlan.o
+    0x00003680   0x00003680   0x00000008   Code   RO          446    .text.sl_WlanDisconnect  wlan.o
+    0x00003688   0x00003688   0x00000038   Code   RO          448    .text.sl_WlanPolicySet  wlan.o
+    0x000036c0   0x000036c0   0x0000001c   Code   RO          456    .text.sl_WlanProfileDel  wlan.o
+    0x000036dc   0x000036dc   0x0000003c   Code   RO          478    .text.sl_WlanSet    wlan.o
+    0x00003718   0x00003718   0x0000001c   Code   RO          476    .text.sl_WlanSetMode  wlan.o
+    0x00003734   0x00003734   0x0000000a   Code   RO          418    .text.spi_Close     spi.o
+    0x0000373e   0x0000373e   0x00000002   PAD
+    0x00003740   0x00003740   0x000000e0   Code   RO          420    .text.spi_Open      spi.o
+    0x00003820   0x00003820   0x0000004c   Code   RO          424    .text.spi_Read      spi.o
+    0x0000386c   0x0000386c   0x0000004c   Code   RO          422    .text.spi_Write     spi.o
+    0x000038b8   0x000038b8   0x00000018   Code   RO          563    .text.writecommand  st7735.o
+    0x000038d0   0x000038d0   0x0000001c   Code   RO          565    .text.writedata     st7735.o
+    0x000038ec   0x000038ec   0x00000010   Code   RO          990    i.FPUEnable         driverlib.lib(fpu.o)
+    0x000038fc   0x000038fc   0x00000010   Code   RO          993    i.FPULazyStackingEnable  driverlib.lib(fpu.o)
+    0x0000390c   0x0000390c   0x00000028   Code   RO         1067    i.GPIODirModeSet    driverlib.lib(gpio.o)
+    0x00003934   0x00003934   0x00000006   Code   RO         1068    i.GPIOIntClear      driverlib.lib(gpio.o)
+    0x0000393a   0x0000393a   0x0000000e   Code   RO         1069    i.GPIOIntDisable    driverlib.lib(gpio.o)
+    0x00003948   0x00003948   0x0000000e   Code   RO         1070    i.GPIOIntEnable     driverlib.lib(gpio.o)
+    0x00003956   0x00003956   0x0000000e   Code   RO         1072    i.GPIOIntStatus     driverlib.lib(gpio.o)
+    0x00003964   0x00003964   0x00000050   Code   RO         1074    i.GPIOIntTypeSet    driverlib.lib(gpio.o)
+    0x000039b4   0x000039b4   0x0000013a   Code   RO         1077    i.GPIOPadConfigSet  driverlib.lib(gpio.o)
+    0x00003aee   0x00003aee   0x00000002   PAD
+    0x00003af0   0x00003af0   0x00000048   Code   RO         1078    i.GPIOPinConfigure  driverlib.lib(gpio.o)
+    0x00003b38   0x00003b38   0x0000001c   Code   RO         1087    i.GPIOPinTypeGPIOInput  driverlib.lib(gpio.o)
+    0x00003b54   0x00003b54   0x0000001c   Code   RO         1088    i.GPIOPinTypeGPIOOutput  driverlib.lib(gpio.o)
+    0x00003b70   0x00003b70   0x0000001c   Code   RO         1101    i.GPIOPinTypeSSI    driverlib.lib(gpio.o)
+    0x00003b8c   0x00003b8c   0x00000006   Code   RO         1109    i.GPIOPinWrite      driverlib.lib(gpio.o)
+    0x00003b92   0x00003b92   0x00000002   PAD
+    0x00003b94   0x00003b94   0x00000064   Code   RO         1383    i.IntEnable         driverlib.lib(interrupt.o)
+    0x00003bf8   0x00003bf8   0x0000000e   Code   RO         1386    i.IntMasterEnable   driverlib.lib(interrupt.o)
+    0x00003c06   0x00003c06   0x0000004a   Code   RO         1503    i.SSIConfigSetExpClk  driverlib.lib(ssi.o)
+    0x00003c50   0x00003c50   0x00000014   Code   RO         1507    i.SSIDataGetNonBlocking  driverlib.lib(ssi.o)
+    0x00003c64   0x00003c64   0x00000010   Code   RO         1509    i.SSIDataPutNonBlocking  driverlib.lib(ssi.o)
+    0x00003c74   0x00003c74   0x0000000a   Code   RO         1511    i.SSIEnable         driverlib.lib(ssi.o)
+    0x00003c7e   0x00003c7e   0x00000002   PAD
+    0x00003c80   0x00003c80   0x00000164   Code   RO         1650    i.SysCtlClockGet    driverlib.lib(sysctl.o)
+    0x00003de4   0x00003de4   0x00000120   Code   RO         1652    i.SysCtlClockSet    driverlib.lib(sysctl.o)
+    0x00003f04   0x00003f04   0x00000028   Code   RO         1681    i.SysCtlPeripheralEnable  driverlib.lib(sysctl.o)
+    0x00003f2c   0x00003f2c   0x0000000e   Code   RO         2037    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x00003f3a   0x00003f3a   0x00000002   Code   RO         2038    i.__scatterload_null  mc_w.l(handlers.o)
+    0x00003f3c   0x00003f3c   0x0000000e   Code   RO         2039    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x00003f4a   0x00003f4a   0x00000002   PAD
+    0x00003f4c   0x00003f4c   0x00000210   Data   RO         1110    .constdata          driverlib.lib(gpio.o)
+    0x0000415c   0x0000415c   0x0000010c   Data   RO         1399    .constdata          driverlib.lib(interrupt.o)
+    0x00004268   0x00004268   0x000001c4   Data   RO         1702    .constdata          driverlib.lib(sysctl.o)
+    0x0000442c   0x0000442c   0x000004fb   Data   RO          665    .rodata.Font        st7735.o
+    0x00004927   0x00004927   0x0000003b   Data   RO          661    .rodata.Rcmd1       st7735.o
+    0x00004962   0x00004962   0x0000000d   Data   RO          662    .rodata.Rcmd2green  st7735.o
+    0x0000496f   0x0000496f   0x0000000d   Data   RO          663    .rodata.Rcmd2red    st7735.o
+    0x0000497c   0x0000497c   0x0000002b   Data   RO          664    .rodata.Rcmd3       st7735.o
+    0x000049a7   0x000049a7   0x00000001   PAD
+    0x000049a8   0x000049a8   0x00000004   Data   RO          404    .rodata._SlAcceptCmdCtrl  socket.o
+    0x000049ac   0x000049ac   0x00000038   Data   RO          192    .rodata._SlActionLookupTable  driver.o
+    0x000049e4   0x000049e4   0x00000004   Data   RO           94    .rodata._SlDeviceGetCmdCtrl  device.o
+    0x000049e8   0x000049e8   0x00000004   Data   RO          403    .rodata._SlListenCmdCtrl  socket.o
+    0x000049ec   0x000049ec   0x00000004   Data   RO          297    .rodata._SlNetAppSendTokenValueCmdCtrl  netapp.o
+    0x000049f0   0x000049f0   0x00000004   Data   RO          312    .rodata._SlNetCfgSetCmdCtrl  netcfg.o
+    0x000049f4   0x000049f4   0x00000004   Data   RO          484    .rodata._SlPolicySetCmdCtrl  wlan.o
+    0x000049f8   0x000049f8   0x00000004   Data   RO          487    .rodata._SlProfileDelCmdCtrl  wlan.o
+    0x000049fc   0x000049fc   0x00000004   Data   RO          405    .rodata._SlRecvCmdCtrl  socket.o
+    0x00004a00   0x00004a00   0x00000004   Data   RO          293    .rodata._SlRegisterServiceCtrl  netapp.o
+    0x00004a04   0x00004a04   0x00000004   Data   RO          402    .rodata._SlSendCmdCtrl  socket.o
+    0x00004a08   0x00004a08   0x00000004   Data   RO          400    .rodata._SlSockCloseCmdCtrl  socket.o
+    0x00004a0c   0x00004a0c   0x00000004   Data   RO          399    .rodata._SlSockSocketCmdCtrl  socket.o
+    0x00004a10   0x00004a10   0x00000004   Data   RO           91    .rodata._SlStopCmdCtrl  device.o
+    0x00004a14   0x00004a14   0x00000004   Data   RO          494    .rodata._SlWlanCfgSetCmdCtrl  wlan.o
+    0x00004a18   0x00004a18   0x00000004   Data   RO          493    .rodata._SlWlanSetModeCmdCtrl  wlan.o
+    0x00004a1c   0x00004a1c   0x00000008   Data   RO          191    .rodata.g_H2NCnysPattern  driver.o
+    0x00004a24   0x00004a24   0x00000008   Data   RO          190    .rodata.g_H2NSyncPattern  driver.o
+    0x00004a2c   0x00004a2c   0x0000000c   Data   RO          708    .rodata.g_ui32UARTInt  uartstdio.o
+    0x00004a38   0x00004a38   0x000000f6   Data   RO          889    .rodata.str1.1      main.o
+    0x00004b2e   0x00004b2e   0x0000001a   Data   RO          965    .rodata.str1.1      motor.o
+    0x00004b48   0x00004b48   0x00000020   Data   RO         2036    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM (Exec base: 0x20000000, Load base: 0x00004b30, Size: 0x00004ca8, Max: 0x00008000, ABSOLUTE)
+    Execution Region RW_IRAM (Exec base: 0x20000000, Load base: 0x00004b68, Size: 0x00004ca8, Max: 0x00008000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00004b30   0x00000002   Data   RW          659    .data.StTextColor   st7735.o
-    0x20000002   0x00004b32   0x00000001   Data   RW          964    .data.g_mode        motor.o
-    0x20000003   0x00004b33   0x00000005   PAD
+    0x20000000   0x00004b68   0x00000002   Data   RW          659    .data.StTextColor   st7735.o
+    0x20000002   0x00004b6a   0x00000001   Data   RW          964    .data.g_mode        motor.o
+    0x20000003   0x00004b6b   0x00000005   PAD
     0x20000008        -       0x00000034   Zero   RW          667    .bss..L_MergedGlobals  st7735.o
     0x2000003c        -       0x0000001c   Zero   RW          711    .bss..L_MergedGlobals  uartstdio.o
     0x20000058        -       0x00000034   Zero   RW          893    .bss..L_MergedGlobals  main.o
@@ -3001,7 +3004,7 @@ Memory Map of the image
     0x2000089c        -       0x00000400   Zero   RW          709    .bss.g_pcUARTTxBuffer  uartstdio.o
     0x20000c9c        -       0x00000004   Zero   RW           26    .bss.pIrqEventHandler  board.o
     0x20000ca0        -       0x00000004   Zero   RW          189    .bss.pPingCallBackFunc  driver.o
-    0x20000ca4   0x00004b33   0x00000004   PAD
+    0x20000ca4   0x00004b6b   0x00000004   PAD
     0x20000ca8        -       0x00004000   Zero   RW          435    STACK               startup_rvmdk.o
 
 
@@ -3018,7 +3021,7 @@ Image component sizes
         84          4          0          0          0        923   flowcont.o
        196         28          0          0          0        728   gpio.o
        112         24          0          0          0       1226   led.o
-      1178        376        231          0       1588      10160   main.o
+      1222        384        246          0       1588      10196   main.o
       1158        184         26          1          0       5247   motor.o
        754         20          8          0          0      16730   netapp.o
         60          4          4          0          0       2480   netcfg.o
@@ -3033,9 +3036,9 @@ Image component sizes
        574         20         16          0          0      17309   wlan.o
 
     ----------------------------------------------------------------------
-     13812       1760       1840          4      19620     142696   Object Totals
+     13856       1768       1852          4      19620     142732   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        28          8          4          1          8          0   (incl. Padding)
+        28          8          1          1          8          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -3088,15 +3091,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     16160       1866       3088          4      19620     161857   Grand Totals
-     16160       1866       3088          4      19620     161857   ELF Image Totals
-     16160       1866       3088          4          0          0   ROM Totals
+     16204       1874       3100          4      19620     161893   Grand Totals
+     16204       1874       3100          4      19620     161893   ELF Image Totals
+     16204       1874       3100          4          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                19248 (  18.80kB)
+    Total RO  Size (Code + RO Data)                19304 (  18.85kB)
     Total RW  Size (RW Data + ZI Data)             19624 (  19.16kB)
-    Total ROM Size (Code + RO Data + RW Data)      19252 (  18.80kB)
+    Total ROM Size (Code + RO Data + RW Data)      19308 (  18.86kB)
 
 ==============================================================================
 

@@ -47,6 +47,40 @@ typedef struct {
     bool connected;
 } AppState;
 
+// Configurable key mapping: ASCII key -> command letter (F,B,L,R,S,U,D,8,C,Z,Q)
+typedef struct {
+    unsigned char map[256];
+} KeyMap;
+
+static void keymap_init_defaults(KeyMap *km) {
+    memset(km->map, 0, sizeof(km->map));
+    // Default bindings
+    km->map[(unsigned char)'w'] = 'F'; km->map[(unsigned char)'W'] = 'F';
+    km->map[(unsigned char)'s'] = 'B'; km->map[(unsigned char)'S'] = 'B';
+    km->map[(unsigned char)'a'] = 'L'; km->map[(unsigned char)'A'] = 'L';
+    km->map[(unsigned char)'d'] = 'R'; km->map[(unsigned char)'D'] = 'R';
+    km->map[(unsigned char)' '] = 'S';
+    km->map[(unsigned char)'u'] = 'U'; km->map[(unsigned char)'U'] = 'U';
+    km->map[(unsigned char)'j'] = 'D'; km->map[(unsigned char)'J'] = 'D';
+    km->map[(unsigned char)'8'] = '8';
+    km->map[(unsigned char)'c'] = 'C'; km->map[(unsigned char)'C'] = 'C';
+    km->map[(unsigned char)'z'] = 'Z'; km->map[(unsigned char)'Z'] = 'Z';
+    km->map[(unsigned char)'q'] = 'Q'; km->map[(unsigned char)'Q'] = 'Q';
+}
+
+static int keymap_set(KeyMap *km, const char *spec) {
+    // spec format: "k:X" where k is a single character key, X is one-letter command
+    const char *colon = strchr(spec, ':');
+    if (!colon || colon == spec || colon[1] == '\0') return -1;
+    unsigned char key = (unsigned char)spec[0];
+    unsigned char cmd = (unsigned char)colon[1];
+    const char *valid = "FBLRSUD8CZQ";
+    if (!strchr(valid, (cmd >= 'a' && cmd <= 'z') ? (cmd - 32) : cmd)) return -2;
+    if (cmd >= 'a' && cmd <= 'z') cmd -= 32; // uppercase
+    km->map[key] = cmd;
+    return 0;
+}
+
 #ifdef NO_CURSES
 static void die(const char *msg) {
     perror(msg);
@@ -153,7 +187,7 @@ static int connect_with_timeout(const char *ip, uint16_t port, int timeout_sec) 
     return sock;
 }
 
-static char map_key(unsigned char k, const unsigned char *esc_seq, size_t esc_len) {
+static char map_key(const KeyMap *km, unsigned char k, const unsigned char *esc_seq, size_t esc_len) {
     // Arrow keys produce ESC [ A/B/C/D
     if (k == '\x1b' && esc_len >= 2 && esc_seq[0] == '[') {
         unsigned char code = esc_seq[1];
@@ -162,21 +196,8 @@ static char map_key(unsigned char k, const unsigned char *esc_seq, size_t esc_le
         if (code == 'C') return 'R'; // Right
         if (code == 'D') return 'L'; // Left
     }
-    // Direct mappings
-    switch (k) {
-        case 'w': case 'W': return 'F';
-        case 's': case 'S': return 'B';
-        case 'a': case 'A': return 'L';
-        case 'd': case 'D': return 'R';
-        case ' ':           return 'S';
-        case 'u': case 'U': return 'U';
-        case 'j': case 'J': return 'D';
-        case '8':           return '8';
-        case 'c': case 'C': return 'C';
-        case 'z': case 'Z': return 'Z';
-        case 'q': case 'Q': return 'Q';
-        default:            return 0; // ignore
-    }
+    // Configured direct mapping
+    return km->map[k]; // 0 if unmapped -> ignore
 }
 
 #ifndef NO_CURSES
@@ -223,7 +244,7 @@ static int kbd_read_raw(unsigned char *out) {
 #endif
 
 // Returns: 0 continue, 1 user-quit, -1 socket dropped
-static int interactive_session(AppState *st) {
+static int interactive_session(AppState *st, const KeyMap *km) {
 #ifndef NO_CURSES
     ui_draw(st);
 #else
@@ -302,18 +323,9 @@ static int interactive_session(AppState *st) {
                 case KEY_DOWN: cmd = 'B'; break;
                 case KEY_LEFT: cmd = 'L'; break;
                 case KEY_RIGHT: cmd = 'R'; break;
-                case 'w': case 'W': cmd = 'F'; break;
-                case 's': case 'S': cmd = 'B'; break;
-                case 'a': case 'A': cmd = 'L'; break;
-                case 'd': case 'D': cmd = 'R'; break;
-                case ' ': cmd = 'S'; break;
-                case 'u': case 'U': cmd = 'U'; break;
-                case 'j': case 'J': cmd = 'D'; break;
-                case '8': cmd = '8'; break;
-                case 'c': case 'C': cmd = 'C'; break;
-                case 'z': case 'Z': cmd = 'Z'; break;
-                case 'q': case 'Q': cmd = 'Q'; break;
-                default: break;
+                default:
+                    if (ch >= 0 && ch <= 255) cmd = map_key(km, (unsigned char)ch, NULL, 0);
+                    break;
             }
             if (cmd) {
                 st->last_cmd = cmd;
@@ -329,7 +341,7 @@ static int interactive_session(AppState *st) {
                 static unsigned char esc_buf2[8]; static size_t esc_len2 = 0; static bool in_esc2 = false;
                 if (!in_esc2) {
                     if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; continue; }
-                    char cmd = map_key(ch, NULL, 0);
+                    char cmd = map_key(km, ch, NULL, 0);
                     if (cmd) {
                         st->last_cmd = cmd;
                         if (send(st->sock, &cmd, 1, 0) != 1) return -1;
@@ -338,7 +350,7 @@ static int interactive_session(AppState *st) {
                 } else {
                     if (esc_len2 < sizeof(esc_buf2)) esc_buf2[esc_len2++] = ch;
                     if (esc_len2 >= 2) {
-                        char cmd = map_key('\x1b', esc_buf2, esc_len2);
+                        char cmd = map_key(km, '\x1b', esc_buf2, esc_len2);
                         if (cmd) {
                             st->last_cmd = cmd;
                             if (send(st->sock, &cmd, 1, 0) != 1) return -1;
@@ -369,16 +381,27 @@ int main(int argc, char **argv) {
         port = (uint16_t)p;
     }
 
-    // Parse optional -c
+    // Parse optional -c and --map key:CMD (can be repeated)
     for (int i = 2; i < argc; ++i) {
         if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
             cmdstr = argv[i + 1];
             ++i;
+        } else if (strcmp(argv[i], "--map") == 0 && i + 1 < argc) {
+            // Defer applying in the appropriate mode below
+            ++i; // skip value here; we'll re-parse below for each mode
         }
     }
 
     // One-shot mode: simple connect/send/close; minimal reconnect (one retry)
     if (cmdstr) {
+        KeyMap km; keymap_init_defaults(&km);
+        // Apply any --map arguments
+        for (int i = 2; i < argc; ++i) {
+            if (strcmp(argv[i], "--map") == 0 && i + 1 < argc) {
+                (void)keymap_set(&km, argv[i + 1]);
+                ++i;
+            }
+        }
         int attempts = 0;
         size_t idx = 0, len = strlen(cmdstr);
         int sock = -1;
@@ -387,7 +410,7 @@ int main(int argc, char **argv) {
                 sock = connect_with_timeout(ip, port, 5);
             }
             while (idx < len) {
-                char cmd = map_key((unsigned char)cmdstr[idx], NULL, 0);
+                char cmd = map_key(&km, (unsigned char)cmdstr[idx], NULL, 0);
                 if (!cmd) cmd = cmdstr[idx];
                 ssize_t n = send(sock, &cmd, 1, 0);
                 if (n != 1) { close(sock); sock = -1; attempts++; break; }
@@ -404,6 +427,14 @@ int main(int argc, char **argv) {
 
     // Interactive mode with auto-reconnect
     AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .connected = false };
+    KeyMap km; keymap_init_defaults(&km);
+    // Apply --map arguments for interactive mode
+    for (int i = 2; i < argc; ++i) {
+        if (strcmp(argv[i], "--map") == 0 && i + 1 < argc) {
+            (void)keymap_set(&km, argv[i + 1]);
+            ++i;
+        }
+    }
 #ifndef NO_CURSES
     ui_init();
     atexit(ui_shutdown);
@@ -448,7 +479,7 @@ int main(int argc, char **argv) {
         printf("Connected.\n");
 #endif
 
-        int res = interactive_session(&st);
+    int res = interactive_session(&st, &km);
         if (res == 1) { // user quit
             if (st.sock >= 0) {
                 // Try to send polite quit
