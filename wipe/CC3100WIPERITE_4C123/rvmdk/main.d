@@ -15,4 +15,4 @@
   ..\inc\hw_types.h ..\driverlib\debug.h ..\driverlib\fpu.h \
   ..\driverlib\gpio.h ..\driverlib\pin_map.h ..\driverlib\rom.h \
   ..\driverlib\sysctl.h ..\utils\cmdline.h application_commands.h LED.h \
-  ST7735.h ..\inc\tm4c123gh6pm.h bmps.h UART0.h motor.h
+  ST7735.h ..\inc\tm4c123gh6pm.h bmps.h UART0.h motor.h SysTick.h

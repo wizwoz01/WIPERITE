@@ -4,7 +4,8 @@
 // Description: 
 /////////////////////////////////////////////////////////////////////////////
 #define LED (*((volatile unsigned long *)0x40025038))  // use onboard three LEDs: PF321
-#define DIRECTION (*((volatile unsigned long *)0x400050F0)) // PB5432 are the four direction pins for L298
+#define DIRECTION_D (*((volatile unsigned long *)0x4000703C)) // PD2,1,0
+#define DIRECTION_C (*((volatile unsigned long *)0x40006100)) // PC6
 
 ////////// Constants //////////  
 // Color    LED(s) PortF
@@ -27,12 +28,13 @@
 #define Purple  	0x06
 
 // Constant definitions based on the following hardware interface:
-// PB5432 are used for direction control on L298.
+// PD2,1,0 and PC6 are used for direction control on L298.
 // Motor 1 is connected to the left wheel, Motor 2 is connected to the right wheel.
-#define BACKWARD 0x28
-#define FORWARD 0x3C
-#define LEFTPIVOT 0x38
-#define RIGHTPIVOT 0x2C
+#define BACKWARD 0x0A
+#define FORWARD 0x05
+#define LEFTPIVOT 0x09
+#define RIGHTPIVOT 0x06
+#define BRAKE 0x00
 
 // standard ASCII symbols
 #define CR   0x0D
@@ -43,7 +45,7 @@
 // Dependency: None
 // Inputs: None
 // Outputs: None
-// Description: Initializes PB5432 for use with L298N motor driver direction
+// Description: Initializes PD2,1,0 and PC6 for use with L298N motor driver direction
 void Car_Dir_Init(void);
 //void LED_Init(void);
 void UART_Init(void);

@@ -9,18 +9,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "motor.h"
-#include "GPIO.h"   // DIRECTION, FORWARD/BACKWARD/LEFTPIVOT/RIGHTPIVOT, UART, LEDs
-#include "PWM.h"    // PWM_PB76_Init, PWM_PB6_Duty, PWM_PB7_Duty, speed constants
+#include "GPIO.h"   // DIRECTION_D, DIRECTION_C, FORWARD/BACKWARD/LEFTPIVOT/RIGHTPIVOT, UART, LEDs
+#include "PWM.h"    // PWM_Init, PWM_Duty, PWM_PB5_Duty, PWM_PE5_Duty, speed constants
 #include "UART0.h"
 
 // Optional no-op delay used by some helpers
 static inline void delay(void){ for(volatile uint32_t i=0;i<50000;i++){} }
 
-// Initialize direction pins (PB5-2) and PWM on PB6/PB7
+// Initialize direction pins (PD2-0, PC6) and PWM on PE5/PB5
 // Unified init
 static void Motors_CoreInit(void){
-  Car_Dir_Init();     // PB5-2 for direction
-  PWM_PB76_Init();    // PB6/PB7 for speed PWM (M0PWM0 A/B)
+  Car_Dir_Init();     // PD2-0, PC6 for direction
+  PWM_Init();    // PE5/PB5 for speed PWM (M0PWM5/M0PWM3)
 }
 
 // ---------------- High-level car control merged from HW_PWM_Car ----------------
@@ -53,7 +53,7 @@ static void Slow_Down(void);
 
 void MotorControl_Init(void){
   Motors_CoreInit();
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
+  PWM_Duty(SPEED_35, SPEED_35);
   PortF_Init();          // LEDs and PF4
   PF4_ModeToggle_Init(); // optional mode toggle on PF4
   UART_OutString((uint8_t*)"WIPERITE control ready\r\n");
@@ -165,183 +165,217 @@ void GPIOPortF_Handler(void){
 // ----------------- Pattern helpers -----------------
 static void FigureEight(void){
   //forward left turn
-  DIRECTION=FORWARD;
-  PWM_PB76_Duty(SPEED_10, SPEED_35);
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_10, SPEED_35);
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(1.5);
 
   //forward right turn
-  DIRECTION=FORWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_10);
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_10);
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(1.5);
 
   //stop
-  PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R &= ~0x00000028; // stop both wheels
   Car_Delay(1.5);
 }
 
 static void Circle(void){
   //foward left turn
-  DIRECTION=FORWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  PWM0_ENABLE_R |= 0x00000002; // Enable right wheel
-  PWM0_ENABLE_R &= ~0x00000001; // Disable left wheel
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_35);
+  PWM0_ENABLE_R |= 0x00000020; // Enable right wheel
+  PWM0_ENABLE_R &= ~0x00000008; // Disable left wheel
   Car_Delay(1.3);
 
   //stop
-  PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R &= ~0x00000028; // stop both wheels
   Car_Delay(1);
 }
 
 static void Square(void){
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   // right pivot turn
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //right pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //right pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //right pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   //stop
-  PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R &= ~0x00000028; // stop both wheels
   Car_Delay(1);
 }
 
 static void ZigZag(void){
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //right pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //left pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=LEFTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (LEFTPIVOT & 0x07);
+  DIRECTION_C = (LEFTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //right pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=RIGHTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //left pivot
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION=LEFTPIVOT;
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (LEFTPIVOT & 0x07);
+  DIRECTION_C = (LEFTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheels
   Car_Delay(0.175);
 
   // moving forward
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
   Car_Delay(1);
 
   //stop
-  PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R &= ~0x00000028; // stop both wheels
   Car_Delay(1);
 }
 
 static void Forward(void){
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = FORWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
 }
 
 static void Reverse(void){
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
-  DIRECTION = BACKWARD;
-  PWM0_ENABLE_R |= 0x00000003; // enable both wheels
+  PWM_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (BACKWARD & 0x07);
+  DIRECTION_C = (BACKWARD & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R |= 0x00000028; // enable both wheels
 }
 
 static void Right_Wide_Turn(void){
-  DIRECTION=FORWARD;
-  PWM_PB76_Duty(SPEED_20, SPEED_35);
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheel
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_20, SPEED_35);
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheel
 }
 
 static void Left_Wide_Turn(void){
-  DIRECTION=FORWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_20);
-  PWM0_ENABLE_R |= 0x00000003; // Enable both wheel
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_20);
+  PWM0_ENABLE_R |= 0x00000028; // Enable both wheel
 }
 
 static void Stop(void){
-  PWM0_ENABLE_R &= ~0x00000003; // stop both wheels
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
+  PWM0_ENABLE_R &= ~0x00000028; // stop both wheels
 }
 
 static void Speed_Up(void){
-  PWM_PB76_Duty(SPEED_50, SPEED_50);
+  PWM_Duty(SPEED_50, SPEED_50);
 }
 
 static void Slow_Down(void){
-  PWM_PB76_Duty(SPEED_10, SPEED_10);
+  PWM_Duty(SPEED_10, SPEED_10);
 }
 
 static void Car_Delay(double x){
@@ -354,74 +388,84 @@ static void Car_Delay(double x){
 //volatile enum robot_modes mode = INACTIVE;
 
 // Start left wheel
-void Start_L(void) { PWM0_ENABLE_R |= 0x00000001; } // PB6/M0PWM0A
+void Start_L(void) { PWM0_ENABLE_R |= 0x00000008; } // PB5/M0PWM3
 
 // Start right wheel
-void Start_R(void) { PWM0_ENABLE_R |= 0x00000002; } // PB7/M0PWM0B
+void Start_R(void) { PWM0_ENABLE_R |= 0x00000020; } // PE5/M0PWM5
 
 // Stop left wheel
-void Stop_L(void) { PWM0_ENABLE_R &= ~0x00000001; }
+void Stop_L(void) { PWM0_ENABLE_R &= ~0x00000008; }
 
 // Stop right wheel
-void Stop_R(void) { PWM0_ENABLE_R &= ~0x00000002; }
+void Stop_R(void) { PWM0_ENABLE_R &= ~0x00000020; }
 
-void Start_Both_Wheels(void){ PWM0_ENABLE_R |= 0x00000003; }
+void Start_Both_Wheels(void){ PWM0_ENABLE_R |= 0x00000028; }
 
-void Stop_Both_Wheels(void) { PWM0_ENABLE_R &= ~0x00000003; }
+void Stop_Both_Wheels(void) { PWM0_ENABLE_R &= ~0x00000028; }
 
-// Set duty cycle for Left/Right Wheel using PWM module on PB6/PB7
-void Set_L_Speed(uint16_t duty){ PWM_PB6_Duty(duty); }
-void Set_R_Speed(uint16_t duty){ PWM_PB7_Duty(duty); }
+// Set duty cycle for Left/Right Wheel using PWM module on PB5/PE5
+void Set_L_Speed(uint16_t duty){ PWM_PB5_Duty(duty); }
+void Set_R_Speed(uint16_t duty){ PWM_PE5_Duty(duty); }
 
 void move_forward(void) {
-  DIRECTION = FORWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_35);
   Start_Both_Wheels();
 }
 
 void move_backward(void) {
-  DIRECTION = BACKWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (BACKWARD & 0x07);
+  DIRECTION_C = (BACKWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_35);
   Start_Both_Wheels();
 }
 
 void stop_the_car(void) {
+  DIRECTION_D = (BRAKE & 0x07);
+  DIRECTION_C = (BRAKE & 0x08) ? 0x40 : 0x00;
   Stop_Both_Wheels();
-  PWM_PB76_Duty(1, 1);
+  PWM_Duty(1, 1);
 }
 
 void forward_left(void) {
-  DIRECTION = FORWARD;
-  PWM_PB76_Duty(SPEED_10, SPEED_35);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_10, SPEED_35);
   Start_Both_Wheels();
 }
 
 void forward_right(void) {
-  DIRECTION = FORWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_10);
+  DIRECTION_D = (FORWARD & 0x07);
+  DIRECTION_C = (FORWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_10);
   Start_Both_Wheels();
 }
 
 void backward_left(void) {
-  DIRECTION = BACKWARD;
-  PWM_PB76_Duty(SPEED_10, SPEED_35);
+  DIRECTION_D = (BACKWARD & 0x07);
+  DIRECTION_C = (BACKWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_10, SPEED_35);
   Start_Both_Wheels();
 }
 
 void backward_right(void) {
-  DIRECTION = BACKWARD;
-  PWM_PB76_Duty(SPEED_35, SPEED_10);
+  DIRECTION_D = (BACKWARD & 0x07);
+  DIRECTION_C = (BACKWARD & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_10);
   Start_Both_Wheels();
 }
 
 void pivot_left(void) {
-  DIRECTION = LEFTPIVOT;
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (LEFTPIVOT & 0x07);
+  DIRECTION_C = (LEFTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_35);
   Start_Both_Wheels();
 }
 
 void pivot_right(void) {
-  DIRECTION = RIGHTPIVOT;
-  PWM_PB76_Duty(SPEED_35, SPEED_35);
+  DIRECTION_D = (RIGHTPIVOT & 0x07);
+  DIRECTION_C = (RIGHTPIVOT & 0x08) ? 0x40 : 0x00;
+  PWM_Duty(SPEED_35, SPEED_35);
   Start_Both_Wheels();
 }

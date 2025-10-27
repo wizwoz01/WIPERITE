@@ -25,17 +25,17 @@
 // Description: 
 //	Initializes the PWM module 1 signals tied to PF321 on the Tiva Launchpad 
 //		to allow for changing brightness of LEDs based on vehicle speed.
-//	Initializes the PWM module 0 signals tied to PB76 to be used with the 
+//	Initializes the PWM module 0 signals tied to PE5 and PB5 to be used with the 
 //		L298N motor driver allowing for a variable speed of robot car.
-void PWM_PB76_Init(void);
+void PWM_Init(void);
 
-// Dependency: PWM_PB76_Init()
+// Dependency: PWM_Init()
 // Inputs: 
-//	duty_L is the value corresponding to the duty cycle of the left wheel
-//	duty_R is the value corresponding to the duty cycle of the right wheel
+//	duty_L is the value corresponding to the duty cycle of the left wheel (PB5)
+//	duty_R is the value corresponding to the duty cycle of the right wheel (PE5)
 // Outputs: None 
-// Description: Changes the duty cycles of PB76 by changing the CMP registers
-void PWM_PB76_Duty(uint16_t duty_L, uint16_t duty_R);
-void PWM_PB7_Duty(uint16_t duty_R);
-void PWM_PB6_Duty(uint16_t duty_L);
+// Description: Changes the duty cycles of the PWM signals by changing the CMP registers
+void PWM_Duty(uint16_t duty_L, uint16_t duty_R);
+void PWM_PE5_Duty(uint16_t duty_R);
+void PWM_PB5_Duty(uint16_t duty_L);
 /////////////////////////////////////////////////////////////////////////////

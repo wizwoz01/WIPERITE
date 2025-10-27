@@ -1,326 +1,330 @@
 Dependencies for Project 'WIPERITE', Target 'WIPERITE-TM4C123': (DO NOT MODIFY !)
 CompilerVersion: 6240000::V6.24::ARMCLANG
-F (..\cc3100\platform\ek-tm4c123gxl\board.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/board.o -MMD)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\..\inc\tm4c123gh6pm.h)(0x68F677C7)
-I (..\inc\hw_memmap.h)(0x68F677C7)
-I (..\inc\hw_ssi.h)(0x68F677C7)
-I (..\inc\hw_types.h)(0x68F677C7)
-I (..\driverlib\ssi.h)(0x68F677C7)
-I (..\driverlib\rom.h)(0x68F677C7)
-I (..\driverlib\gpio.h)(0x68F677C7)
-I (..\driverlib\sysctl.h)(0x68F677C7)
-I (..\driverlib\fpu.h)(0x68F677C7)
-I (..\driverlib\uart.h)(0x68F677C7)
-F (.\LED.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/led.o -MMD)
-I (..\inc\tm4c123gh6pm.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\device.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/device.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\flowcont.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\driver.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/driver.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\flowcont.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\flowcont.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/flowcont.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\flowcont.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\fs.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/fs.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\netapp.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/netapp.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\netcfg.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/netcfg.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\nonos.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/nonos.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\nonos.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\socket.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/socket.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\cc3100\simplelink\source\spawn.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/spawn.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-F (..\cc3100\platform\ek-tm4c123gxl\spi.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/spi.o -MMD)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\inc\hw_memmap.h)(0x68F677C7)
-I (..\inc\hw_ssi.h)(0x68F677C7)
-I (..\inc\hw_gpio.h)(0x68F677C7)
-I (..\inc\hw_types.h)(0x68F677C7)
-I (..\driverlib\pin_map.h)(0x68F677C7)
-I (..\inc\hw_ints.h)(0x68F677C7)
-I (..\driverlib\ssi.h)(0x68F677C7)
-I (..\driverlib\rom.h)(0x68F677C7)
-I (..\driverlib\gpio.h)(0x68F677C7)
-I (..\driverlib\sysctl.h)(0x68F677C7)
-I (..\driverlib\interrupt.h)(0x68F677C7)
-F (.\startup_rvmdk.S)(0x68F677C7)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4 -D__MICROLIB -D__EVAL -MMD-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION=543 -DTM4C123GH6PM -D_RTE_-o ./rvmdk/startup_rvmdk.o)
-F (..\cc3100\simplelink\source\wlan.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/wlan.o -MMD)
-I (..\cc3100\simplelink\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\protocol.h)(0x68F677C7)
-I (..\cc3100\simplelink\source\driver.h)(0x68F677C7)
-F (..\utils\ustdlib.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/ustdlib.o -MMD)
-I (..\driverlib\debug.h)(0x68F677C7)
-I (..\utils\ustdlib.h)(0x68F677C7)
-F (.\ST7735.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/st7735.o -MMD)
-I (ST7735.h)(0x68F677C7)
-I (..\inc\tm4c123gh6pm.h)(0x68F677C7)
-F (..\utils\uartstdio.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uartstdio.o -MMD)
-I (..\inc\hw_ints.h)(0x68F677C7)
-I (..\inc\hw_memmap.h)(0x68F677C7)
-I (..\inc\hw_types.h)(0x68F677C7)
-I (..\inc\hw_uart.h)(0x68F677C7)
-I (..\driverlib\debug.h)(0x68F677C7)
-I (..\driverlib\interrupt.h)(0x68F677C7)
-I (..\driverlib\rom.h)(0x68F677C7)
-I (..\driverlib\rom_map.h)(0x68F677C7)
-I (..\driverlib\sysctl.h)(0x68F677C7)
-I (..\driverlib\uart.h)(0x68F677C7)
-I (..\utils\uartstdio.h)(0x68F677C7)
-F (..\driverlib\uart.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uart.o -MMD)
-I (..\inc\hw_ints.h)(0x68F677C7)
-I (..\inc\hw_memmap.h)(0x68F677C7)
-I (..\inc\hw_sysctl.h)(0x68F677C7)
-I (..\inc\hw_types.h)(0x68F677C7)
-I (..\inc\hw_uart.h)(0x68F677C7)
-I (..\driverlib\debug.h)(0x68F677C7)
-I (..\driverlib\interrupt.h)(0x68F677C7)
-I (..\driverlib\uart.h)(0x68F677C7)
-F (.\UART0.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uart0.o -MMD)
-I (tm4c123gh6pm.h)(0x68F677C7)
-I (UART0.h)(0x68F677C7)
-F (.\GPIO.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/gpio.o -MMD)
-I (tm4c123gh6pm.h)(0x68F677C7)
-I (GPIO.h)(0x68F677C7)
-F (.\main.c)(0x68F83807)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/main.o -MMD)
-I (..\cc3100\simplelink\include\simplelink.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F677C7)
-I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\trace.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\fs.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\socket.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netapp.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\device.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\netcfg.h)(0x68F677C7)
-I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F677C7)
-I (..\inc\hw_memmap.h)(0x68F677C7)
-I (..\inc\hw_types.h)(0x68F677C7)
-I (..\driverlib\debug.h)(0x68F677C7)
-I (..\driverlib\fpu.h)(0x68F677C7)
-I (..\driverlib\gpio.h)(0x68F677C7)
-I (..\driverlib\pin_map.h)(0x68F677C7)
-I (..\driverlib\rom.h)(0x68F677C7)
-I (..\driverlib\sysctl.h)(0x68F677C7)
-I (..\utils\cmdline.h)(0x68F677C7)
-I (application_commands.h)(0x68F677C7)
-I (LED.h)(0x68F677C7)
-I (ST7735.h)(0x68F677C7)
-I (..\inc\tm4c123gh6pm.h)(0x68F677C7)
-I (bmps.h)(0x68F677C7)
-I (UART0.h)(0x68F677C7)
-I (motor.h)(0x68F677C7)
-F (.\motor.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/motor.o -MMD)
-I (tm4c123gh6pm.h)(0x68F677C7)
-I (motor.h)(0x68F677C7)
-I (GPIO.h)(0x68F677C7)
-I (PWM.h)(0x68F677C7)
-I (UART0.h)(0x68F677C7)
-F (.\PWM.c)(0x68F677C7)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/pwm.o -MMD)
-I (tm4c123gh6pm.h)(0x68F677C7)
-I (PWM.h)(0x68F677C7)
-F (..\driverlib\rvmdk\driverlib.lib)(0x68F677C7)()
-F (.\readme.txt)(0x68F677C7)()
+F (..\cc3100\platform\ek-tm4c123gxl\board.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/board.o -MMD)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\..\inc\tm4c123gh6pm.h)(0x68F88391)
+I (..\inc\hw_memmap.h)(0x68F88391)
+I (..\inc\hw_ssi.h)(0x68F88391)
+I (..\inc\hw_types.h)(0x68F88391)
+I (..\driverlib\ssi.h)(0x68F88391)
+I (..\driverlib\rom.h)(0x68F88391)
+I (..\driverlib\gpio.h)(0x68F88391)
+I (..\driverlib\sysctl.h)(0x68F88391)
+I (..\driverlib\fpu.h)(0x68F88391)
+I (..\driverlib\uart.h)(0x68F88391)
+F (.\LED.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/led.o -MMD)
+I (..\inc\tm4c123gh6pm.h)(0x68F88391)
+F (..\cc3100\simplelink\source\device.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/device.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\flowcont.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\cc3100\simplelink\source\driver.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/driver.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+I (..\cc3100\simplelink\source\flowcont.h)(0x68F88391)
+F (..\cc3100\simplelink\source\flowcont.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/flowcont.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+I (..\cc3100\simplelink\source\flowcont.h)(0x68F88391)
+F (..\cc3100\simplelink\source\fs.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/fs.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\cc3100\simplelink\source\netapp.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/netapp.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\cc3100\simplelink\source\netcfg.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/netcfg.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\cc3100\simplelink\source\nonos.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/nonos.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+I (..\cc3100\simplelink\source\nonos.h)(0x68F88391)
+F (..\cc3100\simplelink\source\socket.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/socket.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\cc3100\simplelink\source\spawn.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/spawn.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+F (..\cc3100\platform\ek-tm4c123gxl\spi.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/spi.o -MMD)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\inc\hw_memmap.h)(0x68F88391)
+I (..\inc\hw_ssi.h)(0x68F88391)
+I (..\inc\hw_gpio.h)(0x68F88391)
+I (..\inc\hw_types.h)(0x68F88391)
+I (..\driverlib\pin_map.h)(0x68F88391)
+I (..\inc\hw_ints.h)(0x68F88391)
+I (..\driverlib\ssi.h)(0x68F88391)
+I (..\driverlib\rom.h)(0x68F88391)
+I (..\driverlib\gpio.h)(0x68F88391)
+I (..\driverlib\sysctl.h)(0x68F88391)
+I (..\driverlib\interrupt.h)(0x68F88391)
+F (.\startup_rvmdk.S)(0x68F88391)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4 -D__MICROLIB -D__EVAL -MMD-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION=543 -DTM4C123GH6PM -D_RTE_-o ./rvmdk/startup_rvmdk.o)
+F (..\cc3100\simplelink\source\wlan.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/wlan.o -MMD)
+I (..\cc3100\simplelink\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\cc3100\simplelink\source\protocol.h)(0x68F88391)
+I (..\cc3100\simplelink\source\driver.h)(0x68F88391)
+F (..\utils\ustdlib.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/ustdlib.o -MMD)
+I (..\driverlib\debug.h)(0x68F88391)
+I (..\utils\ustdlib.h)(0x68F88391)
+F (.\ST7735.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/st7735.o -MMD)
+I (ST7735.h)(0x68F88391)
+I (..\inc\tm4c123gh6pm.h)(0x68F88391)
+F (..\utils\uartstdio.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uartstdio.o -MMD)
+I (..\inc\hw_ints.h)(0x68F88391)
+I (..\inc\hw_memmap.h)(0x68F88391)
+I (..\inc\hw_types.h)(0x68F88391)
+I (..\inc\hw_uart.h)(0x68F88391)
+I (..\driverlib\debug.h)(0x68F88391)
+I (..\driverlib\interrupt.h)(0x68F88391)
+I (..\driverlib\rom.h)(0x68F88391)
+I (..\driverlib\rom_map.h)(0x68F88391)
+I (..\driverlib\sysctl.h)(0x68F88391)
+I (..\driverlib\uart.h)(0x68F88391)
+I (..\utils\uartstdio.h)(0x68F88391)
+F (..\driverlib\uart.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uart.o -MMD)
+I (..\inc\hw_ints.h)(0x68F88391)
+I (..\inc\hw_memmap.h)(0x68F88391)
+I (..\inc\hw_sysctl.h)(0x68F88391)
+I (..\inc\hw_types.h)(0x68F88391)
+I (..\inc\hw_uart.h)(0x68F88391)
+I (..\driverlib\debug.h)(0x68F88391)
+I (..\driverlib\interrupt.h)(0x68F88391)
+I (..\driverlib\uart.h)(0x68F88391)
+F (.\UART0.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/uart0.o -MMD)
+I (tm4c123gh6pm.h)(0x68F89199)
+I (UART0.h)(0x68F88391)
+F (.\GPIO.c)(0x68F890DC)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/gpio.o -MMD)
+I (tm4c123gh6pm.h)(0x68F89199)
+I (GPIO.h)(0x68F89422)
+F (.\main.c)(0x68FEF802)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/main.o -MMD)
+I (..\cc3100\simplelink\include\simplelink.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\user.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\board.h)(0x68F88391)
+I (..\cc3100\platform\ek-tm4c123gxl\spi.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\nonos.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\objInclusion.h)(0x68F88391)
+I (..\cc3100\simplelink\include\..\source\datatypes.h)(0x68F88391)
+I (..\cc3100\simplelink\include\trace.h)(0x68F88391)
+I (..\cc3100\simplelink\include\fs.h)(0x68F88391)
+I (..\cc3100\simplelink\include\socket.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netapp.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan.h)(0x68F88391)
+I (..\cc3100\simplelink\include\device.h)(0x68F88391)
+I (..\cc3100\simplelink\include\netcfg.h)(0x68F88391)
+I (..\cc3100\simplelink\include\wlan_rx_filters.h)(0x68F88391)
+I (..\inc\hw_memmap.h)(0x68F88391)
+I (..\inc\hw_types.h)(0x68F88391)
+I (..\driverlib\debug.h)(0x68F88391)
+I (..\driverlib\fpu.h)(0x68F88391)
+I (..\driverlib\gpio.h)(0x68F88391)
+I (..\driverlib\pin_map.h)(0x68F88391)
+I (..\driverlib\rom.h)(0x68F88391)
+I (..\driverlib\sysctl.h)(0x68F88391)
+I (..\utils\cmdline.h)(0x68F88391)
+I (application_commands.h)(0x68F88391)
+I (LED.h)(0x68F88391)
+I (ST7735.h)(0x68F88391)
+I (..\inc\tm4c123gh6pm.h)(0x68F88391)
+I (bmps.h)(0x68F88391)
+I (UART0.h)(0x68F88391)
+I (motor.h)(0x68F88391)
+I (SysTick.h)(0x68F88391)
+F (.\motor.c)(0x68F893CC)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/motor.o -MMD)
+I (tm4c123gh6pm.h)(0x68F89199)
+I (motor.h)(0x68F88391)
+I (GPIO.h)(0x68F89422)
+I (PWM.h)(0x68F88BCF)
+I (UART0.h)(0x68F88391)
+F (.\PWM.c)(0x68F88BCF)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/pwm.o -MMD)
+I (tm4c123gh6pm.h)(0x68F89199)
+I (PWM.h)(0x68F88BCF)
+F (.\SysTick.c)(0x68F88391)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__EVAL -D__MICROLIB -gdwarf-4 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I .. -I ../ -I ../../../.. -I ../cc3100 -I ../cc3100/platform/ek-tm4c123gxl -I ../cc3100/simplelink/include -I ../cc3100/simplelink/source-I./RTE/_WIPERITE-TM4C123-IC:/Arm/Packs/ARM/CMSIS/6.2.0/CMSIS/Core/Include-IC:/Arm/Packs/Keil/TM4C_DFP/1.1.0/Device/Include/TM4C123-D__UVISION_VERSION="543" -DTM4C123GH6PM -D_RTE_ -Drvmdk -DPART_TM4C123GH6PM -D_POSIX_SOURCE -DUART_BUFFERED -DTARGET_IS_TM4C123_RB1-o ./rvmdk/systick.o -MMD)
+I (SysTick.h)(0x68F88391)
+I (tm4c123gh6pm.h)(0x68F89199)
+F (..\driverlib\rvmdk\driverlib.lib)(0x68F88391)()
+F (.\readme.txt)(0x68F88391)()

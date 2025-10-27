@@ -24,6 +24,9 @@
 // RCGC2 GPIO bits (legacy)
 #define SYSCTL_RCGC2_GPIOA        0x00000001
 #define SYSCTL_RCGC2_GPIOB        0x00000002
+#define SYSCTL_RCGC2_GPIOC        0x00000004
+#define SYSCTL_RCGC2_GPIOD        0x00000008 
+#define SYSCTL_RCGC2_GPIOE        0x00000010
 #define SYSCTL_RCGC2_GPIOF        0x00000020
 
 // RCC PWM divider
@@ -72,6 +75,33 @@
 #define GPIO_PORTB_AMSEL_R        (*((volatile uint32_t *)0x40005528))
 #define GPIO_PORTB_PCTL_R         (*((volatile uint32_t *)0x4000552C))
 
+// Port C (APB)
+#define GPIO_PORTC_DATA_R         (*((volatile uint32_t *)0x400063FC))
+#define GPIO_PORTC_DIR_R          (*((volatile uint32_t *)0x40006400))
+#define GPIO_PORTC_AFSEL_R        (*((volatile uint32_t *)0x40006420))
+#define GPIO_PORTC_PUR_R          (*((volatile uint32_t *)0x40006510))
+#define GPIO_PORTC_DEN_R          (*((volatile uint32_t *)0x4000651C))
+#define GPIO_PORTC_AMSEL_R        (*((volatile uint32_t *)0x40006528))
+#define GPIO_PORTC_PCTL_R         (*((volatile uint32_t *)0x4000652C))
+
+// Port D (APB)
+#define GPIO_PORTD_DATA_R         (*((volatile uint32_t *)0x400073FC))
+#define GPIO_PORTD_DIR_R          (*((volatile uint32_t *)0x40007400))
+#define GPIO_PORTD_AFSEL_R        (*((volatile uint32_t *)0x40007420))
+#define GPIO_PORTD_PUR_R          (*((volatile uint32_t *)0x40007510))
+#define GPIO_PORTD_DEN_R          (*((volatile uint32_t *)0x4000751C))
+#define GPIO_PORTD_AMSEL_R        (*((volatile uint32_t *)0x40007528))
+#define GPIO_PORTD_PCTL_R         (*((volatile uint32_t *)0x4000752C))
+
+// Port E (APB)
+#define GPIO_PORTE_DATA_R         (*((volatile uint32_t *)0x400243FC))
+#define GPIO_PORTE_DIR_R          (*((volatile uint32_t *)0x40024400))
+#define GPIO_PORTE_AFSEL_R        (*((volatile uint32_t *)0x40024420))
+#define GPIO_PORTE_PUR_R          (*((volatile uint32_t *)0x40024510))
+#define GPIO_PORTE_DEN_R          (*((volatile uint32_t *)0x4002451C))
+#define GPIO_PORTE_AMSEL_R        (*((volatile uint32_t *)0x40024528))
+#define GPIO_PORTE_PCTL_R         (*((volatile uint32_t *)0x4002452C))
+
 // Port F (APB)
 #define GPIO_PORTF_DATA_R         (*((volatile uint32_t *)0x400253FC))
 #define GPIO_PORTF_DIR_R          (*((volatile uint32_t *)0x40025400))
@@ -109,6 +139,14 @@
 #define PWM0_1_CMPB_R             (*((volatile uint32_t *)0x4002809C))
 #define PWM0_1_GENA_R             (*((volatile uint32_t *)0x400280A0))
 #define PWM0_1_GENB_R             (*((volatile uint32_t *)0x400280A4))
+
+// Generator 2 (PWM0_2)
+#define PWM0_2_CTL_R              (*((volatile uint32_t *)0x400280C0))
+#define PWM0_2_LOAD_R             (*((volatile uint32_t *)0x400280D0))
+#define PWM0_2_CMPA_R             (*((volatile uint32_t *)0x400280D8))
+#define PWM0_2_CMPB_R             (*((volatile uint32_t *)0x400280DC))
+#define PWM0_2_GENA_R             (*((volatile uint32_t *)0x400280E0))
+#define PWM0_2_GENB_R             (*((volatile uint32_t *)0x400280E4))
 
 // ------------------------------- UART0/1 ---------------------------------
 // UART0 base 0x4000C000, UART1 base 0x4000D000

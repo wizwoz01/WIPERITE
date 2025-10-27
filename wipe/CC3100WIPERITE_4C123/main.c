@@ -98,11 +98,26 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "bmps.h"
 #include "UART0.h"
 #include "motor.h"
+#include "SysTick.h"
+#ifndef SL_EAGAIN
+#define SL_EAGAIN (-11)
+#endif
+
+// Optional: small cooperative delay helper
+static inline void delay_ms(uint32_t ms){
+  // SysTick is configured for busy-wait in this project
+  // T1ms is defined as 50,000 for 1ms at 50MHz
+  for(uint32_t i=0;i<ms;i++){
+    SysTick_Wait(T1ms);
+    // Keep the SimpleLink host driver serviced even during small delays
+    _SlNonOsMainLoopTask();
+  }
+}
 
 // To Do: replace the following three lines with your access point information
-#define SSID_NAME  "test00" /* Access point name to connect to */
+#define SSID_NAME  "Moto" /* Access point name to connect to */
 #define SEC_TYPE   SL_SEC_TYPE_WPA
-#define PASSKEY    "011101110111"  /* Password in case of secure AP */ 
+#define PASSKEY    "WIPERITE-t9!"  /* Password in case of secure AP */ 
 #define MAXLEN 100
 
 
@@ -174,6 +189,16 @@ typedef enum{
 
 }e_Status;
 UINT32  g_Status = 0;
+// Reconnect management flags
+static volatile uint8_t g_wifi_disconnect_flag = 0; // set by WLAN disconnect event
+static volatile uint8_t g_wifi_connecting = 0;      // guard concurrent attempts
+static uint32_t g_reconnect_backoff_ms = 0;         // simple backoff (0, 1000, 2000, max 8000)
+static uint32_t g_reconnect_timer_ms = 0;           // countdown in main loop
+static uint8_t g_reconnect_attempts = 0;            // attempts since last success
+static volatile uint8_t g_ui_dirty = 1;              // request a UI refresh
+static volatile uint8_t g_ip_b1=0,g_ip_b2=0,g_ip_b3=0,g_ip_b4=0; // last acquired IP
+static volatile uint32_t g_last_disc_reason = 0;     // last disconnect reason code
+static volatile uint8_t g_gw_b1=0,g_gw_b2=0,g_gw_b3=0,g_gw_b4=0; // last gateway IP
 /*
  * GLOBAL VARIABLES -- End
  */
@@ -184,6 +209,11 @@ UINT32  g_Status = 0;
  */
 
 static int32_t configureSimpleLinkToDefaultState(char *);
+static void wifi_attempt_connect(void);
+static void sockets_close_if_open(int *pListenSock, int *pClientSock);
+static int sockets_ensure_listening(int *pListenSock);
+static void socket_set_nonblocking(int sd);
+static void ui_render(int listenSock, int clientSock);
 
 
 /*
@@ -229,6 +259,7 @@ int main(void){
 
   // Initialize car control hardware 
   MotorControl_Init();
+  SysTick_Init(); // enable busy-wait timing for cooperative scheduling
 	
   retVal = configureSimpleLinkToDefaultState(pConfig); // set policies
   if(retVal < 0)Crash(4000000);
@@ -238,11 +269,14 @@ int main(void){
   secParams.KeyLen = strlen(PASSKEY);
   secParams.Type = SEC_TYPE; // OPEN, WPA, or WEP
   sl_WlanConnect(SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
+  g_wifi_connecting = 1;
   while((0 == (g_Status&CONNECTED)) || (0 == (g_Status&IP_AQUIRED))){
     _SlNonOsMainLoopTask();
   }
+  g_wifi_connecting = 0;
   UART_OutString((uint8_t*)"Connected\n\r");
   ST7735_OutString("Connected\n\r");
+  g_ui_dirty = 1;
 	
   // Set up TCP server socket
   LocalAddr.sin_family = SL_AF_INET;
@@ -254,64 +288,131 @@ int main(void){
   if(ListenSock < 0){ Crash(4000000); }
   if(sl_Bind(ListenSock, (SlSockAddr_t *)&LocalAddr, ASize) < 0){ Crash(4000000); }
   if(sl_Listen(ListenSock, 1) < 0){ Crash(4000000); }
+  // Make listen socket non-blocking so we can service the SimpleLink driver and reconnect
+  socket_set_nonblocking(ListenSock);
 
   UART_OutString((uint8_t*)"Listening on TCP port ");
   UART_OutUDec(LISTEN_PORT);
   UART_OutString((uint8_t*)"\r\nSend single-letter commands (F,B,L,R,S,U,D,8,C,Z). 'Q' to close.\r\n");
+  g_ui_dirty = 1;
 
+  // Cooperative main loop: poll sockets and service driver; auto-reconnect on drop
   while(1){
-    ClientLen = sizeof(ClientAddr);
-    ClientSock = sl_Accept(ListenSock, (SlSockAddr_t *)&ClientAddr, &ClientLen);
-    if(ClientSock < 0){
-      continue;
+    // Always service the SimpleLink driver in non-OS mode
+    _SlNonOsMainLoopTask();
+
+    // If a disconnect was signaled, close sockets and schedule reconnect attempts
+    if(g_wifi_disconnect_flag){
+      sockets_close_if_open(&ListenSock, &ClientSock);
+      g_wifi_disconnect_flag = 0; // handled
+      // start or increase backoff
+      if(g_reconnect_backoff_ms == 0) g_reconnect_backoff_ms = 1000;
+      else if(g_reconnect_backoff_ms < 8000) g_reconnect_backoff_ms <<= 1; // up to 8s
+      g_reconnect_timer_ms = g_reconnect_backoff_ms;
+      g_wifi_connecting = 0; // allow new attempt
     }
-    LED_GreenOn();
-    const char *hello = "Connected to TM4C WiFi Robot\r\n";
-    sl_Send(ClientSock, hello, (int)strlen(hello), 0);
-    // Receive loop
-    while(1){
-      n = (int16_t)sl_Recv(ClientSock, cmdBuf, sizeof(cmdBuf), 0);
-      if(n <= 0){
-        break; // client closed or error
+
+    // Attempt reconnect when not connected and timer expired
+    if(!IS_CONNECTED(g_Status) || !IS_IP_AQUIRED(g_Status)){
+      if(g_reconnect_timer_ms == 0 && !g_wifi_connecting){
+        wifi_attempt_connect();
       }
-      for(int idx=0; idx<n; idx++){
-        char c = cmdBuf[idx];
-        if(c=='\r' || c=='\n') continue;
-        // Echo command receipt on UART0 and ST7735, with differentiation for Stop vs Square
-        if(c=='H'){ // New Stop command (Halt)
-          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-          ST7735_OutString("CMD Received: Stop\r\n");
-          c = 'S'; // normalize to 'S' for existing Car_ProcessCommand stop behavior
-        } else if(c==' '){ // raw space from simple clients maps to Stop
-          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-          ST7735_OutString("CMD Received: Stop\r\n");
-          c = 'S'; // normalize to uppercase for command processing
-        } else if(c=='s'){
-          UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-          ST7735_OutString("CMD Received: Stop\r\n");
-          c = 'S'; // normalize to uppercase for command processing
-        } else if(c=='S'){
-          UART_OutString((uint8_t*)"CMD Received: Square (S)\r\n");
-          ST7735_OutString("CMD Received: Square (S)\r\n");
+    } else {
+      // Connected: ensure we have a listening socket
+      if(ListenSock < 0){
+        if(sockets_ensure_listening(&ListenSock) < 0){
+          // try again later
         } else {
-          UART_OutString((uint8_t*)"CMD Received: ");
-          UART_OutChar(c);
+          UART_OutString((uint8_t*)"Listening on TCP port ");
+          UART_OutUDec(LISTEN_PORT);
           UART_OutString((uint8_t*)"\r\n");
-          ST7735_OutString("CMD Received: ");
-          ST7735_OutChar(c);
-          ST7735_OutString("\r\n");
+          g_ui_dirty = 1;
         }
-        if(c=='Q' || c=='q'){
-          const char *bye = "Bye\r\n";
-          sl_Send(ClientSock, bye, (int)strlen(bye), 0);
-          goto close_client;
-        }
-        Car_ProcessCommand((unsigned char)c);
       }
     }
-close_client:
-    sl_Close(ClientSock);
-    LED_GreenOff();
+
+    // Accept new client if none; non-blocking
+    if(IS_CONNECTED(g_Status) && IS_IP_AQUIRED(g_Status) && ListenSock >= 0 && ClientSock < 0){
+      ClientLen = sizeof(ClientAddr);
+      ClientSock = sl_Accept(ListenSock, (SlSockAddr_t *)&ClientAddr, &ClientLen);
+      if(ClientSock >= 0){
+        LED_GreenOn();
+        socket_set_nonblocking(ClientSock);
+        // Enable TCP keepalive to survive NAT/idle networks
+        int ka = 1;
+        sl_SetSockOpt(ClientSock, SL_SOL_SOCKET, SL_SO_KEEPALIVE, &ka, sizeof(ka));
+        const char *hello = "Connected to TM4C WiFi Robot\r\n";
+        sl_Send(ClientSock, hello, (int)strlen(hello), 0);
+        g_ui_dirty = 1;
+      }
+    }
+
+    // If client connected, try to recv non-blocking
+    if(ClientSock >= 0){
+      n = (int16_t)sl_Recv(ClientSock, cmdBuf, sizeof(cmdBuf), 0);
+      if(n > 0){
+        for(int idx=0; idx<n; idx++){
+          char c = cmdBuf[idx];
+          if(c=='\r' || c=='\n') continue;
+          if(c=='H'){
+            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+            ST7735_OutString("CMD Received: Stop\r\n");
+            c = 'S';
+          } else if(c==' '){
+            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+            ST7735_OutString("CMD Received: Stop\r\n");
+            c = 'S';
+          } else if(c=='s'){
+            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
+            ST7735_OutString("CMD Received: Stop\r\n");
+            c = 'S';
+          } else if(c=='S'){
+            UART_OutString((uint8_t*)"CMD Received: Square (S)\r\n");
+            ST7735_OutString("CMD Received: Square (S)\r\n");
+          } else {
+            UART_OutString((uint8_t*)"CMD Received: ");
+            UART_OutChar(c);
+            UART_OutString((uint8_t*)"\r\n");
+            ST7735_OutString("CMD Received: ");
+            ST7735_OutChar(c);
+            ST7735_OutString("\r\n");
+          }
+          if(c=='Q' || c=='q'){
+            const char *bye = "Bye\r\n";
+            sl_Send(ClientSock, bye, (int)strlen(bye), 0);
+            sl_Close(ClientSock);
+            ClientSock = -1;
+            LED_GreenOff();
+            g_ui_dirty = 1;
+            break;
+          }
+          Car_ProcessCommand((unsigned char)c);
+        }
+      } else if(n == SL_EAGAIN){
+        // no data yet
+      } else if(n <= 0){
+        // error or closed
+        if(ClientSock >= 0){ sl_Close(ClientSock); }
+        ClientSock = -1;
+        LED_GreenOff();
+        g_ui_dirty = 1;
+      }
+    }
+
+    // cooperative tiny sleep and tick down timers
+    if(g_reconnect_timer_ms){
+      uint32_t step = (g_reconnect_timer_ms > 10) ? 10 : g_reconnect_timer_ms;
+      delay_ms(step);
+      g_reconnect_timer_ms -= step;
+    } else {
+      delay_ms(10);
+    }
+
+    // Update UI when needed
+    if(g_ui_dirty){
+      ui_render(ListenSock, ClientSock);
+      g_ui_dirty = 0;
+    }
   }
 }
 
@@ -368,8 +469,8 @@ static int32_t configureSimpleLinkToDefaultState(char *pConfig){
   configLen = sizeof(ver);
   retVal = sl_DevGet(SL_DEVICE_GENERAL_CONFIGURATION, &configOpt, &configLen, (unsigned char *)(&ver));
 
-    /* Set connection policy to Auto + SmartConfig (Device's default connection policy) */
-  retVal = sl_WlanPolicySet(SL_POLICY_CONNECTION, SL_CONNECTION_POLICY(1, 0, 0, 0, 1), NULL, 0);
+    /* Set connection policy to Auto + Fast + SmartConfig for quicker auto-reconnect */
+  retVal = sl_WlanPolicySet(SL_POLICY_CONNECTION, SL_CONNECTION_POLICY(1, 1, 0, 0, 1), NULL, 0);
 
     /* Remove all profiles */
   retVal = sl_WlanProfileDel(0xFF);
@@ -397,8 +498,8 @@ static int32_t configureSimpleLinkToDefaultState(char *pConfig){
   power = 0;
   retVal = sl_WlanSet(SL_WLAN_CFG_GENERAL_PARAM_ID, WLAN_GENERAL_PARAM_OPT_STA_TX_POWER, 1, (unsigned char *)&power);
 
-    /* Set PM policy to normal */
-  retVal = sl_WlanPolicySet(SL_POLICY_PM , SL_NORMAL_POLICY, NULL, 0);
+    /* Set PM policy to Always-On to avoid power-save beacon misses */
+  retVal = sl_WlanPolicySet(SL_POLICY_PM , SL_ALWAYS_ON_POLICY, NULL, 0);
 
     /* TBD - Unregister mDNS services */
   retVal = sl_NetAppMDNSUnRegisterService(0, 0);
@@ -441,6 +542,11 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent){
     case SL_WLAN_CONNECT_EVENT:
     {
       SET_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
+      g_wifi_connecting = 0;
+      g_reconnect_backoff_ms = 0;
+      g_reconnect_timer_ms = 0;
+      g_reconnect_attempts = 0;
+  g_ui_dirty = 1;
 
             /*
              * Information about the connected AP (like name, MAC etc) will be
@@ -460,16 +566,21 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pWlanEvent){
 
       CLR_STATUS_BIT(g_Status, STATUS_BIT_CONNECTION);
       CLR_STATUS_BIT(g_Status, STATUS_BIT_IP_AQUIRED);
+      g_wifi_disconnect_flag = 1; // notify main loop to tear down sockets and reconnect
 
       pEventData = &pWlanEvent->EventData.STAandP2PModeDisconnected;
 
             /* If the user has initiated 'Disconnect' request, 'reason_code' is SL_USER_INITIATED_DISCONNECTION */
       if(SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code){
-        UART_OutString((uint8_t*)" Device disconnected from the AP on application's request \r\n");
+        UART_OutString((uint8_t*)" Device disconnected (user request) \r\n");
       }
       else{
-        UART_OutString((uint8_t*)" Device disconnected from the AP on an ERROR..!! \r\n");
+        UART_OutString((uint8_t*)" Device disconnected (ERROR) rc=");
+        UART_OutUDec((uint32_t)pEventData->reason_code);
+        UART_OutString((uint8_t*)"\r\n");
       }
+      g_last_disc_reason = pEventData->reason_code;
+      g_ui_dirty = 1;
     }
     break;
 
@@ -500,14 +611,26 @@ void SimpleLinkNetAppEventHandler(SlNetAppEvent_t *pNetAppEvent){
     {
 
       SET_STATUS_BIT(g_Status, STATUS_BIT_IP_AQUIRED);
+      g_wifi_connecting = 0;
+      g_reconnect_backoff_ms = 0; // reset backoff on successful IP acquire
+  // capture IP bytes for UI
+  SlIpV4AcquiredAsync_t *pEventData = &pNetAppEvent->EventData.ipAcquiredV4;
+  uint32_t ip = pEventData->ip;
+  g_ip_b4 = (ip) & 0xFF;
+  g_ip_b3 = (ip >> 8) & 0xFF;
+  g_ip_b2 = (ip >> 16) & 0xFF;
+  g_ip_b1 = (ip >> 24) & 0xFF;
+  uint32_t gw = pEventData->gateway;
+  g_gw_b4 = (gw) & 0xFF;
+  g_gw_b3 = (gw >> 8) & 0xFF;
+  g_gw_b2 = (gw >> 16) & 0xFF;
+  g_gw_b1 = (gw >> 24) & 0xFF;
+  g_ui_dirty = 1;
         // Print the acquired IP address
-        SlIpV4AcquiredAsync_t *pEventData = &pNetAppEvent->EventData.ipAcquiredV4;
-        uint32_t ip = pEventData->ip;
         uint8_t b4 = (ip) & 0xFF;
         uint8_t b3 = (ip >> 8) & 0xFF;
         uint8_t b2 = (ip >> 16) & 0xFF;
         uint8_t b1 = (ip >> 24) & 0xFF;
-        char ipstr[32];
         // Note: SimpleLink reports IP in little-endian; above produces a.b.c.d correctly for CC3100
         // Format string locally (UART0 has no sprintf helpers)
         // Build as decimal numbers
@@ -625,5 +748,143 @@ void SimpleLinkSockEventHandler(SlSockEvent_t *pSock){
 /*
  * * ASYNCHRONOUS EVENT HANDLERS -- End
  */
+
+// -------- helper: start a connect attempt now --------
+static void wifi_attempt_connect(void){
+  if(g_wifi_connecting){ return; }
+  SlSecParams_t secParams;
+  secParams.Key = PASSKEY;
+  secParams.KeyLen = strlen(PASSKEY);
+  secParams.Type = SEC_TYPE;
+  UART_OutString((uint8_t*)"WiFi: attempting reconnect...\r\n");
+  sl_WlanConnect(SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
+  g_wifi_connecting = 1;
+  // if this attempt fails, next attempt after current backoff (or 1s if zero)
+  if(g_reconnect_backoff_ms == 0) g_reconnect_backoff_ms = 1000;
+  g_reconnect_timer_ms = g_reconnect_backoff_ms;
+  // bump attempts; after several tries, restart NWP cleanly
+  if(g_reconnect_attempts < 255) g_reconnect_attempts++;
+  if(g_reconnect_attempts >= 5){
+    UART_OutString((uint8_t*)"WiFi: restarting NWP\r\n");
+    sl_Stop(0xFF);
+    char *pConfig = NULL;
+    int32_t ret = sl_Start(0, pConfig, 0);
+    if(ret != ROLE_STA){
+      // try to force back to STA
+      sl_WlanSetMode(ROLE_STA);
+      sl_Stop(0xFF);
+      sl_Start(0, pConfig, 0);
+    }
+    // Reapply policies similar to default state
+    UINT8 configOpt = SL_SCAN_POLICY(0);
+    sl_WlanPolicySet(SL_POLICY_SCAN , configOpt, NULL, 0);
+    sl_WlanPolicySet(SL_POLICY_CONNECTION, SL_CONNECTION_POLICY(1, 1, 0, 0, 1), NULL, 0);
+    // Relauch connection immediately after restart
+    sl_WlanConnect(SSID_NAME, strlen(SSID_NAME), 0, &secParams, 0);
+    g_reconnect_attempts = 0; // reset after restart
+  }
+  g_ui_dirty = 1;
+}
+
+// -------- UI renderer: clear screen and display connection/server status --------
+static void ui_render(int listenSock, int clientSock){
+  ST7735_FillScreen(ST7735_BLACK);
+  ST7735_SetTextColor(ST7735_WHITE);
+  ST7735_SetCursor(0,0);
+  ST7735_OutString("WIPERITE WiFi");
+
+  // WiFi status line
+  ST7735_SetCursor(0,2);
+  if(IS_CONNECTED(g_Status)){
+    ST7735_OutString("WiFi: Connected");
+  } else {
+    ST7735_OutString("WiFi: Disconnected");
+    ST7735_SetCursor(0,3);
+    ST7735_OutString("rc="); ST7735_OutUDec(g_last_disc_reason);
+  }
+
+  // IP line
+  ST7735_SetCursor(0,4);
+  if(IS_IP_AQUIRED(g_Status)){
+    ST7735_OutString("IP: ");
+    ST7735_OutUDec(g_ip_b1); ST7735_OutChar('.');
+    ST7735_OutUDec(g_ip_b2); ST7735_OutChar('.');
+    ST7735_OutUDec(g_ip_b3); ST7735_OutChar('.');
+    ST7735_OutUDec(g_ip_b4);
+  } else {
+    ST7735_OutString("IP: -");
+  }
+
+  // Server/listen state
+  ST7735_SetCursor(0,6);
+  if(listenSock >= 0){ ST7735_OutString("Server: Listening"); }
+  else { ST7735_OutString("Server: Idle"); }
+
+  ST7735_SetCursor(0,7);
+  if(clientSock >= 0){ ST7735_OutString("Client: Connected"); }
+  else { ST7735_OutString("Client: None"); }
+
+  // Gateway info
+  ST7735_SetCursor(0,8);
+  ST7735_OutString("GW: ");
+  if(IS_IP_AQUIRED(g_Status)){
+    ST7735_OutUDec(g_gw_b1); ST7735_OutChar('.');
+    ST7735_OutUDec(g_gw_b2); ST7735_OutChar('.');
+    ST7735_OutUDec(g_gw_b3); ST7735_OutChar('.');
+    ST7735_OutUDec(g_gw_b4);
+		ST7735_OutString("\r\n");
+  } else {
+    ST7735_OutString("-");
+		ST7735_OutString("\r\n");
+  }
+
+  // Reconnect/backoff info when not connected
+  if(!IS_CONNECTED(g_Status) || !IS_IP_AQUIRED(g_Status)){
+    ST7735_SetCursor(0,10);
+    ST7735_OutString("Retry in: ");
+    ST7735_OutUDec(g_reconnect_timer_ms);
+    ST7735_OutString(" ms");
+    ST7735_SetCursor(0,11);
+    ST7735_OutString("Attempts: ");
+    ST7735_OutUDec(g_reconnect_attempts);
+  }
+}
+
+// -------- helper: set socket non-blocking --------
+static void socket_set_nonblocking(int sd){
+  if(sd < 0) return;
+  unsigned long enableOption = 1; // non-zero enables non-blocking
+  sl_SetSockOpt(sd, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &enableOption, sizeof(enableOption));
+}
+
+// -------- helper: close sockets if open --------
+static void sockets_close_if_open(int *pListenSock, int *pClientSock){
+  if(pClientSock && *pClientSock >= 0){
+    sl_Close(*pClientSock);
+    *pClientSock = -1;
+  }
+  if(pListenSock && *pListenSock >= 0){
+    sl_Close(*pListenSock);
+    *pListenSock = -1;
+  }
+}
+
+// -------- helper: ensure listening socket exists (non-blocking) --------
+static int sockets_ensure_listening(int *pListenSock){
+  if(!pListenSock) return -1;
+  if(*pListenSock >= 0) return 0;
+  SlSockAddrIn_t LocalAddr;
+  INT32 ASize = sizeof(SlSockAddrIn_t);
+  LocalAddr.sin_family = SL_AF_INET;
+  LocalAddr.sin_port = sl_Htons(LISTEN_PORT);
+  LocalAddr.sin_addr.s_addr = 0;
+  int sd = sl_Socket(SL_AF_INET, SL_SOCK_STREAM, 0);
+  if(sd < 0) return -1;
+  if(sl_Bind(sd, (SlSockAddr_t *)&LocalAddr, ASize) < 0){ sl_Close(sd); return -1; }
+  if(sl_Listen(sd, 1) < 0){ sl_Close(sd); return -1; }
+  socket_set_nonblocking(sd);
+  *pListenSock = sd;
+  return 0;
+}
 
 

@@ -20,18 +20,28 @@
 // Dependency: None
 // Inputs: None
 // Outputs: None
-// Description: Initializes PB5432 for use with L298N motor driver direction
+// Description: Initializes PD2,1,0 and PC6 for use with L298N motor driver direction
 void Car_Dir_Init(void){
-	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0) {
-		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;	// Activate B clocks
-		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOB)==0){};
+	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOD)==0) {
+		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOD;	// Activate D clocks
+		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOD)==0){};
+	}
+	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOC)==0) {
+		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOC;	// Activate C clocks
+		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOC)==0){};
 	}
 		
-  GPIO_PORTB_AMSEL_R &= ~0x3C;	// disable analog function
-	GPIO_PORTB_AFSEL_R &= ~0x3C;	// no alternate function
-  GPIO_PORTB_PCTL_R &= ~0x00FFFF00;	// GPIO clear bit PCTL 
-	GPIO_PORTB_DIR_R |= 0x3C; // output on pin(s)
-  GPIO_PORTB_DEN_R |= 0x3C;	// enable digital I/O on pin(s)
+  GPIO_PORTD_AMSEL_R &= ~0x07;	// disable analog function on PD2-0
+	GPIO_PORTD_AFSEL_R &= ~0x07;	// no alternate function on PD2-0
+  GPIO_PORTD_PCTL_R &= ~0x00000FFF;	// GPIO clear bit PCTL for PD2-0
+	GPIO_PORTD_DIR_R |= 0x07; // output on PD2-0
+  GPIO_PORTD_DEN_R |= 0x07;	// enable digital I/O on PD2-0
+	
+	GPIO_PORTC_AMSEL_R &= ~0x40;	// disable analog function on PC6
+	GPIO_PORTC_AFSEL_R &= ~0x40;	// no alternate function on PC6
+	GPIO_PORTC_PCTL_R &= ~0x0F000000;	// GPIO clear bit PCTL for PC6
+	GPIO_PORTC_DIR_R |= 0x40; // output on PC6
+	GPIO_PORTC_DEN_R |= 0x40;	// enable digital I/O on PC6
 }
 
 // Port F Initialization
@@ -40,6 +50,7 @@ void Car_Dir_Init(void){
 //	while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOF)==0){};
 //		
 //  GPIO_PORTF_AMSEL_R &= ~0x0E;      // 3) disable analog function
+//  GPIO_PORTF_PCTL_R &= ~0x0000FFF0; // 4) GPIO clear bit PCTL  
 //  GPIO_PORTF_PCTL_R &= ~0x0000FFF0; // 4) GPIO clear bit PCTL  
 //  GPIO_PORTF_DIR_R |= 0x0E;         // 6) PF1-PF3 output
 //  GPIO_PORTF_AFSEL_R &= ~0x0E;      // 7) no alternate function     
