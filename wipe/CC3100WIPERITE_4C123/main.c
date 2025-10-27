@@ -199,6 +199,8 @@ static volatile uint8_t g_ui_dirty = 1;              // request a UI refresh
 static volatile uint8_t g_ip_b1=0,g_ip_b2=0,g_ip_b3=0,g_ip_b4=0; // last acquired IP
 static volatile uint32_t g_last_disc_reason = 0;     // last disconnect reason code
 static volatile uint8_t g_gw_b1=0,g_gw_b2=0,g_gw_b3=0,g_gw_b4=0; // last gateway IP
+static volatile char g_last_cmd = 0;                 // last processed command for UI
+static volatile uint32_t g_rx_count = 0;             // processed command byte counter
 /*
  * GLOBAL VARIABLES -- End
  */
@@ -245,10 +247,10 @@ int main(void){
     SlSockAddrIn_t  LocalAddr;
     SlSockAddrIn_t  ClientAddr;
     SlSocklen_t     ClientLen;
-    int ListenSock = -1;
-    int ClientSock = -1;
-    int16_t n;
-    char cmdBuf[64];
+  int ListenSock = -1;
+  int ClientSock = -1;
+  int16_t n;
+  char cmdBuf[64];
 
   initClk();        // PLL 50 MHz
   UART_Init();      // Send data to PC, 115200 bps
@@ -354,28 +356,15 @@ int main(void){
         for(int idx=0; idx<n; idx++){
           char c = cmdBuf[idx];
           if(c=='\r' || c=='\n') continue;
-          if(c=='H'){
+          if(c=='H' || c==' '){
+            // 'H' (Halt) or space from client means Stop
             UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-            ST7735_OutString("CMD Received: Stop\r\n");
-            c = 'S';
-          } else if(c==' '){
-            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-            ST7735_OutString("CMD Received: Stop\r\n");
-            c = 'S';
-          } else if(c=='s'){
-            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-            ST7735_OutString("CMD Received: Stop\r\n");
-            c = 'S';
-          } else if(c=='S'){
-            UART_OutString((uint8_t*)"CMD Received: Square (S)\r\n");
-            ST7735_OutString("CMD Received: Square (S)\r\n");
+          } else if(c=='B' || c=='b'){
+            UART_OutString((uint8_t*)"CMD Received: Back\r\n");
           } else {
             UART_OutString((uint8_t*)"CMD Received: ");
             UART_OutChar(c);
             UART_OutString((uint8_t*)"\r\n");
-            ST7735_OutString("CMD Received: ");
-            ST7735_OutChar(c);
-            ST7735_OutString("\r\n");
           }
           if(c=='Q' || c=='q'){
             const char *bye = "Bye\r\n";
@@ -383,10 +372,21 @@ int main(void){
             sl_Close(ClientSock);
             ClientSock = -1;
             LED_GreenOff();
+            // Clear last command on quit so UI doesn't show stale input
+            g_last_cmd = 0;
+            g_rx_count = 0;
             g_ui_dirty = 1;
             break;
           }
+          // Execute motor action (non-blocking for Back)
           Car_ProcessCommand((unsigned char)c);
+          // Briefly service the SimpleLink driver and yield to avoid any starvation
+          _SlNonOsMainLoopTask();
+          SysTick_Wait(T1ms);
+          // record and refresh UI
+          g_last_cmd = c;
+          g_rx_count++;
+          g_ui_dirty = 1;
         }
       } else if(n == SL_EAGAIN){
         // no data yet
@@ -848,6 +848,20 @@ static void ui_render(int listenSock, int clientSock){
     ST7735_OutString("Attempts: ");
     ST7735_OutUDec(g_reconnect_attempts);
   }
+
+  // Last command line
+  ST7735_SetCursor(0,13);
+  ST7735_OutString("Last CMD: ");
+  if(clientSock >= 0 && g_last_cmd){
+    ST7735_OutChar(g_last_cmd);
+  } else {
+    ST7735_OutString("-");
+  }
+
+  // RX counter line
+  ST7735_SetCursor(0,14);
+  ST7735_OutString("RX: ");
+  ST7735_OutUDec(g_rx_count);
 }
 
 // -------- helper: set socket non-blocking --------

@@ -20,28 +20,18 @@
 // Dependency: None
 // Inputs: None
 // Outputs: None
-// Description: Initializes PD2,1,0 and PC6 for use with L298N motor driver direction
+// Description: Initializes PE3-0 for use with L298N motor driver direction
 void Car_Dir_Init(void){
-	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOD)==0) {
-		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOD;	// Activate D clocks
-		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOD)==0){};
-	}
-	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOC)==0) {
-		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOC;	// Activate C clocks
-		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOC)==0){};
+	if ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOE)==0) {
+		SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOE;	// Activate E clocks
+		while ((SYSCTL_RCGC2_R&SYSCTL_RCGC2_GPIOE)==0){};
 	}
 		
-  GPIO_PORTD_AMSEL_R &= ~0x07;	// disable analog function on PD2-0
-	GPIO_PORTD_AFSEL_R &= ~0x07;	// no alternate function on PD2-0
-  GPIO_PORTD_PCTL_R &= ~0x00000FFF;	// GPIO clear bit PCTL for PD2-0
-	GPIO_PORTD_DIR_R |= 0x07; // output on PD2-0
-  GPIO_PORTD_DEN_R |= 0x07;	// enable digital I/O on PD2-0
-	
-	GPIO_PORTC_AMSEL_R &= ~0x40;	// disable analog function on PC6
-	GPIO_PORTC_AFSEL_R &= ~0x40;	// no alternate function on PC6
-	GPIO_PORTC_PCTL_R &= ~0x0F000000;	// GPIO clear bit PCTL for PC6
-	GPIO_PORTC_DIR_R |= 0x40; // output on PC6
-	GPIO_PORTC_DEN_R |= 0x40;	// enable digital I/O on PC6
+  GPIO_PORTE_AMSEL_R &= ~0x0F;	// disable analog function on PE3-0
+	GPIO_PORTE_AFSEL_R &= ~0x0F;	// no alternate function on PE3-0
+  GPIO_PORTE_PCTL_R &= ~0x0000FFFF;	// GPIO clear bit PCTL for PE3-0
+	GPIO_PORTE_DIR_R |= 0x0F; // output on PE3-0
+  GPIO_PORTE_DEN_R |= 0x0F;	// enable digital I/O on PE3-0
 }
 
 // Port F Initialization

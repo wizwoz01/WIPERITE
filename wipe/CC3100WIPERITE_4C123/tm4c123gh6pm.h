@@ -34,6 +34,12 @@
 #define SYSCTL_RCC_PWMDIV_M       0x000E0000
 #define SYSCTL_RCC_PWMDIV_2       0x00000000  // /2
 
+// RCGCPWM bits
+#define SYSCTL_RCGCPWM_R1         0x00000002  // PWM Module 1
+
+// RCGCGPIO bits
+#define SYSCTL_RCGCGPIO_R3        0x00000008  // GPIO Port D
+
 // ------------------------------- SysTick ---------------------------------
 #define NVIC_ST_CTRL_R            (*((volatile uint32_t *)0xE000E010))
 #define NVIC_ST_RELOAD_R          (*((volatile uint32_t *)0xE000E014))
@@ -120,6 +126,32 @@
 #define GPIO_PORTF_PCTL_R         (*((volatile uint32_t *)0x4002552C))
 
 #define GPIO_LOCK_KEY             0x4C4F434B
+
+// ------------------------------- PWM1 ------------------------------------
+#define PWM1_ENABLE_R             (*((volatile uint32_t *)0x40029008))
+#define PWM_ENABLE_PWM0EN         0x00000001
+#define PWM_ENABLE_PWM1EN         0x00000002
+#define PWM_ENABLE_PWM2EN         0x00000004
+#define PWM_ENABLE_PWM3EN         0x00000008
+#define PWM_ENABLE_PWM4EN         0x00000010
+#define PWM_ENABLE_PWM5EN         0x00000020
+#define PWM_ENABLE_PWM6EN         0x00000040
+#define PWM_ENABLE_PWM7EN         0x00000080
+
+// Generator 2 (PWM1_2)
+#define PWM1_2_CTL_R              (*((volatile uint32_t *)0x400290C0))
+#define PWM1_2_GENA_R             (*((volatile uint32_t *)0x400290E0))
+#define PWM1_2_LOAD_R             (*((volatile uint32_t *)0x400290D0))
+#define PWM1_2_CMPA_R             (*((volatile uint32_t *)0x400290D8))
+// additional registers for Generator 2
+#define PWM1_2_CMPB_R             (*((volatile uint32_t *)0x400290DC))
+#define PWM1_2_GENB_R             (*((volatile uint32_t *)0x400290E4))
+
+// Generator 3 (PWM1_3)
+#define PWM1_3_CTL_R              (*((volatile uint32_t *)0x40029100))
+#define PWM1_3_GENA_R             (*((volatile uint32_t *)0x40029120))
+#define PWM1_3_LOAD_R             (*((volatile uint32_t *)0x40029110))
+#define PWM1_3_CMPA_R             (*((volatile uint32_t *)0x40029118))
 
 // ------------------------------- PWM0 ------------------------------------
 #define PWM0_ENABLE_R             (*((volatile uint32_t *)0x40028008))
