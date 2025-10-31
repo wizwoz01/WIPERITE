@@ -1,5 +1,5 @@
 #define LED (*((volatile unsigned long *)0x40025038))  // use onboard three LEDs: PF321
-#define DIRECTION_E (*((volatile unsigned long *)0x4002403C)) // PE3,2,1,0 for motor direction
+// Legacy Port E data alias (PE3..PE0). Kept for reference; not used with new PD2 mapping.
 
 ////////// Constants //////////  
 // Color    LED(s) PortF
@@ -21,11 +21,18 @@
 #define White   	0x0E
 #define Purple  	0x06
 
-// Constant definitions for motor direction control on PE3-0
-#define BACKWARD 0x0A
-#define FORWARD 0x05
-#define LEFTPIVOT 0x09
-#define RIGHTPIVOT 0x06
+// Constant definitions for motor direction control on PE3-1 and PD2
+// Bit mapping (Dir_Write in motor.c):
+//   bit3 -> PE3, bit2 -> PE2, bit1 -> PE1, bit0 -> PD2
+// For each motor (L: PE3/PE2, R: PE1/PD2):
+//   Backward  = IN1=1, IN2=0 per side  -> 0b1010 (0x0A)
+//   Forward = IN1=0, IN2=1 per side  -> 0b0101 (0x05)
+//   Pivot Right  (L back, R fwd)       -> 0b0110 (0x06)
+//   Pivot Left (L fwd, R back)       -> 0b1001 (0x09)
+#define BACKWARD  0x05
+#define FORWARD   0x0A
+#define LEFTPIVOT 0x06
+#define RIGHTPIVOT 0x09
 #define BRAKE 0x00
 
 // standard ASCII symbols

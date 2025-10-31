@@ -138,6 +138,14 @@
 #define PWM_ENABLE_PWM6EN         0x00000040
 #define PWM_ENABLE_PWM7EN         0x00000080
 
+// Generator 0 (PWM1_0)
+#define PWM1_0_CTL_R              (*((volatile uint32_t *)0x40029040))
+#define PWM1_0_LOAD_R             (*((volatile uint32_t *)0x40029050))
+#define PWM1_0_CMPA_R             (*((volatile uint32_t *)0x40029058))
+#define PWM1_0_CMPB_R             (*((volatile uint32_t *)0x4002905C))
+#define PWM1_0_GENA_R             (*((volatile uint32_t *)0x40029060))
+#define PWM1_0_GENB_R             (*((volatile uint32_t *)0x40029064))
+
 // Generator 2 (PWM1_2)
 #define PWM1_2_CTL_R              (*((volatile uint32_t *)0x400290C0))
 #define PWM1_2_GENA_R             (*((volatile uint32_t *)0x400290E0))

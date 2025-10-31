@@ -98,6 +98,20 @@ void LED_RedToggle(void){
 void LED_BlueToggle(void){
   PF2 ^= 0x04;
 }
+//------------LED_BlueOn------------
+// Turn on blue LED
+// Input: none
+// Output: none
+void LED_BlueOn(void){
+  PF2 = 0x04;
+}
+//------------LED_BlueOff------------
+// Turn off blue LED
+// Input: none
+// Output: none
+void LED_BlueOff(void){
+  PF2 = 0x00;
+}
 //------------LED_GreenToggle------------
 // Toggle green LED
 // Input: none

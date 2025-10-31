@@ -75,6 +75,8 @@ void LED_RedToggle(void);
 // Input: none
 // Output: none
 void LED_BlueToggle(void);
+void LED_BlueOn(void);
+void LED_BlueOff(void);
 
   
 //------------LED_GreenToggle------------

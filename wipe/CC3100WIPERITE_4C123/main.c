@@ -65,9 +65,9 @@ P1.10 PA7 UNUSED      NA          P2.10 PA2   UNUSED   NA
 Pin  Signal        Direction      Pin   Signal      Direction
 P3.1  +5  +5 V       IN           P4.1  PF2 UNUSED      OUT
 P3.2  Gnd GND        IN           P4.2  PF3 UNUSED      OUT
-P3.3  PD0 UNUSED     NA           P4.3  PB3 UNUSED      NA
-P3.4  PD1 UNUSED     NA           P4.4  PC4 UART1_CTS   IN
-P3.5  PD2 UNUSED     NA           P4.5  PC5 UART1_RTS   OUT
+P3.3  PD0 M1PWM0     OUT          P4.3  PB3 UNUSED      NA
+P3.4  PD1 M1PWM1     OUT          P4.4  PC4 UART1_CTS   IN
+P3.5  PD2 DIR_BIT0   OUT          P4.5  PC5 UART1_RTS   OUT
 P3.6  PD3 UNUSED     NA           P4.6  PC6 UNUSED      NA
 P3.7  PE1 UNUSED     NA           P4.7  PC7 NWP_LOG_TX  OUT
 P3.8  PE2 UNUSED     NA           P4.8  PD6 WLAN_LOG_TX OUT
@@ -98,6 +98,7 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "bmps.h"
 #include "UART0.h"
 #include "motor.h"
+#include "PWM.h"
 #include "SysTick.h"
 #ifndef SL_EAGAIN
 #define SL_EAGAIN (-11)
@@ -115,9 +116,9 @@ static inline void delay_ms(uint32_t ms){
 }
 
 // To Do: replace the following three lines with your access point information
-#define SSID_NAME  "Moto" /* Access point name to connect to */
+#define SSID_NAME  "test00" /* Access point name to connect to */
 #define SEC_TYPE   SL_SEC_TYPE_WPA
-#define PASSKEY    "WIPERITE-t9!"  /* Password in case of secure AP */ 
+#define PASSKEY    "011101110111"  /* Password in case of secure AP */ 
 #define MAXLEN 100
 
 
@@ -132,6 +133,12 @@ static inline void delay_ms(uint32_t ms){
 
 #define CONNECTION_STATUS_BIT   0
 #define IP_AQUIRED_STATUS_BIT   1
+
+// Reduce TX power a bit to lower burst currents and RF self-interference
+// 0 = max power; higher numbers are dB offset from max (0..15)
+#ifndef WIFI_TX_POWER_DB_OFFSET
+#define WIFI_TX_POWER_DB_OFFSET 4
+#endif
 
 /* Application specific status/error codes */
 typedef enum{
@@ -216,6 +223,24 @@ static void sockets_close_if_open(int *pListenSock, int *pClientSock);
 static int sockets_ensure_listening(int *pListenSock);
 static void socket_set_nonblocking(int sd);
 static void ui_render(int listenSock, int clientSock);
+// Soft safety: auto-stop motors if no motion command arrives for a short time
+static volatile uint32_t g_motion_timeout_ms = 0; // countdown; when reaches 0 -> Stop
+// Define tighter motion watchdog timeouts to make manual commands momentary
+#define MANUAL_MOTION_TIMEOUT_MS 120u   // ~120 ms pulse for F/B/L/R commands
+#define SPEED_HOLD_TIMEOUT_MS    250u   // keep lift/lower active briefly
+// Short blue LED pulse on command receive
+static volatile uint32_t g_led_blue_pulse_ms = 0;
+// Small command queue to decouple network RX from motor actions
+#define CMD_Q_SIZE 32u
+#define CMD_Q_MASK (CMD_Q_SIZE-1u)
+static volatile uint8_t g_cmd_q[CMD_Q_SIZE];
+static volatile uint8_t g_cmd_head = 0; // next write (masked index)
+static volatile uint8_t g_cmd_tail = 0; // next read  (masked index)
+static inline int cmdq_is_full(void){ return (((g_cmd_head + 1u) & CMD_Q_MASK) == g_cmd_tail); }
+static inline int cmdq_is_empty(void){ return (g_cmd_head == g_cmd_tail); }
+static inline void cmdq_push(uint8_t c){ if(!cmdq_is_full()){ g_cmd_q[g_cmd_head] = c; g_cmd_head = (g_cmd_head + 1u) & CMD_Q_MASK; } }
+static inline uint8_t cmdq_pop(void){ uint8_t c = 0; if(!cmdq_is_empty()){ c = g_cmd_q[g_cmd_tail]; g_cmd_tail = (g_cmd_tail + 1u) & CMD_Q_MASK; } return c; }
+static uint8_t g_rx_escape_state = 0; // 0: idle, 1: saw ESC, 2: saw ESC[
 
 
 /*
@@ -226,6 +251,17 @@ static void ui_render(int listenSock, int clientSock);
 void Crash(uint32_t time){
   while(1){
     for(int i=time;i;i--){};
+    LED_RedToggle();
+  }
+}
+
+// Hard fault handler: flash red LED rapidly so we can distinguish a crash
+void HardFault_Handler(void){
+  // Turn off other LEDs for clarity
+  LED_GreenOff();
+  LED_BlueOff();
+  while(1){
+    for(volatile int i=0;i<200000;i++){} // ~short delay
     LED_RedToggle();
   }
 }
@@ -262,6 +298,18 @@ int main(void){
   // Initialize car control hardware 
   MotorControl_Init();
   SysTick_Init(); // enable busy-wait timing for cooperative scheduling
+  // Hold PWM pins in a quiet state handled elsewhere
+
+  // Latch a WiFi-only debug mode if PF4 held at boot (negative logic)
+  // Requires PortF already initialized by MotorControl_Init
+  uint8_t motors_locked = ((GPIO_PORTF_DATA_R & 0x10) == 0) ? 1 : 0;
+  if(motors_locked){
+    UART_OutString((uint8_t*)"Motor Debug Mode: Motors locked OFF (PF4 held)\r\n");
+    ST7735_OutString("MotorDbg: OFF\r\n");
+  }
+  // Prevent PWM enabling inside command handler when locked
+  MotorControl_SetEnableAllowed(!motors_locked);
+  uint8_t motors_enabled = 0; // enable motors only when a client connects
 	
   retVal = configureSimpleLinkToDefaultState(pConfig); // set policies
   if(retVal < 0)Crash(4000000);
@@ -279,6 +327,7 @@ int main(void){
   UART_OutString((uint8_t*)"Connected\n\r");
   ST7735_OutString("Connected\n\r");
   g_ui_dirty = 1;
+  // Keep motors silent until a client connects
 	
   // Set up TCP server socket
   LocalAddr.sin_family = SL_AF_INET;
@@ -295,7 +344,7 @@ int main(void){
 
   UART_OutString((uint8_t*)"Listening on TCP port ");
   UART_OutUDec(LISTEN_PORT);
-  UART_OutString((uint8_t*)"\r\nSend single-letter commands (F,B,L,R,S,U,D,8,C,Z). 'Q' to close.\r\n");
+  UART_OutString((uint8_t*)"\r\nCommands: F,B,L,R,H/space(stop),U,D,8,C,S(square),Z. WASD/arrow keys supported. 'Q' to close.\r\n");
   g_ui_dirty = 1;
 
   // Cooperative main loop: poll sockets and service driver; auto-reconnect on drop
@@ -306,7 +355,15 @@ int main(void){
     // If a disconnect was signaled, close sockets and schedule reconnect attempts
     if(g_wifi_disconnect_flag){
       sockets_close_if_open(&ListenSock, &ClientSock);
-      g_wifi_disconnect_flag = 0; // handled
+    g_wifi_disconnect_flag = 0; // handled
+  // On WiFi loss, ensure motors are silenced
+  Car_ProcessCommand('s');
+  PWM_DisableOutputs();
+  PWM_PinsToHiZ();
+  motors_enabled = 0;
+  g_motion_timeout_ms = 0;
+  LED_BlueOff();
+  g_led_blue_pulse_ms = 0;
       // start or increase backoff
       if(g_reconnect_backoff_ms == 0) g_reconnect_backoff_ms = 1000;
       else if(g_reconnect_backoff_ms < 8000) g_reconnect_backoff_ms <<= 1; // up to 8s
@@ -334,7 +391,7 @@ int main(void){
     }
 
     // Accept new client if none; non-blocking
-    if(IS_CONNECTED(g_Status) && IS_IP_AQUIRED(g_Status) && ListenSock >= 0 && ClientSock < 0){
+  if(IS_CONNECTED(g_Status) && IS_IP_AQUIRED(g_Status) && ListenSock >= 0 && ClientSock < 0){
       ClientLen = sizeof(ClientAddr);
       ClientSock = sl_Accept(ListenSock, (SlSockAddr_t *)&ClientAddr, &ClientLen);
       if(ClientSock >= 0){
@@ -345,6 +402,14 @@ int main(void){
         sl_SetSockOpt(ClientSock, SL_SOL_SOCKET, SL_SO_KEEPALIVE, &ka, sizeof(ka));
         const char *hello = "Connected to TM4C WiFi Robot\r\n";
         sl_Send(ClientSock, hello, (int)strlen(hello), 0);
+        // Enable motors only when a client is connected and not locked
+        if(!motors_locked && !motors_enabled){
+          PWM_PinsToPWM();
+          MotorPWM_Enable();
+          motors_enabled = 1;
+          UART_OutString((uint8_t*)"Motors enabled\r\n");
+          MotorControl_SetEnableAllowed(1);
+        }
         g_ui_dirty = 1;
       }
     }
@@ -356,36 +421,72 @@ int main(void){
         for(int idx=0; idx<n; idx++){
           char c = cmdBuf[idx];
           if(c=='\r' || c=='\n') continue;
-          if(c=='H' || c==' '){
-            // 'H' (Halt) or space from client means Stop
-            UART_OutString((uint8_t*)"CMD Received: Stop\r\n");
-          } else if(c=='B' || c=='b'){
-            UART_OutString((uint8_t*)"CMD Received: Back\r\n");
-          } else {
-            UART_OutString((uint8_t*)"CMD Received: ");
-            UART_OutChar(c);
-            UART_OutString((uint8_t*)"\r\n");
+          if(c == '\x1b'){
+            g_rx_escape_state = 1;
+            continue;
           }
+          if(g_rx_escape_state == 1){
+            g_rx_escape_state = (c == '[') ? 2 : 0;
+            continue;
+          }
+          if(g_rx_escape_state == 2){
+            char mapped = 0;
+            switch(c){
+              case 'A': mapped = 'F'; break; // Up arrow -> Forward
+              case 'B': mapped = 'B'; break; // Down arrow -> Reverse
+              case 'C': mapped = 'R'; break; // Right arrow -> Right turn
+              case 'D': mapped = 'L'; break; // Left arrow -> Left turn
+              default: mapped = 0; break;
+            }
+            g_rx_escape_state = 0;
+            if(mapped == 0){
+              continue; // ignore unknown escape sequence
+            }
+            c = mapped;
+          }
+          switch(c){
+            case 'w':
+            case 'W':
+              c = 'F';
+              break;
+            case 'a':
+            case 'A':
+              c = 'L';
+              break;
+            case 'd':
+              c = 'R';
+              break;
+            default:
+              break;
+          }
+          // Convert Halt and Space to lowercase 's' (Stop), but preserve uppercase 'S' (Square)
+          if(c=='H' || c==' '){ c = 's'; }
           if(c=='Q' || c=='q'){
             const char *bye = "Bye\r\n";
             sl_Send(ClientSock, bye, (int)strlen(bye), 0);
             sl_Close(ClientSock);
             ClientSock = -1;
             LED_GreenOff();
+            // Safely stop and silence motors on client quit
+            Car_ProcessCommand('s');
+            PWM_DisableOutputs();
+            PWM_PinsToHiZ();
+            motors_enabled = 0;
             // Clear last command on quit so UI doesn't show stale input
             g_last_cmd = 0;
             g_rx_count = 0;
+            g_motion_timeout_ms = 0;
+            g_led_blue_pulse_ms = 0;
+            LED_BlueOff();
+            g_rx_escape_state = 0;
             g_ui_dirty = 1;
-            break;
+            n = -1; // Signal to stop processing this buffer
+            continue;
           }
-          // Execute motor action (non-blocking for Back)
-          Car_ProcessCommand((unsigned char)c);
-          // Briefly service the SimpleLink driver and yield to avoid any starvation
-          _SlNonOsMainLoopTask();
-          SysTick_Wait(T1ms);
-          // record and refresh UI
-          g_last_cmd = c;
+          // Queue the command; process outside the RX path to avoid any blocking here
+          cmdq_push((uint8_t)c);
           g_rx_count++;
+          g_last_cmd = c;
           g_ui_dirty = 1;
         }
       } else if(n == SL_EAGAIN){
@@ -395,6 +496,17 @@ int main(void){
         if(ClientSock >= 0){ sl_Close(ClientSock); }
         ClientSock = -1;
         LED_GreenOff();
+  // Ensure motors are silenced on drop
+  Car_ProcessCommand('s');
+  PWM_DisableOutputs();
+  PWM_PinsToHiZ();
+  motors_enabled = 0;
+  // Do not allow PWM to be re-enabled by commands until next connection
+  MotorControl_SetEnableAllowed(0);
+  g_motion_timeout_ms = 0;
+  g_led_blue_pulse_ms = 0;
+  LED_BlueOff();
+  g_rx_escape_state = 0;
         g_ui_dirty = 1;
       }
     }
@@ -406,6 +518,56 @@ int main(void){
       g_reconnect_timer_ms -= step;
     } else {
       delay_ms(10);
+    }
+
+    // Consume and execute queued commands (decoupled from RX)
+    if(!cmdq_is_empty()){
+      // Process a few per tick to keep loop responsive
+      for(int i=0; i<4 && !cmdq_is_empty(); i++){
+        char c = (char)cmdq_pop();
+        // Visual heartbeat on command: blue LED pulse ~50ms
+        LED_BlueOn();
+        g_led_blue_pulse_ms = 50;
+        // Execute motor action
+        Car_ProcessCommand((unsigned char)c);
+        // Refresh motion safety timeout for active motion commands
+        switch(c){
+          case 'F': case 'f': case 'B': case 'b':
+          case 'L': case 'l': case 'R': case 'r':
+            g_motion_timeout_ms = MANUAL_MOTION_TIMEOUT_MS;
+            break;
+          case 'U': case 'u': case 'D': case 'd':
+            g_motion_timeout_ms = SPEED_HOLD_TIMEOUT_MS;
+            break;
+          case 's':
+            g_motion_timeout_ms = 0; // explicit stop clears watchdog
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    // Motion watchdog: stop motors if no motion command within timeout
+    if(g_motion_timeout_ms){
+      uint32_t dec = (g_motion_timeout_ms > 10) ? 10 : g_motion_timeout_ms;
+      g_motion_timeout_ms -= dec;
+      if(g_motion_timeout_ms == 0){
+        Car_ProcessCommand('s');
+        g_last_cmd = 's';
+        LED_BlueOff();
+        g_led_blue_pulse_ms = 0;
+        g_ui_dirty = 1;
+      }
+    }
+
+    // Blue LED pulse timing
+    if(g_led_blue_pulse_ms){
+      uint32_t dec2 = (g_led_blue_pulse_ms > 10) ? 10 : g_led_blue_pulse_ms;
+      g_led_blue_pulse_ms -= dec2;
+      if(g_led_blue_pulse_ms == 0){
+        LED_BlueOff();
+      }
     }
 
     // Update UI when needed
@@ -469,8 +631,8 @@ static int32_t configureSimpleLinkToDefaultState(char *pConfig){
   configLen = sizeof(ver);
   retVal = sl_DevGet(SL_DEVICE_GENERAL_CONFIGURATION, &configOpt, &configLen, (unsigned char *)(&ver));
 
-    /* Set connection policy to Auto + Fast + SmartConfig for quicker auto-reconnect */
-  retVal = sl_WlanPolicySet(SL_POLICY_CONNECTION, SL_CONNECTION_POLICY(1, 1, 0, 0, 1), NULL, 0);
+    /* Set connection policy to Auto + SmartConfig (no Fast) to match earlier defaults */
+  retVal = sl_WlanPolicySet(SL_POLICY_CONNECTION, SL_CONNECTION_POLICY(1, 0, 0, 0, 1), NULL, 0);
 
     /* Remove all profiles */
   retVal = sl_WlanProfileDel(0xFF);
@@ -495,11 +657,11 @@ static int32_t configureSimpleLinkToDefaultState(char *pConfig){
 
     /* Set Tx power level for station mode
        Number between 0-15, as dB offset from max power - 0 will set maximum power */
-  power = 0;
+  power = WIFI_TX_POWER_DB_OFFSET;
   retVal = sl_WlanSet(SL_WLAN_CFG_GENERAL_PARAM_ID, WLAN_GENERAL_PARAM_OPT_STA_TX_POWER, 1, (unsigned char *)&power);
 
-    /* Set PM policy to Always-On to avoid power-save beacon misses */
-  retVal = sl_WlanPolicySet(SL_POLICY_PM , SL_ALWAYS_ON_POLICY, NULL, 0);
+    /* Set PM policy to normal */
+  retVal = sl_WlanPolicySet(SL_POLICY_PM , SL_NORMAL_POLICY, NULL, 0);
 
     /* TBD - Unregister mDNS services */
   retVal = sl_NetAppMDNSUnRegisterService(0, 0);
