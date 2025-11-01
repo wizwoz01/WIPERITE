@@ -67,7 +67,7 @@ P3.1  +5  +5 V       IN           P4.1  PF2 UNUSED      OUT
 P3.2  Gnd GND        IN           P4.2  PF3 UNUSED      OUT
 P3.3  PD0 M1PWM0     OUT          P4.3  PB3 UNUSED      NA
 P3.4  PD1 M1PWM1     OUT          P4.4  PC4 UART1_CTS   IN
-P3.5  PD2 DIR_BIT0   OUT          P4.5  PC5 UART1_RTS   OUT
+P3.5  PD2 UNUSED     NA           P4.5  PC5 UART1_RTS   OUT
 P3.6  PD3 UNUSED     NA           P4.6  PC6 UNUSED      NA
 P3.7  PE1 UNUSED     NA           P4.7  PC7 NWP_LOG_TX  OUT
 P3.8  PE2 UNUSED     NA           P4.8  PD6 WLAN_LOG_TX OUT

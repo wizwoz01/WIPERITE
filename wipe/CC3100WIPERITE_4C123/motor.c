@@ -56,19 +56,38 @@ void MotorControl_SetEnableAllowed(uint8_t allowed){
   s_enable_allowed = (allowed != 0) ? 1 : 0;
 }
 
-// Bit-band style helpers so we never disturb unrelated pins on Port D/E.
-#define GPIOE_DATA(mask) (*((volatile uint32_t *)(0x40024000 + ((mask) << 2))))
-#define GPIOD_DATA(mask) (*((volatile uint32_t *)(0x40007000 + ((mask) << 2))))
+// Use explicit read-modify-write on DATA registers to avoid any ambiguity
+// with masked/bit-banded writes across toolchains.
 
-// helper to write 4-bit direction pattern safely across PE3-1 and PD2
-// Pattern bits:
-//   bit3 -> PE3, bit2 -> PE2, bit1 -> PE1, bit0 -> PD2 (was PE0)
+// helper to write 4-bit direction pattern safely across PD3/PE2/PE1/PD2
+// Pattern bits (logical):
+//   bit3 -> L IN1 (PD3), bit2 -> L IN2 (PE2), bit1 -> R IN1 (PE1), bit0 -> R IN2 (PD2)
+// Set per-side direction swaps to match your wiring.
+// Start with both 0 (no swap). If a side runs opposite, set its swap to 1.
+#define SWAP_LEFT_DIR   0  // 0=normal IN1/IN2 order; 1=swap IN1<->IN2 for Left
+#define SWAP_RIGHT_DIR  0  // 0=normal IN1/IN2 order; 1=swap IN1<->IN2 for Right
+
 static inline void Dir_Write(uint8_t pat){
-  // Update PE1-PE3 (mask 0x0E) directly with bits 1..3 of pattern
-  GPIOE_DATA(0x0E) = (pat & 0x0E);
-  // Update PD2 from bit0 without touching PD0/PD1 PWM pins
-  // PD2 mask = 0x04
-  GPIOD_DATA(0x04) = (pat & 0x01) ? 0x04u : 0u;
+  // extract logical bits
+  uint8_t L1 = (pat >> 3) & 1u;
+  uint8_t L2 = (pat >> 2) & 1u;
+  uint8_t R1 = (pat >> 1) & 1u;
+  uint8_t R2 = (pat >> 0) & 1u;
+  // apply swaps if requested
+  #if SWAP_LEFT_DIR
+    { uint8_t t=L1; L1=L2; L2=t; }
+  #endif
+  #if SWAP_RIGHT_DIR
+    { uint8_t t=R1; R1=R2; R2=t; }
+  #endif
+  // Compose PE bits (PE2=L2, PE1=R1)
+  uint32_t pe_bits = (uint32_t)((L2<<2) | (R1<<1));
+  // Compose PD bits (PD3=L1, PD2=R2)
+  uint32_t pd_bits = (uint32_t)((L1<<3) | (R2<<2));
+  // Update PE1-PE2 (mask 0x06) via read-modify-write (do not touch PE3)
+  GPIO_PORTE_DATA_R = (GPIO_PORTE_DATA_R & ~0x06u) | (pe_bits & 0x06u);
+  // Update PD2-PD3 without touching PD0/PD1
+  GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x0Cu) | (pd_bits & 0x0Cu);
 }
 
 void MotorControl_Init(void){
@@ -141,7 +160,7 @@ void Car_ProcessCommand(unsigned char control_symbol){
     case 'F':
     case 'f':
       //Forward();
-			move_forward();
+			Forward();
       Car_Delay(0.2);
       Stop();
       break;
@@ -165,6 +184,7 @@ void Car_ProcessCommand(unsigned char control_symbol){
       Car_Delay(0.2);
       Stop();
       break;
+    // Y/T direction swap commands removed: mapping fixed at compile-time above
     case 'U':
     case 'u':
       /* Allow speed changes in any mode */
@@ -228,7 +248,7 @@ static void ZigZag(void){
   // For now, we will just perform a short action to show it was received.
   move_forward();
   Car_Delay(0.2);
-  pivot_right();
+  //pivot_right();
   Car_Delay(0.1);
   stop_the_car();
 }

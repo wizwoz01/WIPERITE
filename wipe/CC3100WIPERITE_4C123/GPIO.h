@@ -21,19 +21,29 @@
 #define White   	0x0E
 #define Purple  	0x06
 
-// Constant definitions for motor direction control on PE3-1 and PD2
-// Bit mapping (Dir_Write in motor.c):
-//   bit3 -> PE3, bit2 -> PE2, bit1 -> PE1, bit0 -> PD2
+// Constant definitions for motor direction control on PD3,PE2,PE1,PD2
+// New Bit mapping (Dir_Write in motor.c):
+//   bit3 -> PD3 (Left IN1)
+//   bit2 -> PE2 (Left IN2)
+//   bit1 -> PE1 (Right IN1)
+//   bit0 -> PD2 (Right IN2)
 // For each motor (L: PE3/PE2, R: PE1/PD2):
-//   Backward  = IN1=1, IN2=0 per side  -> 0b1010 (0x0A)
-//   Forward = IN1=0, IN2=1 per side  -> 0b0101 (0x05)
-//   Pivot Right  (L back, R fwd)       -> 0b0110 (0x06)
-//   Pivot Left (L fwd, R back)       -> 0b1001 (0x09)
+//   Forward  = IN1=1, IN2=0 per side  -> 0b1010 (0x0A)
+//   Backward = IN1=0, IN2=1 per side  -> 0b0101 (0x05)
+//   Pivot Left  (L back, R fwd)       -> 0b0110 (0x06)
+//   Pivot Right (L fwd, R back)       -> 0b1001 (0x09)
+// Note: The values below reflect the logical intentions. Any wiring swaps
+// are handled in motor.c via SWAP_LEFT_DIR/SWAP_RIGHT_DIR.
+// Standard logical direction encodings (do not change these):
+// FORWARD:  0b1010 (0x0A)  L:IN1=1,IN2=0  R:IN1=1,IN2=0
+// BACKWARD: 0b0101 (0x05)  L:IN1=0,IN2=1  R:IN1=0,IN2=1
+// LEFTPIVOT:0b0110 (0x06)  L:backward      R:forward
+// RIGHTPIVOT:0b1001 (0x09) L:forward       R:backward
+#define BRAKE     0x00
+#define FORWARD   0x0F
 #define BACKWARD  0x05
-#define FORWARD   0x0A
 #define LEFTPIVOT 0x06
 #define RIGHTPIVOT 0x09
-#define BRAKE 0x00
 
 // standard ASCII symbols
 #define CR   0x0D

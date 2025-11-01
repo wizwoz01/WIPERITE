@@ -47,13 +47,21 @@ void Car_Dir_Init(void){
     GPIO_PORTE_AFSEL_R &= ~0x01;      // GPIO on PE0
     GPIO_PORTE_AMSEL_R &= ~0x01;      // disable analog on PE0
 
-  // Configure PD2 as digital output for direction bit0 (was PD3)
+  // Configure PD2 as digital output for direction bit0 (Right IN2)
   // PD2 mask = 0x04, PCTL bits for PD2 are bits 8..11 (0x00000F00)
   GPIO_PORTD_AMSEL_R &= ~0x04;      // disable analog on PD2
   GPIO_PORTD_AFSEL_R &= ~0x04;      // GPIO on PD2
   GPIO_PORTD_PCTL_R  &= ~0x00000F00;// clear PCTL for PD2
   GPIO_PORTD_DIR_R   |=  0x04;      // output on PD2
   GPIO_PORTD_DEN_R   |=  0x04;      // enable digital on PD2
+
+  // Configure PD3 as digital output for direction bit3 (Left IN1)
+  // PD3 mask = 0x08, PCTL bits for PD3 are bits 12..15 (0x0000F000)
+  GPIO_PORTD_AMSEL_R &= ~0x08;      // disable analog on PD3
+  GPIO_PORTD_AFSEL_R &= ~0x08;      // GPIO on PD3
+  GPIO_PORTD_PCTL_R  &= ~0x0000F000;// clear PCTL for PD3
+  GPIO_PORTD_DIR_R   |=  0x08;      // output on PD3
+  GPIO_PORTD_DEN_R   |=  0x08;      // enable digital on PD3
 }
 
 
