@@ -2,6 +2,12 @@
 #include "tm4c123gh6pm.h"
 
 #define MOTOR_DIR_MASK 0x3C  // PB2,3,4,5
+//ENA PB6 PWM Left
+//ENB PB7 PWM Right
+//IN1 PB4 Left DIR
+//IN2 PB5 (sleep -> HIGH)
+//IN3 PB2 Right DIR
+//IN4 PB3 (sleep -> HIGH)
 
 void forward(void);
 void reverse(void);
@@ -89,10 +95,12 @@ int main(void){
 }
 
 void forward(void){
+	// Forward: Left(IN1=1,IN2=0)=PB4=1,PB5=0; Right(IN3=1,IN4=0)=PB2=1,PB3=0
   GPIO_PORTB_DATA_R = (GPIO_PORTB_DATA_R & ~MOTOR_DIR_MASK) | ((1<<4) | (1<<2));
 }
 
 void reverse(void){
+	// Reverse: Left(IN1=0,IN2=1)=PB4=0,PB5=1; Right(IN3=0,IN4=1)=PB2=0,PB3=1
   GPIO_PORTB_DATA_R = (GPIO_PORTB_DATA_R & ~MOTOR_DIR_MASK) | ((1<<5) | (1<<3));
 }
 
@@ -107,4 +115,5 @@ void left_pivot(void){
 void stop(void){
   GPIO_PORTB_DATA_R &= ~MOTOR_DIR_MASK;
 }
+
 
