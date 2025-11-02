@@ -3,7 +3,7 @@
 
 static void delay(void){
   volatile uint32_t i;
-  for(i = 0; i < 3000000; i++); // ~0.2–0.3s at default clock
+  for(i = 0; i < 3000000; i++); // ~0.2â€“0.3s at default clock
 }
 
 int main(void){
