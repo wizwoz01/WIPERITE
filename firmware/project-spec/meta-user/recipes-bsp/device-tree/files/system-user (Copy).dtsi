@@ -1,0 +1,73 @@
+/include/ "system-conf.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Zynq Zybo Z7 Development Board";
+	compatible = "digilent,zynq-zyboz7", "xlnx,zynq-7000";
+
+	chosen {
+        bootargs = "console=tty0 console=ttyPS0,115200 earlyprintk fbcon=map:0 root=/dev/mmcblk0p2 rw rootwait video=HDMI-A-1:1280x720M-24@60";
+    	};
+	
+	usb_phy0: usb_phy@0 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x0170>;
+		reset-gpios = <&gpio0 46 1>;
+		drv-vbus;
+	};
+};
+
+&i2c0 {
+    	clock-frequency = <100000>;
+    	status = "okay";
+};
+
+&amba_pl {
+	digilent_hdmi {
+		compatible = "digilent,hdmi";
+		clocks = <&axi_dynclk_0>;
+		clock-names = "clk";
+		digilent,edid-i2c = <&i2c0>;
+		digilent,fmax = <150000>;
+		digilent,hmax = <1920>;
+		digilent,vmax = <1080>;
+		digilent,hpref = <1280>;
+		digilent,vpref = <720>;
+		port@0 { 
+			hdmi_ep: endpoint { 
+				remote-endpoint = <&pl_disp_ep>; 
+			}; 
+		}; 
+	};
+	xlnx_pl_disp {
+		compatible = "xlnx,pl-disp";
+		device-id = <0xaa01>;
+		dmas = <&axi_vdma_0 0>; 	
+		dma-names = "dma0"; 
+		xlnx,vformat = "XR24"; 	
+		xlnx,bridge = <&v_tc_0>; 
+		port@0 { 
+			pl_disp_ep: endpoint { 
+				remote-endpoint = <&hdmi_ep>; 
+			}; 
+		};
+	};
+ };
+&axi_vdma_0 {
+	device-id = <0xaa02>;
+	reg = < 0x43000000 0x10000 >;
+	dma-ranges = <0x00000000 0x00000000 0x40000000>;
+	xlnx,num-fstores = <0x4>;
+};
+&axi_dynclk_0 {
+	compatible = "dglnt,axi-dynclk";
+	#clock-cells = <0>;
+	clocks = <&clkc 15>;
+};
+&v_tc_0 {
+	compatible = "xlnx,bridge-v-tc-6.1";	
+	xlnx,pixels-per-clock = <1>; 
+};
+

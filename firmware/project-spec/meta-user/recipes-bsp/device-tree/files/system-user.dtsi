@@ -1,0 +1,156 @@
+/include/ "system-conf.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Smart Zynq SP1 Development Board";
+	compatible = "digilent,zynq-SP1", "xlnx,zynq-7000";
+
+	chosen {
+		bootargs = "console=ttyPS0,115200 console=tty0 earlyprintk fbcon=map:0 root=/dev/mmcblk0p2 rw rootwait video=HDMI-A-1:1280x720M-32@60 net.ifnames=0";
+	};
+
+	aliases {
+		ethernet0 = &gem0;
+	};
+
+	usb_phy0: usb_phy@0 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x0170>;
+		reset-gpios = <&gpio0 46 1>;
+		drv-vbus;
+	};
+
+	/* Reserve framebuffer memory at 0x1e000000 (4 MB) */
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		framebuffer: framebuffer@1e000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x1e000000 0x00400000>;
+			no-map;
+			reusable;
+		};
+	};
+};
+
+&i2c0 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+/*
+&amba_pl {
+	digilent_hdmi {
+		compatible = "digilent,hdmi";
+		clocks = <&axi_dynclk_0>;
+		clock-names = "clk";
+
+		digilent,fmax = <150000>;
+		digilent,hmax = <1920>;
+		digilent,vmax = <1080>;
+		digilent,hpref = <1280>;
+		digilent,vpref = <720>;
+
+		port@0 {
+			hdmi_ep: endpoint {
+				remote-endpoint = <&pl_disp_ep>;
+			};
+		};
+	};
+
+	xlnx_pl_disp {
+		compatible = "xlnx,pl-disp";
+		device-id = <0xaa01>;
+		dmas = <&axi_vdma_0 0>;
+		dma-names = "dma0";
+		xlnx,vformat = "XR24";
+		xlnx,bridge = <&v_tc_0>;
+		memory-region = <&framebuffer>;
+
+		port@0 {
+			pl_disp_ep: endpoint {
+				remote-endpoint = <&hdmi_ep>;
+			};
+		};
+	};
+};
+*/
+
+&gem0 {
+    status = "okay";
+    phy-mode = "rgmii-id";
+    phy-handle = <&phy1>;
+    local-mac-address = [02 0a 35 00 00 01];
+
+    /* pclk, hclk, tx_clk (ref clock) */
+    clocks = <&clkc 30>, <&clkc 13>, <&clkc 15>;
+    clock-names = "pclk", "hclk", "tx_clk";
+
+    /* Program the tx/ref clock to 125 MHz for RGMII */
+    assigned-clocks = <&clkc 15>;
+    assigned-clock-rates = <125000000>;
+
+    gem0_mdio: mdio {
+        compatible = "cdns,macb-mdio";
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        phy1: ethernet-phy@0 {
+            reg = <0>;
+            realtek,rx-delay = <0x30>;
+            realtek,tx-delay = <0x30>;
+        };
+    };
+};
+
+&axi_vdma_0 {
+	device-id = <0xaa02>;
+	reg = <0x43000000 0x10000>;
+	dma-ranges = <0x00000000 0x00000000 0x20000000>;
+	xlnx,num-fstores = <0x3>;
+};
+
+&axi_dynclk_0 {
+	compatible = "dglnt,axi-dynclk";
+	#clock-cells = <0>;
+	clocks = <&clkc 15>;
+};
+
+&v_tc_0 {
+	compatible = "xlnx,bridge-v-tc-6.1";
+	xlnx,pixels-per-clock = <1>;
+};
+
+&usb0 {
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
+};
+
+
+#define GPIO_ACTIVE_HIGH 0
+#define GPIO_ACTIVE_LOW  1
+
+&spi0 {
+	st7789v@0 {
+		status = "okay";
+		compatible = "sitronix,st7789v";
+		reg = <0>;
+		spi-max-frequency = <32000000>;
+		rotate = <270>;
+		spi-cpol;
+		spi-cpha;
+		rgb;
+		fps = <30>;
+		Buswidth = <8>;
+		reset-gpios = <&gpio0 55 GPIO_ACTIVE_HIGH>;
+		dc-gpios = <&gpio0 54 GPIO_ACTIVE_LOW>;
+		width = <240>;
+		height = <320>;
+		debug = <0>;
+	};
+};
+
