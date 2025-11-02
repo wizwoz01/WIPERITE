@@ -21,7 +21,7 @@ int main(void){
 
 	// Unlock PF0
 	GPIO_PORTF_LOCK_R = 0x4C4F434B;
-	GPIO_PORTF_CR_R |= 0x1F; // allow changes to PF0–PF4
+	GPIO_PORTF_CR_R |= 0x1F; // allow changes to PF0â€“PF4
 
 	// PF1 = LED, PF4 = SW1
 	GPIO_PORTF_DIR_R |=  (1<<1);      // PF1 output
