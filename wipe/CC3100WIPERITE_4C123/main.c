@@ -54,13 +54,13 @@ Pin  Signal        Direction      Pin   Signal     Direction
 P1.1  3.3 VCC         IN          P2.1  Gnd   GND      IN
 P1.2  PB5 UNUSED      NA          P2.2  PB2   IRQ      OUT
 P1.3  PB0 UART1_TX    OUT         P2.3  PE0   SSI2_CS  IN
-P1.4  PB1 UART1_RX    IN          P2.4  PF0   UNUSED   NA
+P1.4  PB1 UART1_RX    IN          P2.4  PF0   ST7735_RST OUT
 P1.5  PE4 nHIB        IN          P2.5  Reset nRESET   IN
 P1.6  PE5 UNUSED      NA          P2.6  PB7  SSI2_MOSI IN
 P1.7  PB4 SSI2_CLK    IN          P2.7  PB6  SSI2_MISO OUT
-P1.8  PA5 UNUSED      NA          P2.8  PA4   UNUSED   NA
-P1.9  PA6 UNUSED      NA          P2.9  PA3   UNUSED   NA
-P1.10 PA7 UNUSED      NA          P2.10 PA2   UNUSED   NA
+P1.8  PA5 SSI0_MOSI   OUT         P2.8  PA4   ST7735_DC OUT
+P1.9  PA6 I2C_SCL     OUT         P2.9  PA3   SSI0_FSS  OUT
+P1.10 PA7 I2C_SDA     IN          P2.10 PA2   SSI0_CLK  OUT
 
 Pin  Signal        Direction      Pin   Signal      Direction
 P3.1  +5  +5 V       IN           P4.1  PF2 UNUSED      OUT
@@ -75,7 +75,7 @@ P3.9  PE3 UNUSED     NA           P4.9  PD7 UNUSED      IN (see R74)
 P3.10 PF1 UNUSED     NA           P4.10 PF4 UNUSED      OUT(see R75)
 
 UART0 (PA1, PA0) sends data to the PC via the USB debug cable, 115200 baud rate
-Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
+ST7735 TFT uses SSI0 (PA2-PA5) plus DC on PA4 and RESET on PF0; I2C on PA6/PA7
 
 */
 #include <stdint.h>
@@ -100,6 +100,12 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "motor.h"
 #include "PWM.h"
 #include "SysTick.h"
+#include "video.h"
+#include "writing_arm.h" // servo control prototypes
+
+// Forward declaration for servo/I2C demo
+void ServoDemo_Run(void);
+void ServoDemo_ProbePCA9685(uint8_t addr);
 #ifndef SL_EAGAIN
 #define SL_EAGAIN (-11)
 #endif
@@ -116,9 +122,9 @@ static inline void delay_ms(uint32_t ms){
 }
 
 // To Do: replace the following three lines with your access point information
-#define SSID_NAME  "test00" /* Access point name to connect to */
+#define SSID_NAME  "Moto" /* Access point name to connect to */
 #define SEC_TYPE   SL_SEC_TYPE_WPA
-#define PASSKEY    "011101110111"  /* Password in case of secure AP */ 
+#define PASSKEY    "WIPERITE-t9!"  /* Password in case of secure AP */ 
 #define MAXLEN 100
 
 
@@ -306,6 +312,20 @@ int main(void){
   if(motors_locked){
     UART_OutString((uint8_t*)"Motor Debug Mode: Motors locked OFF (PF4 held)\r\n");
     ST7735_OutString("MotorDbg: OFF\r\n");
+
+    // If PF4 held at boot, also run the PCA9685 servo/I2C demo for quick validation
+    UART_OutString((uint8_t*)"Servo Test Mode: running demo...\r\n");
+    ST7735_OutString("ServoTest: start\r\n");
+    // Probe PCA9685 registers and display them for sanity check
+    ServoDemo_ProbePCA9685(0x40);
+    SysTick_Wait(50*T1ms);
+    ServoDemo_Run();
+    UART_OutString((uint8_t*)"Servo Test Mode: complete. Release PF4 to skip next boot.\r\n");
+    ST7735_OutString("ServoTest: done\r\n");
+    // Stay here after demo to avoid entering WiFi app during hardware testing
+    while(1){
+      SysTick_Wait(T1ms);
+    }
   }
   // Prevent PWM enabling inside command handler when locked
   MotorControl_SetEnableAllowed(!motors_locked);
@@ -327,6 +347,8 @@ int main(void){
   UART_OutString((uint8_t*)"Connected\n\r");
   ST7735_OutString("Connected\n\r");
   g_ui_dirty = 1;
+  // Initialize video listener on port 5001
+  Video_Init(5001);
   // Keep motors silent until a client connects
 	
   // Set up TCP server socket
@@ -575,6 +597,9 @@ int main(void){
       ui_render(ListenSock, ClientSock);
       g_ui_dirty = 0;
     }
+
+    // Poll video server to handle any incoming frames
+    Video_Poll();
   }
 }
 

@@ -79,6 +79,29 @@ You can remap keys to specific single-letter commands using `--map key:CMD` (rep
 - Maps `s` to Stop (`S`) and `b`/`B` to `Z` (a custom command your TM4C already recognizes). By default, this client maps space to `H` (Stop) and `b/B` to `S` (Square).
 - Valid CMD values: `F B L R S U D 8 C Z Q`.
 
+## OV7670 Whiteboard Tracking 
+The client can read the OV7670 UYVY stream (e.g., via Xillybus on Zynq) and compute a centroid of dark pixels on a white background to track the robot on a whiteboard. It can optionally send guidance commands automatically to keep the robot within the frame center.
+
+Example:
+
+```sh
+./wiperite_client <tm4c_ip> --track --dev /dev/xillybus_read_32 --size 640x480 --ythr 60 --step 2 --margin 24 --auto
+```
+
+- `--track`: Enable tracking.
+- `--dev`: Path to the UYVY byte stream (default `/dev/xillybus_read_32`).
+- `--size`: Frame size (default `640x480`).
+- `--ythr`: Luma threshold for “dark” detection (default `60`). Increase if the board is dim; decrease if too many pixels trigger.
+- `--step`: Sampling step (default `2`) to reduce CPU.
+- `--min`: Minimum pixel hits to accept a target (default `500`).
+- `--margin`: Deadband in pixels around the center (default `24`).
+- `--auto`: Send guidance commands automatically (`L/R/F/B/H`). Without `--auto`, the HUD shows the centroid and proposed command but doesn’t send it.
+
+Notes:
+- Expected pixel format is UYVY (16bpp). The script `liveview.sh` shows how the same device is piped to a viewer.
+- Guidance mapping assumes: left/right based on x error; forward/back based on y error (top is smaller y). Adjust the server’s interpretation if your setup differs.
+- If the video device can’t be opened, the client runs normally without tracking.
+
 ## Networking notes
 - The Zynq and TM4C must be on the same network (same SSID/subnet).
 - The TM4C prints its IP on the LCD/UART when it acquires DHCP:

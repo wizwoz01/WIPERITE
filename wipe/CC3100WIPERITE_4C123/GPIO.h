@@ -40,10 +40,15 @@
 // LEFTPIVOT:0b0110 (0x06)  L:backward      R:forward
 // RIGHTPIVOT:0b1001 (0x09) L:forward       R:backward
 #define BRAKE     0x00
-#define FORWARD   0x0F
-#define BACKWARD  0x05
-#define LEFTPIVOT 0x06
-#define RIGHTPIVOT 0x09
+//#define FORWARD   0x0A
+//#define BACKWARD  0x05
+//#define LEFTPIVOT 0x03
+//#define RIGHTPIVOT 0x0C
+
+#define FORWARD   0x0C
+#define BACKWARD  0x03
+#define LEFTPIVOT 0x05
+#define RIGHTPIVOT 0x0A
 
 // standard ASCII symbols
 #define CR   0x0D

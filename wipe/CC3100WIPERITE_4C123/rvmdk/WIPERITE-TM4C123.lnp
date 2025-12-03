@@ -23,6 +23,12 @@
 ".\rvmdk\motor.o"
 ".\rvmdk\pwm.o"
 ".\rvmdk\systick.o"
+".\rvmdk\video.o"
+".\rvmdk\i2c.o"
+".\rvmdk\writing_arm.o"
+".\rvmdk\servo_demo.o"
+".\rvmdk\pca9685.o"
+".\rvmdk\util.o"
 "..\driverlib\rvmdk\driverlib.lib"
 --library_type=microlib --strict --scatter "cc31000_starter.sct"
 --entry Reset_Handler --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols

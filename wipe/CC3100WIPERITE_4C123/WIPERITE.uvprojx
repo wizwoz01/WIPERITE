@@ -505,6 +505,36 @@
               <FileType>1</FileType>
               <FilePath>.\SysTick.c</FilePath>
             </File>
+            <File>
+              <FileName>video.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\video.c</FilePath>
+            </File>
+            <File>
+              <FileName>I2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\I2C.c</FilePath>
+            </File>
+            <File>
+              <FileName>writing_arm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\writing_arm.c</FilePath>
+            </File>
+            <File>
+              <FileName>servo_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\servo_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>PCA9685.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PCA9685.c</FilePath>
+            </File>
+            <File>
+              <FileName>util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\util.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

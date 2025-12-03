@@ -1,1 +1,1 @@
-./rvmdk/led.o: LED.c ..\inc\tm4c123gh6pm.h
+./rvmdk/led.o: LED.c LED.h ..\inc\tm4c123gh6pm.h

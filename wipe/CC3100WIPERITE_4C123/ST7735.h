@@ -50,8 +50,8 @@
 // MOSI (pin 7) connected to PA5 (SSI0Tx)
 // TFT_CS (pin 6) connected to PA3 (SSI0Fss)
 // CARD_CS (pin 5) unconnected
-// Data/Command (pin 4) connected to PA6 (GPIO), high for data, low for command
-// RESET (pin 3) connected to PA7 (GPIO)
+// Data/Command (pin 4) connected to PA4 (GPIO), high for data, low for command
+// RESET (pin 3) connected to PF0 (GPIO)
 // VCC (pin 2) connected to +3.3 V
 // Gnd (pin 1) connected to ground
 
@@ -61,14 +61,14 @@
 // GND  - Ground
 // !SCL - PA2 Sclk SPI clock from microcontroller to TFT or SDC
 // !SDA - PA5 MOSI SPI data from microcontroller to TFT or SDC
-// DC   - PA6 TFT data/command
-// RES  - PA7 TFT reset
+// DC   - PA4 TFT data/command
+// RES  - PF0 TFT reset (Port F pin 0)
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// SDA  – (NC) I2C data for ADXL345 accelerometer
-// SCL  – (NC) I2C clock for ADXL345 accelerometer
-// SDO  – (NC) I2C alternate address for ADXL345 accelerometer
+// SDA  ï¿½ (NC) I2C data for ADXL345 accelerometer
+// SCL  ï¿½ (NC) I2C clock for ADXL345 accelerometer
+// SDO  ï¿½ (NC) I2C alternate address for ADXL345 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 // **********wide.hk ST7735R with ADXL335 accelerometer *******************
@@ -77,14 +77,14 @@
 // GND  - Ground
 // !SCL - PA2 Sclk SPI clock from microcontroller to TFT or SDC
 // !SDA - PA5 MOSI SPI data from microcontroller to TFT or SDC
-// DC   - PA6 TFT data/command
-// RES  - PA7 TFT reset
+// DC   - PA4 TFT data/command
+// RES  - PF0 TFT reset (Port F pin 0)
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// X– (NC) analog input X-axis from ADXL335 accelerometer
-// Y– (NC) analog input Y-axis from ADXL335 accelerometer
-// Z– (NC) analog input Z-axis from ADXL335 accelerometer
+// Xï¿½ (NC) analog input X-axis from ADXL335 accelerometer
+// Yï¿½ (NC) analog input Y-axis from ADXL335 accelerometer
+// Zï¿½ (NC) analog input Z-axis from ADXL335 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 #ifndef _ST7735H_
@@ -460,5 +460,11 @@ void Output_On(void);
 // Input:  16-bit packed color
 // Output: none
 void Output_Color(uint32_t newColor);
+
+//------------ST7735_BlitRGB565------------
+// Stream raw RGB565 pixel data into a rectangular window.
+// Input: x,y top-left origin; w,h dimensions; data pointer to 2*w*h bytes
+// Output: none
+void ST7735_BlitRGB565(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *data);
 
 #endif

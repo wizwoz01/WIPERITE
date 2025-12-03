@@ -3,7 +3,7 @@
 
 # If CROSS_COMPILE is set (e.g., arm-linux-gnueabihf-), we'll use it
 CC ?= $(CROSS_COMPILE)gcc
-CFLAGS ?= -O2 -Wall -Wextra -pedantic
+CFLAGS ?= -O2 -Wall -Wextra -pedantic -std=c99
 LDFLAGS ?=
 
 # Enable ncurses TUI by default; disable with NO_CURSES=1

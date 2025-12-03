@@ -11,8 +11,8 @@
 // MOSI (pin 7) connected to PA5 (SSI0Tx)
 // TFT_CS (pin 6) connected to PA3 (SSI0Fss)
 // CARD_CS (pin 5) unconnected
-// Data/Command (pin 4) connected to PA6 (GPIO), high for data, low for command
-// RESET (pin 3) connected to PA7 (GPIO)
+// Data/Command (pin 4) connected to PA4 (GPIO), high for data, low for command
+// RESET (pin 3) connected to PF0 (GPIO)
 // VCC (pin 2) connected to +3.3 V
 // Gnd (pin 1) connected to ground
 
@@ -22,14 +22,14 @@
 // GND  - Ground
 // !SCL - PA2 Sclk SPI clock from microcontroller to TFT or SDC
 // !SDA - PA5 MOSI SPI data from microcontroller to TFT or SDC
-// DC   - PA6 TFT data/command
-// RES  - PA7 TFT reset
+// DC   - PA4 TFT data/command
+// RES  - PF0 TFT reset (Port F pin 0)
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// SDA  – (NC) I2C data for ADXL345 accelerometer
-// SCL  – (NC) I2C clock for ADXL345 accelerometer
-// SDO  – (NC) I2C alternate address for ADXL345 accelerometer
+// SDA  ï¿½ (NC) I2C data for ADXL345 accelerometer
+// SCL  ï¿½ (NC) I2C clock for ADXL345 accelerometer
+// SDO  ï¿½ (NC) I2C alternate address for ADXL345 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 // **********wide.hk ST7735R with ADXL335 accelerometer *******************
@@ -38,14 +38,14 @@
 // GND  - Ground
 // !SCL - PA2 Sclk SPI clock from microcontroller to TFT or SDC
 // !SDA - PA5 MOSI SPI data from microcontroller to TFT or SDC
-// DC   - PA6 TFT data/command
-// RES  - PA7 TFT reset
+// DC   - PA4 TFT data/command
+// RES  - PF0 TFT reset (Port F pin 0)
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// X– (NC) analog input X-axis from ADXL335 accelerometer
-// Y– (NC) analog input Y-axis from ADXL335 accelerometer
-// Z– (NC) analog input Z-axis from ADXL335 accelerometer
+// Xï¿½ (NC) analog input X-axis from ADXL335 accelerometer
+// Yï¿½ (NC) analog input Y-axis from ADXL335 accelerometer
+// Zï¿½ (NC) analog input Z-axis from ADXL335 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 #include <stdio.h>
@@ -110,12 +110,12 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define TFT_CS                  (*((volatile uint32_t *)0x40004020))
 #define TFT_CS_LOW              0           // CS normally controlled by hardware
 #define TFT_CS_HIGH             0x08
-#define DC                      (*((volatile uint32_t *)0x40004100))
+#define DC                      (*((volatile uint32_t *)0x40004040))
 #define DC_COMMAND              0
-#define DC_DATA                 0x40
-#define RESET                   (*((volatile uint32_t *)0x40004200))
+#define DC_DATA                 0x10
+#define RESET                   (*((volatile uint32_t *)0x40025004))
 #define RESET_LOW               0
-#define RESET_HIGH              0x80
+#define RESET_HIGH              0x01
 
 #define SSI_CR0_SCR_M           0x0000FF00  // SSI Serial Clock Rate
 #define SSI_CR0_SPH             0x00000080  // SSI Serial Clock Phase
@@ -671,16 +671,26 @@ void static commonInit(const uint8_t *cmdList) {
 
   SYSCTL_RCGCSSI_R |= 0x01;  // activate SSI0
   SYSCTL_RCGCGPIO_R |= 0x01; // activate port A
-  while((SYSCTL_PRGPIO_R&0x01)==0){}; // allow time for clock to start
+  SYSCTL_RCGCGPIO_R |= 0x20; // activate port F (for RESET on PF0)
+  while((SYSCTL_PRGPIO_R&0x01)==0){}; // allow time for port A clock to start
+  while((SYSCTL_PRGPIO_R&0x20)==0){}; // allow time for port F clock to start
 
   // toggle RST low to reset; CS low so it'll listen to us
   // SSI0Fss is temporarily used as GPIO
-  GPIO_PORTA_DIR_R |= 0xC8;             // make PA3,6,7 out
-  GPIO_PORTA_AFSEL_R &= ~0xC8;          // disable alt funct on PA3,6,7
-  GPIO_PORTA_DEN_R |= 0xC8;             // enable digital I/O on PA3,6,7
-                                        // configure PA3,6,7 as GPIO
+  GPIO_PORTA_DIR_R |= 0x18;             // make PA3,4 out (CS, DC)
+  GPIO_PORTA_AFSEL_R &= ~0x18;          // disable alt funct on PA3,4
+  GPIO_PORTA_DEN_R |= 0x18;             // enable digital I/O on PA3,4
+                                        // configure PA3,4 as GPIO
   GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R&0x00FF0FFF)+0x00000000;
-  GPIO_PORTA_AMSEL_R &= ~0xC8;          // disable analog functionality on PA3,6,7
+  GPIO_PORTA_AMSEL_R &= ~0x18;          // disable analog functionality on PA3,4
+
+  // Configure PF0 as GPIO for RESET (PF0 requires unlock)
+  GPIO_PORTF_LOCK_R = 0x4C4F434B;       // unlock PortF
+  GPIO_PORTF_CR_R |= 0x01;              // allow changes to PF0
+  GPIO_PORTF_DIR_R |= 0x01;             // PF0 out
+  GPIO_PORTF_AFSEL_R &= ~0x01;          // disable alt funct on PF0
+  GPIO_PORTF_DEN_R |= 0x01;             // enable digital I/O on PF0
+  GPIO_PORTF_AMSEL_R &= ~0x01;          // disable analog functionality on PF0
   TFT_CS = TFT_CS_LOW;
   RESET = RESET_HIGH;
   Delay1ms(500);
@@ -1019,6 +1029,20 @@ void ST7735_FillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
       writedata(lo);
     }
   }
+}
+
+//------------ST7735_BlitRGB565------------
+// Stream raw RGB565 pixel data into a rectangular window.
+// Assumes data layout is left-to-right, top-to-bottom.
+// Input: x,y top-left origin; w,h dimensions; data pointer to 2*w*h bytes
+// Output: none
+void ST7735_BlitRGB565(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *data){
+  if((x >= _width) || (y >= _height) || w <= 0 || h <= 0) return;
+  if((x + w - 1) >= _width)  w = _width  - x;
+  if((y + h - 1) >= _height) h = _height - y;
+  setAddrWindow(x, y, x+w-1, y+h-1);
+  int32_t total = (int32_t)w * (int32_t)h * 2;
+  for(int32_t i=0; i<total; i++){ writedata(data[i]); }
 }
 
 
