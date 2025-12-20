@@ -18,4 +18,11 @@ void WritingArm_SetServoAngle(uint8_t channel, int16_t angle_deg);
 void WritingArm_DemoStrokes(void);
 void WritingArm_ServoSweepTest(void);
 
+// Draw a single character at the current baseline X offset (grid columns).
+// Uses a simple 5x7 dot font mapped into base/arm angles.
+void WritingArm_DrawChar(char c, int x_origin);
+
+// Draw a NUL-terminated string starting at baseline X origin.
+void WritingArm_DrawString(const char *s, int x_origin);
+
 #endif // WRITING_ARM_H_

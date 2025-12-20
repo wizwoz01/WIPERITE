@@ -120,3 +120,104 @@ void WritingArm_ServoSweepTest(void){
         }
     }
 }
+
+// --- Basic 5x7 font drawing implementation ---------------------------------
+// Each character is 5 columns wide, 7 rows high. Columns are L-to-R, bits
+// low-to-high represent top-to-bottom rows (bit0 = top row).
+
+static const uint8_t font5x7[26][5] = {
+    {0x0E,0x11,0x1F,0x11,0x11}, // A
+    {0x1E,0x11,0x1E,0x11,0x1E}, // B
+    {0x0E,0x11,0x10,0x11,0x0E}, // C
+    {0x1E,0x11,0x11,0x11,0x1E}, // D
+    {0x1F,0x10,0x1E,0x10,0x1F}, // E
+    {0x1F,0x10,0x1E,0x10,0x10}, // F
+    {0x0E,0x10,0x17,0x11,0x0E}, // G
+    {0x11,0x11,0x1F,0x11,0x11}, // H
+    {0x0E,0x04,0x04,0x04,0x0E}, // I
+    {0x07,0x02,0x02,0x12,0x0C}, // J
+    {0x11,0x12,0x1C,0x12,0x11}, // K
+    {0x10,0x10,0x10,0x10,0x1F}, // L
+    {0x11,0x1B,0x15,0x11,0x11}, // M
+    {0x11,0x19,0x15,0x13,0x11}, // N
+    {0x0E,0x11,0x11,0x11,0x0E}, // O
+    {0x1E,0x11,0x1E,0x10,0x10}, // P
+    {0x0E,0x11,0x11,0x0E,0x03}, // Q
+    {0x1E,0x11,0x1E,0x12,0x11}, // R
+    {0x0F,0x10,0x0E,0x01,0x1E}, // S
+    {0x1F,0x04,0x04,0x04,0x04}, // T
+    {0x11,0x11,0x11,0x11,0x0E}, // U
+    {0x11,0x11,0x0A,0x0A,0x04}, // V
+    {0x11,0x11,0x15,0x1B,0x11}, // W
+    {0x11,0x0A,0x04,0x0A,0x11}, // X
+    {0x11,0x0A,0x04,0x04,0x04}, // Y
+    {0x1F,0x02,0x04,0x08,0x1F}  // Z
+};
+
+// Grid mapping: X columns and Y rows
+#define GRID_COLS_PER_CHAR 6 // 5 cols + 1 spacing
+#define GRID_MAX_X 60
+#define GRID_MAX_Y 6
+
+// Tune these ranges to fit your workspace; they map grid coordinates to servo
+// angles. base: left/right, arm: up/down.
+#define GRID_BASE_MIN 60
+#define GRID_BASE_MAX 120
+#define GRID_ARM_MIN 80
+#define GRID_ARM_MAX 120
+
+static void moveToGrid(int gx, int gy){
+    if(gx < 0) gx = 0;
+    if(gy < 0) gy = 0;
+    if(gy > GRID_MAX_Y) gy = GRID_MAX_Y;
+
+    // clamp gx to a reasonable span
+    if(gx > GRID_MAX_X) gx = GRID_MAX_X;
+
+    int base = GRID_BASE_MIN + (gx * (GRID_BASE_MAX - GRID_BASE_MIN)) / GRID_MAX_X;
+    int arm  = GRID_ARM_MIN + (gy * (GRID_ARM_MAX - GRID_ARM_MIN)) / GRID_MAX_Y;
+    WritingArm_MoveToAngles(base, arm);
+    delay_ms(80);
+}
+
+void WritingArm_DrawChar(char c, int x_origin){
+    if(c >= 'a' && c <= 'z') c = c - 'a' + 'A';
+    if(c < 'A' || c > 'Z'){
+        // treat as space: advance pen without drawing
+        // move baseline to end of char width
+        moveToGrid(x_origin + GRID_COLS_PER_CHAR - 1, GRID_MAX_Y/2);
+        return;
+    }
+
+    const uint8_t *glyph = font5x7[c - 'A'];
+
+    // For each column in glyph
+    for(int col = 0; col < 5; ++col){
+        uint8_t colbits = glyph[col];
+        int gx = x_origin + col;
+        // For each row (0 = top)
+        for(int row = 0; row <= GRID_MAX_Y; ++row){
+            if(colbits & (1 << row)){
+                // move above the dot, then pen down, tap, pen up
+                moveToGrid(gx, row);
+                WritingArm_PenDown();
+                delay_ms(80);
+                WritingArm_PenUp();
+                delay_ms(30);
+            }
+        }
+    }
+
+    // small gap after char
+    moveToGrid(x_origin + GRID_COLS_PER_CHAR, GRID_MAX_Y/2);
+}
+
+void WritingArm_DrawString(const char *s, int x_origin){
+    int x = x_origin;
+    while(s && *s){
+        WritingArm_DrawChar(*s, x);
+        x += GRID_COLS_PER_CHAR;
+        s++;
+    }
+}
+

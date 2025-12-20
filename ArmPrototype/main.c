@@ -14,6 +14,10 @@
 #include "I2C.h"
 #include "PCA9685.h"
 #include "tm4c123gh6pm.h"
+#include "Button_LED.h"
+
+// millisecond tick used for non-blocking debounce (updated in main loop)
+volatile uint32_t System_ms = 0;
 
 // Local channel mapping 
 #define BASE_CH   0
@@ -28,6 +32,8 @@ static int baseAngle = 90;
 static int armAngle = 90;
 static int penAngle = 90;
 static int eraserAngle = 90;
+// write mode flag: 0 = normal, 1 = write-mode active
+static volatile uint8_t write_mode = 0;
 
 static void delay_ms(uint32_t ms){
 	while(ms--) SysTick_Wait(T1ms);
@@ -72,6 +78,9 @@ int main(void){
 
 	// Initialize UART and writing arm
 	UART0_Init();
+	// Initialize on-board button and RGB LED (Port F)
+	ButtonLED_Init();
+	ButtonLED_SetColor(0,0,0);
 	WritingArm_Init(0x40); // default PCA9685 address
 	// Quick runtime check: ensure I2C1 peripheral is ready
 	if((SYSCTL_PRI2C_R & 0x02) == 0){
@@ -98,18 +107,94 @@ int main(void){
 	}
 	WritingArm_Home();
 
-	/* initialize local angle state to mid position to track incremental commands */
-	baseAngle = armAngle = penAngle = eraserAngle = 90;
+	/* initialize local angle state to match WritingArm_Home() */
+	baseAngle = 90;
+	armAngle = 90;
+	penAngle = 90;
+	eraserAngle = 0;
 
 	show_menu();
- 
-	for(;;){
-		c = UART0_InChar();
-		// echo and newline
-		UART0_OutChar(c);
-		UART0_NextLine();
 
-		switch(c){
+	for(;;){
+		// Toggle write mode on button press
+		if(ButtonLED_ButtonPressed()){
+			ButtonLED_ClearButton();
+			write_mode = !write_mode;
+			if(write_mode){
+				ButtonLED_SetColor(1,0,0); // indicate write mode (red)
+				UART0_OutString((uint8_t *)"\r\nEntering WRITE mode. Press button again to exit.\r\n");
+				WritingArm_Home();
+				UART0_OutString((uint8_t *)"Write> ");
+			} else {
+				ButtonLED_SetColor(0,0,0);
+				UART0_OutString((uint8_t *)"\r\nExiting WRITE mode.\r\n");
+				WritingArm_Home();
+				show_menu();
+			}
+		}
+
+		// When in write-mode, read lines from UART but allow button to cancel/exit
+		if(write_mode){
+			uint8_t buf[128];
+			uint16_t idx = 0;
+			// loop until newline or button toggles mode off
+			while(write_mode){
+				// check if user pressed button to exit
+				if(ButtonLED_ButtonPressed()){
+					ButtonLED_ClearButton();
+					write_mode = 0;
+					ButtonLED_SetColor(0,0,0);
+					UART0_OutString((uint8_t *)"\r\nWrite mode canceled by button.\r\n");
+					WritingArm_Home();
+					show_menu();
+					break;
+				}
+
+				// non-blocking UART read
+				if((UART0_FR_R & UART_FR_RXFE) == 0){
+					uint8_t ch = UART0_InChar();
+					if(ch == CR || ch == LF){
+						UART0_NextLine();
+						if(idx){
+							buf[idx] = 0;
+							// Draw received string
+							WritingArm_Home();
+							WritingArm_DrawString((const char *)buf, 0);
+							WritingArm_Home();
+							ButtonLED_SetColor(0,1,0); // done: green flash
+							SysTick_Wait(200 * T1ms);
+							ButtonLED_SetColor(1,0,0); // still in write-mode (red)
+						}
+						idx = 0;
+						UART0_OutString((uint8_t *)"Write> ");
+					} else if(ch == BS || ch == DEL){
+						if(idx){
+							idx--;
+							UART0_OutChar(BS); UART0_OutChar(SP); UART0_OutChar(BS);
+						}
+					} else if(ch >= 0x20 && idx < (sizeof(buf)-1)){
+						buf[idx++] = ch;
+						UART0_OutChar(ch);
+					}
+				}
+
+				// small delay to avoid tight loop
+				SysTick_Wait(5 * T1ms);
+				// advance millisecond tick while in write-mode loop
+				System_ms += 5;
+			}
+			// ensure we fall through and not process main commands while writing
+			continue;
+		}
+
+		// Non-blocking UART poll: if a char is available, process it
+		if((UART0_FR_R & UART_FR_RXFE) == 0){
+			c = UART0_InChar();
+			// echo and newline
+			UART0_OutChar(c);
+			UART0_NextLine();
+
+			switch(c){
 			case 'A': case 'a':{
 				/* step ARM_CH up */
 				armAngle += ANGLE_STEP;
@@ -154,6 +239,11 @@ int main(void){
 
 			case 'H': case 'h':{
 				WritingArm_Home();
+				/* keep local state in sync with home positions */
+				baseAngle = 90;
+				armAngle = 90;
+				penAngle = 0;
+				eraserAngle = 0;
 			} break;
 
 			case 'T': case 't':{
@@ -182,8 +272,13 @@ int main(void){
 				UART0_OutString((uint8_t *)"Unknown command. Press M for menu.\r\n");
 			} break;
 		}
+			UART0_OutString((uint8_t *)"\r\nAwaiting command> ");
+		}
 
-		UART0_OutString((uint8_t *)"\r\nAwaiting command> ");
+		// small sleep to allow other interrupts and avoid busy spin
+		SysTick_Wait(5 * T1ms);
+		// update millisecond tick (matches the 5ms sleep above)
+		System_ms += 5;
 	}
 
 	// never reached
