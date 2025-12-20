@@ -39,6 +39,22 @@ static struct termios orig_termios;
 static bool raw_enabled = false;
 #endif
 static volatile sig_atomic_t g_stop = 0;
+static bool g_draw_mode = false;  // Track if we're in motor drawing mode
+
+// --- small send helpers ---
+static int send_buf(int sock, const char *buf, size_t len){
+    size_t off = 0;
+    while(off < len){
+        ssize_t n = send(sock, buf + off, len - off, 0);
+        if(n <= 0) return -1;
+        off += (size_t)n;
+    }
+    return 0;
+}
+
+static int send_char(int sock, char c){
+    return send_buf(sock, &c, 1);
+}
 
 typedef struct {
     const char *ip;
@@ -49,6 +65,7 @@ typedef struct {
     char last_key; // last raw key pressed (to distinguish Space vs b/B when both map to 'S')
     char last_server_msg[128];
     bool connected;
+    bool draw_mode; // local tracking of draw mode state
 } AppState;
 
 typedef struct {
@@ -104,6 +121,8 @@ static void keymap_init_defaults(KeyMap *km) {
     km->map[(unsigned char)'c'] = 'C'; km->map[(unsigned char)'C'] = 'C';
     km->map[(unsigned char)'z'] = 'Z'; km->map[(unsigned char)'Z'] = 'Z';
     km->map[(unsigned char)'q'] = 'Q'; km->map[(unsigned char)'Q'] = 'Q';
+    // Motor drawing mode toggle (~ or `)
+    km->map[(unsigned char)'~'] = '~'; km->map[(unsigned char)'`'] = '~';
 }
 
 static int keymap_set(KeyMap *km, const char *spec) {
@@ -112,7 +131,7 @@ static int keymap_set(KeyMap *km, const char *spec) {
     if (!colon || colon == spec || colon[1] == '\0') return -1;
     unsigned char key = (unsigned char)spec[0];
     unsigned char cmd = (unsigned char)colon[1];
-    const char *valid = "FBLRSUD8CZQH"; // include 'H' (Halt/Stop)
+    const char *valid = "FBLRSUD8CZQHPE~!@#$%^&*+-<>"; // include draw mode cmds (P=pen, E=eraser, H=home)
     if (!strchr(valid, (cmd >= 'a' && cmd <= 'z') ? (cmd - 32) : cmd)) return -2;
     if (cmd >= 'a' && cmd <= 'z') cmd -= 32; // uppercase
     km->map[key] = cmd;
@@ -187,6 +206,25 @@ static void usage(const char *prog) {
     fputs("  c                 -> C (custom)\n", stderr);
     fputs("  z                 -> Z (custom)\n", stderr);
     fputs("  q                 -> Q (quit)\n\n", stderr);
+    fputs("Motor Drawing Mode (~ to toggle):\n", stderr);
+    fputs("  ~ or `            -> Enter/exit draw mode\n", stderr);
+    fputs("  A-Z               -> Draw that letter\n", stderr);
+    fputs("  0-9               -> Draw that digit\n", stderr);
+    fputs("  !                 -> Square shape\n", stderr);
+    fputs("  @                 -> Triangle shape\n", stderr);
+    fputs("  #                 -> Circle shape\n", stderr);
+    fputs("  $                 -> Star shape\n", stderr);
+    fputs("  %                 -> ZigZag shape\n", stderr);
+    fputs("  ^                 -> Figure-8 shape\n", stderr);
+    fputs("  &                 -> Heart shape\n", stderr);
+    fputs("  *                 -> Diamond shape\n", stderr);
+    fputs("  P                 -> Select pen tool\n", stderr);
+    fputs("  E                 -> Select eraser tool\n", stderr);
+    fputs("  H                 -> Return to home position\n", stderr);
+    fputs("  k twice           -> Sweep CH0 (debug)\n", stderr);
+    fputs("  +/-               -> Increase/decrease scale\n", stderr);
+    fputs("  </> or ,/.        -> Decrease/increase speed\n", stderr);
+    fputs("  ESC or Q          -> Exit draw mode\n\n", stderr);
     fputs("Runtime toggles:\n", stderr);
     fputs("  t                 Toggle Auto (tracking guidance) ON/OFF\n", stderr);
     fputs("  v                 Toggle Video streaming ON/OFF\n\n", stderr);
@@ -255,7 +293,32 @@ static char map_key(const KeyMap *km, unsigned char k, const unsigned char *esc_
         if (code == 'C') return 'R'; // Right
         if (code == 'D') return 'L'; // Left
     }
-    // Configured direct mapping
+    
+    // Draw mode toggle always works
+    if (k == '~' || k == '`') return '~';
+    
+    // In draw mode, pass through letters, digits, shapes, and control chars directly
+    if (g_draw_mode) {
+        // Letters for drawing
+        if ((k >= 'A' && k <= 'Z') || (k >= 'a' && k <= 'z')) return (char)k;
+        // Digits for drawing
+        if (k >= '0' && k <= '9') return (char)k;
+        // Shape characters
+        if (k == '!' || k == '@' || k == '#' || k == '$' || 
+            k == '%' || k == '^' || k == '&' || k == '*') return (char)k;
+        // Scale controls
+        if (k == '+' || k == '=' || k == '-' || k == '_') return (char)k;
+        // Speed controls
+        if (k == '>' || k == '.' || k == '<' || k == ',') return (char)k;
+        // Space = stop in draw mode
+        if (k == ' ') return ' ';
+        // ESC exits draw mode (send to server)
+        if (k == 27) return 27;
+        // Q/q also exits draw mode
+        if (k == 'Q' || k == 'q') return 'Q';
+    }
+    
+    // Configured direct mapping (normal mode)
     return km->map[k]; // 0 if unmapped -> ignore
 }
 
@@ -278,10 +341,16 @@ static void ui_shutdown(void) {
 static void ui_draw(const AppState *st) {
     int rows, cols; getmaxyx(stdscr, rows, cols);
     erase();
-    mvprintw(0, 0, "WIPERITE Base Station  |  Target %s:%u  |  Status: %s  |  Reconnects: %d",
-             st->ip, st->port, st->connected ? "CONNECTED" : "OFFLINE", st->reconnects);
+    mvprintw(0, 0, "WIPERITE Base Station  |  Target %s:%u  |  Status: %s  |  Reconnects: %d  |  DrawMode: %s",
+             st->ip, st->port, st->connected ? "CONNECTED" : "OFFLINE", st->reconnects,
+             g_draw_mode ? "ON" : "OFF");
     mvhline(1, 0, '-', cols);
-    mvprintw(2, 0, "Controls: WASD/Arrows move, Space=Stop, B/b=Square, U/J speed up/down, 8/C/Z custom, Q quit");
+    if (g_draw_mode) {
+        mvprintw(2, 0, "DRAW MODE: A-Z=letters, 0-9=digits, !@#$%%^&*=shapes, P=pen, E=eraser, H=home, +/-=scale, <>=speed, Q=exit");
+    } else {
+        mvprintw(2, 0, "Controls: WASD/Arrows move, Space=Stop, U/J speed, Q quit | ~ = Enter Draw Mode");
+    }
+    mvprintw(3, 0, "Draw shapes: !=Square @=Triangle #=Circle $=Star %%=ZigZag ^=Fig8 &=Heart *=Diamond");
     const char *label = "-";
     switch (st->last_cmd) {
         case 'F': label = "Forward"; break;
@@ -300,14 +369,39 @@ static void ui_draw(const AppState *st) {
         case 'C': label = "Custom C"; break;
         case 'Z': label = "Custom Z"; break;
         case 'Q': label = "Quit"; break;
-        default: label = "-"; break;
+        case '~': label = "DrawMode"; break;
+        case '!': label = "Square"; break;
+        case '@': label = "Triangle"; break;
+        case '#': label = "Circle"; break;
+        case '$': label = "Star"; break;
+        case '%': label = "ZigZag"; break;
+        case '^': label = "Figure8"; break;
+        case '&': label = "Heart"; break;
+        case '*': label = "Diamond"; break;
+        case 'P': label = "Pen"; break;
+        case 'E': label = "Eraser"; break;
+        case 'H': label = "Home"; break;
+        case '+': label = "Scale+"; break;
+        case '-': label = "Scale-"; break;
+        case '>': case '.': label = "Speed+"; break;
+        case '<': case ',': label = "Speed-"; break;
+        default:
+            // Check if it's a letter/digit for draw mode
+            if ((st->last_cmd >= 'A' && st->last_cmd <= 'Z') ||
+                (st->last_cmd >= 'a' && st->last_cmd <= 'z') ||
+                (st->last_cmd >= '0' && st->last_cmd <= '9')) {
+                label = "Draw";
+            } else {
+                label = "-";
+            }
+            break;
     }
     if (st->last_cmd) {
-    mvprintw(4, 0, "Last command: %s (%c)", label, st->last_cmd);
+    mvprintw(5, 0, "Last command: %s (%c)", label, st->last_cmd);
     } else {
-        mvprintw(4, 0, "Last command: -");
+        mvprintw(5, 0, "Last command: -");
     }
-    mvprintw(6, 0, "Server: %s", st->last_server_msg[0] ? st->last_server_msg : "<none>");
+    mvprintw(7, 0, "Server: %s", st->last_server_msg[0] ? st->last_server_msg : "<none>");
     mvprintw(rows - 1, 0, "Press Q to quit");
     refresh();
 }
@@ -403,20 +497,68 @@ static int interactive_session(AppState *st, const KeyMap *km) {
             char cmd = 0;
             int arrow = 0;
             switch (ch) {
-                case KEY_UP: cmd = 'F'; arrow = 1; break;
-                case KEY_DOWN: cmd = 'B'; arrow = 1; break;
-                case KEY_LEFT: cmd = 'L'; arrow = 1; break;
-                case KEY_RIGHT: cmd = 'R'; arrow = 1; break;
+                case KEY_UP:
+                    if(g_draw_mode){
+                        (void)send_buf(st->sock, "\x1b[A", 3);
+                        st->last_cmd = '^';
+                        st->last_key = 0;
+                        ui_draw(st);
+                        continue;
+                    }
+                    cmd = 'F'; arrow = 1; break;
+                case KEY_DOWN:
+                    if(g_draw_mode){
+                        (void)send_buf(st->sock, "\x1b[B", 3);
+                        st->last_cmd = 'v';
+                        st->last_key = 0;
+                        ui_draw(st);
+                        continue;
+                    }
+                    cmd = 'B'; arrow = 1; break;
+                case KEY_LEFT:
+                    if(g_draw_mode){
+                        (void)send_buf(st->sock, "\x1b[D", 3);
+                        st->last_cmd = '<';
+                        st->last_key = 0;
+                        ui_draw(st);
+                        continue;
+                    }
+                    cmd = 'L'; arrow = 1; break;
+                case KEY_RIGHT:
+                    if(g_draw_mode){
+                        (void)send_buf(st->sock, "\x1b[C", 3);
+                        st->last_cmd = '>';
+                        st->last_key = 0;
+                        ui_draw(st);
+                        continue;
+                    }
+                    cmd = 'R'; arrow = 1; break;
                 default:
+                    if (g_draw_mode && (ch == 'k' || ch == 'K')){
+                        (void)send_buf(st->sock, "kk", 2);
+                        st->last_cmd = 'k';
+                        st->last_key = (char)ch;
+                        ui_draw(st);
+                        continue;
+                    }
                     if (ch >= 0 && ch <= 255) cmd = map_key(km, (unsigned char)ch, NULL, 0);
                     break;
             }
             if (cmd) {
+                // Toggle draw mode state locally when ~ is sent
+                if (cmd == '~') {
+                    g_draw_mode = !g_draw_mode;
+                }
+                // In draw mode, Q exits draw mode rather than quitting client
+                if (g_draw_mode && cmd == 'Q') {
+                    g_draw_mode = false;
+                    // Still send Q to server to exit draw mode there
+                }
                 st->last_key = arrow ? 0 : (char)((ch >= 0 && ch <= 255) ? ch : 0);
                 st->last_cmd = cmd;
                 ui_draw(st);
-                if (send(st->sock, &cmd, 1, 0) != 1) return -1; // treat as drop
-                if (cmd == 'Q') return 1; // user quit
+                if (send_char(st->sock, cmd) != 0) return -1; // treat as drop
+                if (cmd == 'Q' && !g_draw_mode) return 1; // user quit (only if not in draw mode)
             }
         }
 #else
@@ -428,10 +570,12 @@ static int interactive_session(AppState *st, const KeyMap *km) {
                     if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; continue; }
                     char cmd = map_key(km, ch, NULL, 0);
                     if (cmd) {
+                        if (cmd == '~') g_draw_mode = !g_draw_mode;
+                        if (g_draw_mode && cmd == 'Q') g_draw_mode = false;
                         st->last_key = (char)ch;
                         st->last_cmd = cmd;
                         if (send(st->sock, &cmd, 1, 0) != 1) return -1;
-                        if (cmd == 'Q') return 1;
+                        if (cmd == 'Q' && !g_draw_mode) return 1;
                     }
                 } else {
                     if (esc_len2 < sizeof(esc_buf2)) esc_buf2[esc_len2++] = ch;
@@ -770,28 +914,40 @@ static int interactive_session_trk(AppState *st, const KeyMap *km, TrackState *t
                 case KEY_DOWN: cmd = 'B'; arrow = 1; break;
                 case KEY_LEFT: cmd = 'L'; arrow = 1; break;
                 case KEY_RIGHT: cmd = 'R'; arrow = 1; break;
-                // Runtime toggles
+                // Runtime toggles (only when not in draw mode)
                 case 't': case 'T':
-                    ts->auto_send = !ts->auto_send;
-                    mvprintw(8, 0, "Auto: %s        ", ts->auto_send ? "ON" : "OFF");
-                    refresh();
-                    continue;
+                    if (!g_draw_mode) {
+                        ts->auto_send = !ts->auto_send;
+                        mvprintw(8, 0, "Auto: %s        ", ts->auto_send ? "ON" : "OFF");
+                        refresh();
+                        continue;
+                    }
+                    // In draw mode, pass 't' through for letter drawing
+                    cmd = map_key(km, (unsigned char)ch, NULL, 0);
+                    break;
                 case 'v': case 'V':
-                    ts->stream_st7735 = !ts->stream_st7735;
-                    if (ts->stream_st7735 && ts->vsock < 0) (void)ensure_video_socket(ts, st->ip);
-                    mvprintw(9, 0, "Video: %s        ", ts->stream_st7735 ? "ON" : "OFF");
-                    refresh();
-                    continue;
+                    if (!g_draw_mode) {
+                        ts->stream_st7735 = !ts->stream_st7735;
+                        if (ts->stream_st7735 && ts->vsock < 0) (void)ensure_video_socket(ts, st->ip);
+                        mvprintw(9, 0, "Video: %s        ", ts->stream_st7735 ? "ON" : "OFF");
+                        refresh();
+                        continue;
+                    }
+                    // In draw mode, pass 'v' through for letter drawing
+                    cmd = map_key(km, (unsigned char)ch, NULL, 0);
+                    break;
                 default:
                     if (ch >= 0 && ch <= 255) cmd = map_key(km, (unsigned char)ch, NULL, 0);
                     break;
             }
             if (cmd) {
+                if (cmd == '~') g_draw_mode = !g_draw_mode;
+                if (g_draw_mode && cmd == 'Q') g_draw_mode = false;
                 st->last_key = arrow ? 0 : (char)((ch >= 0 && ch <= 255) ? ch : 0);
                 st->last_cmd = cmd;
                 ui_draw(st);
                 if (send(st->sock, &cmd, 1, 0) != 1) { close_video(ts); return -1; }
-                if (cmd == 'Q') { close_video(ts); return 1; }
+                if (cmd == 'Q' && !g_draw_mode) { close_video(ts); return 1; }
             }
         }
 #else
@@ -800,24 +956,47 @@ static int interactive_session_trk(AppState *st, const KeyMap *km, TrackState *t
             while (kbd_read_raw(&ch)) {
                 static unsigned char esc_buf2[8]; static size_t esc_len2 = 0; static bool in_esc2 = false;
                 if (!in_esc2) {
-                    if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; continue; }
-                    // Runtime toggles for NO_CURSES mode
-                    if (ch == 't' || ch == 'T') { ts->auto_send = !ts->auto_send; printf("\n[Auto %s]\n", ts->auto_send?"ON":"OFF"); continue; }
-                    if (ch == 'v' || ch == 'V') { ts->stream_st7735 = !ts->stream_st7735; if (ts->stream_st7735 && ts->vsock < 0) (void)ensure_video_socket(ts, st->ip); printf("\n[Video %s]\n", ts->stream_st7735?"ON":"OFF"); continue; }
+                    if (ch == '\x1b') { in_esc2 = true; esc_len2 = 0; if(g_draw_mode){ if(send_char(st->sock, '\x1b')!=0) { close_video(ts); return -1; } } continue; }
+                    // Runtime toggles for NO_CURSES mode (only when not in draw mode)
+                    if (!g_draw_mode && (ch == 't' || ch == 'T')) { ts->auto_send = !ts->auto_send; printf("\n[Auto %s]\n", ts->auto_send?"ON":"OFF"); continue; }
+                    if (!g_draw_mode && (ch == 'v' || ch == 'V')) { ts->stream_st7735 = !ts->stream_st7735; if (ts->stream_st7735 && ts->vsock < 0) (void)ensure_video_socket(ts, st->ip); printf("\n[Video %s]\n", ts->stream_st7735?"ON":"OFF"); continue; }
+                    if (g_draw_mode && (ch == 'k' || ch == 'K')) {
+                        if (send_buf(st->sock, "kk", 2) != 0) { close_video(ts); return -1; }
+                        st->last_key = (char)ch;
+                        st->last_cmd = 'k';
+                        continue;
+                    }
+                    if (g_draw_mode) {
+                        // Pass raw bytes through so ESC sequences reach the robot
+                        if (send_char(st->sock, (char)ch) != 0) { close_video(ts); return -1; }
+                        if (ch == 'Q' || ch == 'q') { g_draw_mode = false; }
+                        st->last_key = (char)ch;
+                        st->last_cmd = (char)ch;
+                        continue;
+                    }
                     char cmd = map_key(km, ch, NULL, 0);
                     if (cmd) {
+                        if (cmd == '~') { g_draw_mode = !g_draw_mode; printf("\n[DrawMode %s]\n", g_draw_mode?"ON":"OFF"); }
+                        if (g_draw_mode && cmd == 'Q') g_draw_mode = false;
                         st->last_key = (char)ch;
                         st->last_cmd = cmd;
-                        if (send(st->sock, &cmd, 1, 0) != 1) { close_video(ts); return -1; }
-                        if (cmd == 'Q') { close_video(ts); return 1; }
+                        if (send_char(st->sock, cmd) != 0) { close_video(ts); return -1; }
+                        if (cmd == 'Q' && !g_draw_mode) { close_video(ts); return 1; }
                     }
                 } else {
                     if (esc_len2 < sizeof(esc_buf2)) esc_buf2[esc_len2++] = ch;
+                    if (g_draw_mode) {
+                        // forward escape sequence bytes as-is
+                        if (send_char(st->sock, (char)ch) != 0) { close_video(ts); return -1; }
+                        if (esc_len2 >= 2 && esc_buf2[0] != '[') { in_esc2 = false; esc_len2 = 0; }
+                        if (esc_len2 >= 2 && (esc_buf2[1]=='A'||esc_buf2[1]=='B'||esc_buf2[1]=='C'||esc_buf2[1]=='D')) { in_esc2 = false; esc_len2 = 0; }
+                        continue;
+                    }
                     if (esc_len2 >= 2) {
                         char cmd = map_key(km, '\x1b', esc_buf2, esc_len2);
                         if (cmd) {
                             st->last_key = 0; st->last_cmd = cmd;
-                            if (send(st->sock, &cmd, 1, 0) != 1) { close_video(ts); return -1; }
+                            if (send_char(st->sock, cmd) != 0) { close_video(ts); return -1; }
                         }
                         in_esc2 = false; esc_len2 = 0;
                     }
@@ -986,7 +1165,8 @@ int main(int argc, char **argv) {
     }
 
     // Interactive mode with optional tracking + auto-reconnect
-    AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .last_key = 0, .connected = false };
+    AppState st = { .ip = ip, .port = port, .sock = -1, .reconnects = 0, .last_cmd = 0, .last_key = 0, .connected = false, .draw_mode = false };
+    g_draw_mode = false; // reset global draw mode state
     KeyMap km; keymap_init_defaults(&km);
     // Apply --map arguments for interactive mode
     int map_start = ip_provided ? ((argc >= 3 && argv[2][0] != '-') ? 3 : 2) : 1;

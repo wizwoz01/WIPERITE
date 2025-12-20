@@ -228,4 +228,36 @@
 #define UART_IM_TXIM              0x00000020
 #define UART_IM_RTIM              0x00000040
 
+// ------------------------------- I2C -------------------------------------
+// System control for I2C
+#define SYSCTL_RCGCI2C_R          (*((volatile uint32_t *)0x400FE620))
+#define SYSCTL_PRI2C_R            (*((volatile uint32_t *)0x400FEA20))
+
+// I2C1 registers (base 0x40021000)
+#define I2C1_MSA_R                (*((volatile uint32_t *)0x40021000))
+#define I2C1_MCS_R                (*((volatile uint32_t *)0x40021004))
+#define I2C1_MDR_R                (*((volatile uint32_t *)0x40021008))
+#define I2C1_MTPR_R               (*((volatile uint32_t *)0x4002100C))
+#define I2C1_MCR_R                (*((volatile uint32_t *)0x40021020))
+
+// I2C MCS Register Bits (when writing - control)
+#define I2C_MCS_RUN               0x00000001  // I2C Master Enable
+#define I2C_MCS_START             0x00000002  // Generate START
+#define I2C_MCS_STOP              0x00000004  // Generate STOP
+#define I2C_MCS_ACK               0x00000008  // Data Acknowledge Enable
+#define I2C_MCS_HS                0x00000010  // High-Speed Enable
+
+// I2C MCS Register Bits (when reading - status)
+#define I2C_MCS_BUSY              0x00000001  // I2C Busy
+#define I2C_MCS_ERROR             0x00000002  // Error
+#define I2C_MCS_ADRACK            0x00000004  // Acknowledge Address
+#define I2C_MCS_DATACK            0x00000008  // Acknowledge Data
+#define I2C_MCS_ARBLST            0x00000010  // Arbitration Lost
+#define I2C_MCS_IDLE              0x00000020  // I2C Idle
+#define I2C_MCS_BUSBSY            0x00000040  // Bus Busy
+#define I2C_MCS_CLKTO             0x00000080  // Clock Timeout Error
+
+// GPIO Port A Open-Drain Register (for I2C SDA)
+#define GPIO_PORTA_ODR_R          (*((volatile uint32_t *)0x4000450C))
+
 #endif // TM4C123GH6PM_MIN_H_

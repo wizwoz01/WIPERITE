@@ -5,10 +5,7 @@
  
 #include <stdint.h>
 
-// The MCU core clock is 16 MHz.
-// At 16 MHz, 1ms corresponds to 16,000 cycles.
-#define T1ms                             16000U   // Systick reload value to generate 1ms delay at 16 MHz
-// Keep ONE_SEC expressed in terms of T1ms so timing scales automatically.
+#define T1ms                             50000U   // Systick reload value to generate 1ms delay, assumes using 50 MHz Clock.
 #define ONE_SEC                      100*T1ms     //systick reload value for 0.5s
 
 // Time delay using busy wait.

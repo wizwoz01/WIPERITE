@@ -16,4 +16,4 @@
   ..\driverlib\gpio.h ..\driverlib\pin_map.h ..\driverlib\rom.h \
   ..\driverlib\sysctl.h ..\utils\cmdline.h application_commands.h LED.h \
   ST7735.h ..\inc\tm4c123gh6pm.h bmps.h UART0.h motor.h PWM.h SysTick.h \
-  video.h writing_arm.h
+  video.h PCA9685.h writing_arm.h motor_drawing.h

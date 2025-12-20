@@ -101,11 +101,12 @@ ST7735 TFT uses SSI0 (PA2-PA5) plus DC on PA4 and RESET on PF0; I2C on PA6/PA7
 #include "PWM.h"
 #include "SysTick.h"
 #include "video.h"
+#include "PCA9685.h"
 #include "writing_arm.h" // servo control prototypes
+#include "motor_drawing.h" // motor-based letter/shape drawing
 
-// Forward declaration for servo/I2C demo
-void ServoDemo_Run(void);
-void ServoDemo_ProbePCA9685(uint8_t addr);
+// Servo/I2C demo removed
+
 #ifndef SL_EAGAIN
 #define SL_EAGAIN (-11)
 #endif
@@ -113,7 +114,7 @@ void ServoDemo_ProbePCA9685(uint8_t addr);
 // Optional: small cooperative delay helper
 static inline void delay_ms(uint32_t ms){
   // SysTick is configured for busy-wait in this project
-  // T1ms is defined as 50,000 for 1ms at 50MHz
+  // T1ms is defined as 16,000 for 1ms at 16MHz
   for(uint32_t i=0;i<ms;i++){
     SysTick_Wait(T1ms);
     // Keep the SimpleLink host driver serviced even during small delays
@@ -294,7 +295,7 @@ int main(void){
   int16_t n;
   char cmdBuf[64];
 
-  initClk();        // PLL 50 MHz
+  initClk();        // 16 MHz system clock
   UART_Init();      // Send data to PC, 115200 bps
   LED_Init();       // initialize LaunchPad I/O 
   ST7735_InitR(INITR_REDTAB);
@@ -305,31 +306,35 @@ int main(void){
   MotorControl_Init();
   SysTick_Init(); // enable busy-wait timing for cooperative scheduling
   // Hold PWM pins in a quiet state handled elsewhere
-
-  // Latch a WiFi-only debug mode if PF4 held at boot (negative logic)
-  // Requires PortF already initialized by MotorControl_Init
-  uint8_t motors_locked = ((GPIO_PORTF_DATA_R & 0x10) == 0) ? 1 : 0;
-  if(motors_locked){
-    UART_OutString((uint8_t*)"Motor Debug Mode: Motors locked OFF (PF4 held)\r\n");
-    ST7735_OutString("MotorDbg: OFF\r\n");
-
-    // If PF4 held at boot, also run the PCA9685 servo/I2C demo for quick validation
-    UART_OutString((uint8_t*)"Servo Test Mode: running demo...\r\n");
-    ST7735_OutString("ServoTest: start\r\n");
-    // Probe PCA9685 registers and display them for sanity check
-    ServoDemo_ProbePCA9685(0x40);
-    SysTick_Wait(50*T1ms);
-    ServoDemo_Run();
-    UART_OutString((uint8_t*)"Servo Test Mode: complete. Release PF4 to skip next boot.\r\n");
-    ST7735_OutString("ServoTest: done\r\n");
-    // Stay here after demo to avoid entering WiFi app during hardware testing
-    while(1){
-      SysTick_Wait(T1ms);
+  
+  // Initialize writing arm and PCA9685 for servo control at 50Hz
+  WritingArm_Init(PCA9685_I2C_ADDR_DEFAULT);
+  // If PCA9685 did not ACK, surface a visible note on LCD/UART
+  {
+    uint32_t st = PCA9685_GetLastI2CStatus();
+    if(st & 0x04){ // ADRACK
+      UART_OutString((uint8_t*)"Warning: PCA9685 not detected (ADRACK). Check wiring/power.\r\n");
+      ST7735_OutString("PCA9685 ADRACK\n");
     }
   }
+  WritingArm_Home();
+  
+  // Initialize motor drawing module for letter/shape commands
+  MotorDraw_Init();
+  
+  // Latch a WiFi-only debug mode if PF4 held at boot (negative logic)
+  // Requires PortF already initialized by MotorControl_Init
+  uint8_t pf4_held = ((GPIO_PORTF_DATA_R & 0x10) == 0) ? 1u : 0u;
+  uint8_t motors_locked = pf4_held;
   // Prevent PWM enabling inside command handler when locked
   MotorControl_SetEnableAllowed(!motors_locked);
   uint8_t motors_enabled = 0; // enable motors only when a client connects
+  if(pf4_held){
+    MotorDraw_EnterMode();
+    UART_OutString((uint8_t*)"PF4 held: draw mode auto-enabled for PCA9685 debug\r\n");
+    ST7735_OutString("Draw mode (PF4)\n\r");
+    g_ui_dirty = 1;
+  }
 	
   retVal = configureSimpleLinkToDefaultState(pConfig); // set policies
   if(retVal < 0)Crash(4000000);
@@ -366,7 +371,9 @@ int main(void){
 
   UART_OutString((uint8_t*)"Listening on TCP port ");
   UART_OutUDec(LISTEN_PORT);
-  UART_OutString((uint8_t*)"\r\nCommands: F,B,L,R,H/space(stop),U,D,8,C,S(square),Z. WASD/arrow keys supported. 'Q' to close.\r\n");
+  UART_OutString((uint8_t*)"\r\nCommands: F,B,L,R,H/space(stop),U,D,8,C,S(square),Z. WASD/arrow keys.\r\n");
+  UART_OutString((uint8_t*)"Draw Mode: ~ to enter, A-Z/0-9 for letters/digits, !/@ /#/$/%/^/&/* for shapes.\r\n");
+  UART_OutString((uint8_t*)"           +/- scale, </> speed, ESC/Q exit draw mode. 'Q' to close connection.\r\n");
   g_ui_dirty = 1;
 
   // Cooperative main loop: poll sockets and service driver; auto-reconnect on drop
@@ -452,19 +459,30 @@ int main(void){
             continue;
           }
           if(g_rx_escape_state == 2){
-            char mapped = 0;
-            switch(c){
-              case 'A': mapped = 'F'; break; // Up arrow -> Forward
-              case 'B': mapped = 'B'; break; // Down arrow -> Reverse
-              case 'C': mapped = 'R'; break; // Right arrow -> Right turn
-              case 'D': mapped = 'L'; break; // Left arrow -> Left turn
-              default: mapped = 0; break;
+            uint8_t mapped = 0;
+            if(MotorDraw_GetMode() != DRAW_MODE_OFF){
+              // In draw mode, arrow keys jog PCA9685 channels for debugging
+              switch(c){
+                case 'A': mapped = MTRDRAW_CMD_CH2_INC; break; // Up arrow -> CH2+
+                case 'B': mapped = MTRDRAW_CMD_CH2_DEC; break; // Down arrow -> CH2-
+                case 'C': mapped = MTRDRAW_CMD_CH1_INC; break; // Right arrow -> CH1+
+                case 'D': mapped = MTRDRAW_CMD_CH1_DEC; break; // Left arrow -> CH1-
+                default: mapped = 0; break;
+              }
+            } else {
+              switch(c){
+                case 'A': mapped = 'F'; break; // Up arrow -> Forward
+                case 'B': mapped = 'B'; break; // Down arrow -> Reverse
+                case 'C': mapped = 'R'; break; // Right arrow -> Right turn
+                case 'D': mapped = 'L'; break; // Left arrow -> Left turn
+                default: mapped = 0; break;
+              }
             }
             g_rx_escape_state = 0;
             if(mapped == 0){
               continue; // ignore unknown escape sequence
             }
-            c = mapped;
+            c = (char)mapped;
           }
           switch(c){
             case 'w':
@@ -546,12 +564,29 @@ int main(void){
     if(!cmdq_is_empty()){
       // Process a few per tick to keep loop responsive
       for(int i=0; i<4 && !cmdq_is_empty(); i++){
-        char c = (char)cmdq_pop();
+        uint8_t c = cmdq_pop();
         // Visual heartbeat on command: blue LED pulse ~50ms
         LED_BlueOn();
         g_led_blue_pulse_ms = 50;
-        // Execute motor action
-        Car_ProcessCommand((unsigned char)c);
+        // Execute actions
+        // First check if motor drawing mode should handle this command
+        if(MotorDraw_ProcessCommand((unsigned char)c)){
+          // Command was handled by motor drawing mode
+          // Drawing mode manages its own motion, no timeout needed
+          if(MotorDraw_GetMode() == DRAW_MODE_OFF){
+            g_motion_timeout_ms = 0;
+            // Re-enable DC motor PWM after exiting draw mode (if client still connected)
+            if(ClientSock >= 0 && !motors_locked){
+              PWM_PinsToPWM();
+              MotorPWM_Enable();
+              motors_enabled = 1;
+              MotorControl_SetEnableAllowed(1);
+              UART_OutString((uint8_t*)"DC Motors re-enabled after draw mode\r\n");
+            }
+          }
+        } else {
+          Car_ProcessCommand((unsigned char)c);
+        }
         // Refresh motion safety timeout for active motion commands
         switch(c){
           case 'F': case 'f': case 'B': case 'b':

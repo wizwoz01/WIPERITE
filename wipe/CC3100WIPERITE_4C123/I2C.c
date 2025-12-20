@@ -18,6 +18,7 @@
  *	Output: None
  */
 void I2C1_Init(void){
+	volatile uint32_t delay;
 
 	/* Enable Required System Clock */
 	//Enable I2C1 System Clock
@@ -32,22 +33,21 @@ void I2C1_Init(void){
 	while((SYSCTL_PRGPIO_R & 0x01) == 0){};
 
 	/* GPIOA I2C Alternate Function Setup	*/
-	//Enable Digital I/O
-	GPIO_PORTA_DEN_R   |= I2C1_PINS;
-	//Enable internal pull-ups in case external pull-ups are absent
-	GPIO_PORTA_PUR_R   |= I2C1_PINS;
+	//Disable Analog Mode first
+	GPIO_PORTA_AMSEL_R &= ~I2C1_PINS;
 	//Enable Alternate Function Selection
 	GPIO_PORTA_AFSEL_R |= I2C1_PINS;
-
-	//Select I2C1 as the alternate function 
+	//Select I2C1 as the alternate function (PA6=SCL, PA7=SDA use mux 3)
 	GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R & ~I2C1_ALT_FUNC_MSK) | I2C1_ALT_FUNC_SET;
-	//Enable Open Drain for SDA pin
+	//Enable Open Drain for SDA pin (required for I2C)
 	GPIO_PORTA_ODR_R  |= I2C1_SDA_PIN;
-//Disable Analog Mode
-	GPIO_PORTA_AMSEL_R &= ~I2C1_PINS;
-	// Set SCL as output; leave SDA as input (open-drain handles driving low)
-	GPIO_PORTA_DIR_R   |= I2C1_SCL_PIN;
-	GPIO_PORTA_DIR_R   &= ~I2C1_SDA_PIN;
+	//Enable internal pull-ups in case external pull-ups are absent
+	GPIO_PORTA_PUR_R   |= I2C1_PINS;
+	//Enable Digital I/O
+	GPIO_PORTA_DEN_R   |= I2C1_PINS;
+	
+	// Note: Do NOT set DIR register bits when using alternate function
+	// The I2C peripheral controls pin direction automatically
 
 	/*	I2C1 Setup as Master Mode @ 100kBits	*/
 	//Configure I2C1 as Master 
@@ -67,66 +67,105 @@ void I2C1_Init(void){
 
 	// take care of master timer period: standard speed and TPR value	
 	I2C1_MTPR_R = (I2C_MTPR_STD_SPEED) | (I2C_MTPR_TPR_VALUE & 0x7F);
+	
+	// Small delay to let I2C bus stabilize
+	for(delay = 0; delay < 10000; delay++){}
+}
+
+/*
+ *	-------------------I2C1_ProbeStatus------------------
+ *	Debug function: Returns the raw MCS status after attempting to address a slave
+ *	Input: Slave address (7-bit)
+ *	Output: Raw MCS register value (for debugging)
+ */
+uint32_t I2C1_ProbeStatus(uint8_t slave_addr){
+	volatile uint32_t delay;
+	uint32_t status;
+	
+	/* Wait for I2C1 to be idle */
+	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	
+	/* Try to address the slave in write mode */
+	I2C1_MSA_R = (slave_addr << 1) & 0xFE;
+	I2C1_MDR_R = 0x00;  // Try to read register 0
+	
+	/* Generate START and send address */
+	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_RUN;
+	
+	/* Wait for completion */
+	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	
+	/* Capture status */
+	status = I2C1_MCS_R;
+	
+	/* Send STOP to release bus */
+	I2C1_MCS_R = I2C_MCS_STOP;
+	for(delay = 0; delay < 1000; delay++){}
+	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	
+	return status;
 }
 
 /*
  *	-------------------I2C1_Receive------------------
  *	Polls to receive data from specified peripheral
  *	Input: Slave address & Slave Register Address
- *	Output: Returns 8-bit data that has been received
+ *	Output: Returns 8-bit data that has been received (0xFF on error)
  */
 uint8_t I2C1_Receive(uint8_t slave_addr, uint8_t slave_reg_addr){
+	volatile uint32_t delay;
+	uint32_t error;
+	uint8_t data;
 
-	char error;																	//Temp Variable to hold errors
-
-	/* Check if I2C1 is busy: check MCS register Busy bit */
+	/* Wait for I2C1 to be idle and bus to be free */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	for(delay = 0; delay < 500; delay++){}
 
-	/* Configure I2C0 Slave Address and Write Mode */
-	// Slave Address is the 7 MSB
-	I2C1_MSA_R = (slave_addr << 1);  // write (bit 0 = 0)
-	// Set Data Register to slave register address
+	/*=== Phase 1: Send slave address (write) + register address ===*/
+	I2C1_MSA_R = (slave_addr << 1) & 0xFE;  // write mode
 	I2C1_MDR_R = slave_reg_addr;
 
-	/* Initiate I2C by generating a START & RUN cmd:
-	   Set MCS register START bit to generate and RUN bit to enable I2C Master	*/
-	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_RUN;
+	/* Single byte write: START + RUN + STOP (complete transaction) */
+	I2C1_MCS_R = 0x07;  // START=1, RUN=1, STOP=1
 
-	/* Wait until write is done: check MCS register to see is I2C is still busy */
+	/* Wait for completion */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	for(delay = 0; delay < 500; delay++){}
 
-	/* Check for address/datack/arblost errors on first write */
-	error = I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO);
+	/* Check for errors */
+	error = I2C1_MCS_R & 0x0E;  // ERROR, ADRACK, DATACK
 	if(error){
-		/* send STOP if needed and return 0 */
-		I2C1_MCS_R = I2C_MCS_STOP;
-		while(I2C1_MCS_R & I2C_MCS_BUSY){};
-		return 0;
+		return 0xFF;
 	}
 
-	/* Set I2C to Receive with Slave Address and change to Read */
-	I2C1_MSA_R = (slave_addr << 1) | 1;   // read (bit 0 = 1)
-
-	/* Initiate I2C by generating a repeated START, STOP, & RUN cmd */
-	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_STOP | I2C_MCS_RUN;
-
-	/* Wait until I2C bus is not busy: check MCS register for I2C bus busy bit */
-	while(I2C1_MCS_R & I2C_MCS_BUSY){};
-
-	/* Check for any error: read the error flag from MCS register */
-	error = I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO);
-	if(error){
-		/* ensure STOP and clear bus on error */
-		I2C1_MCS_R = I2C_MCS_STOP;
-		while(I2C1_MCS_R & I2C_MCS_BUSY){};
-		while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
-		return 0;
-	}
-
-	/* ensure bus not busy before returning */
+	/* Wait for bus to be completely free */
 	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
+	for(delay = 0; delay < 1000; delay++){}
 
-	return (uint8_t)I2C1_MDR_R;
+	/*=== Phase 2: Read one byte from slave ===*/
+	I2C1_MSA_R = (slave_addr << 1) | 0x01;  // read mode
+
+	/* Single byte read: START + RUN + STOP */
+	I2C1_MCS_R = 0x07;  // START=1, RUN=1, STOP=1
+
+	/* Wait for completion */
+	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	for(delay = 0; delay < 500; delay++){}
+
+	/* Read data from MDR */
+	data = (uint8_t)(I2C1_MDR_R & 0xFF);
+
+	/* Check for errors (ignore DATACK on read - NACK is normal for last byte) */
+	error = I2C1_MCS_R & 0x06;  // ERROR, ADRACK only
+	if(error){
+		return 0xFF;
+	}
+
+	/* Wait for bus to be free */
+	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
+	for(delay = 0; delay < 500; delay++){}
+
+	return data;
 
 }
 
@@ -137,47 +176,52 @@ uint8_t I2C1_Receive(uint8_t slave_addr, uint8_t slave_reg_addr){
  *	Output: Any Errors if detected, otherwise 0
  */
 uint8_t I2C1_Transmit(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t data){
+	volatile uint32_t delay;
+	uint32_t error;
 
-	char error;																	//Temp Variable to hold errors
-
-	/* Check if I2C1 is busy: check MCS register Busy bit */
+	/* Wait for I2C1 to be idle and bus to be free */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
+	for(delay = 0; delay < 1000; delay++){}
 
-	/* Configure I2C Slave Address, R/W Mode, and what to transmit */
-	//Slave Address is the first 7 MSB
-	// Clear LSB to write
-	I2C1_MSA_R = ((slave_addr << 1) & ~I2C1_RW_PIN);
-	//Transmit register addr to interact
+	/* Configure I2C Slave Address for write mode */
+	I2C1_MSA_R = (slave_addr << 1) & 0xFE;
+	/* Load register address to transmit */
 	I2C1_MDR_R = slave_reg_addr;
 
-	/* Initiate I2C by generate a START bit and RUN cmd */
+	/* Initiate I2C by generating START and RUN (keep bus, no STOP) */
 	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_RUN;
 
 	/* Wait until write has been completed */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	for(delay = 0; delay < 500; delay++){}
 
-	/* Check first-cycle errors */
-	error = I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO);
+	/* Check first-cycle errors (address + register byte) */
+	error = I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO);
 	if(error){
 		I2C1_MCS_R = I2C_MCS_STOP;
 		while(I2C1_MCS_R & I2C_MCS_BUSY){};
-		return error;
+		for(delay = 0; delay < 1000; delay++){}
+		return (uint8_t)error;
 	}
 
-	/* Update Data Register with data to be transmitted */
+	/* Load data byte to transmit */
 	I2C1_MDR_R = data;
 
-	/* Initiate I2C by generating a STOP & RUN cmd */
+	/* Generate RUN + STOP to send data and complete transmission */
 	I2C1_MCS_R = I2C_MCS_STOP | I2C_MCS_RUN;
 
-	/* Wait until write has been completed: check MCS register Busy bit */
+	/* Wait until write has been completed */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
 
-	/* Wait until bus isn't busy: check MCS register for I2C bus busy bit */
+	/* Wait until bus is free */
 	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
 
-	/* Check for any error: read the error flag from MCS register */
-	return (I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO));
+	/* Delay between transactions */
+	for(delay = 0; delay < 1000; delay++){}
+
+	/* Check for any error */
+	return (uint8_t)(I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_ADRACK | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO));
 }
 
 //Has Yet to be Implemented
@@ -201,26 +245,25 @@ void I2C1_Burst_Receive(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t* dat
  *	Output: None
  */
 uint8_t I2C1_Burst_Transmit(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t* data, uint32_t size){
+	volatile uint32_t delay;
+	uint32_t error;
 
-	char error;															//Temp Error Variable
-
-	/* Asserting Param */
+	/* Validate parameters */
 	if((data == 0) || (size == 0)){
 		return 1;
 	}
 
-	/* Check if I2C1 is busy */
+	/* Wait for I2C1 to be idle and bus to be free */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
+	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
 
-	/* Configure I2C Slave Address, R/W Mode, and what to transmit */
-	//Slave Address is the first 7 MSB
-	//Clear LSB to write
-	I2C1_MSA_R = ((slave_addr << 1) & ~I2C1_RW_PIN);
-	//Transmit register addr to interact
+	/* Configure I2C Slave Address for write mode */
+	I2C1_MSA_R = (slave_addr << 1) & 0xFE;
+	/* Load register address to transmit */
 	I2C1_MDR_R = slave_reg_addr;
 
-	/* Initiate I2C by generate a START bit and RUN cmd */
-	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_STOP | I2C_MCS_RUN;
+	/* Initiate I2C by generating START and RUN (keep transaction open) */
+	I2C1_MCS_R = I2C_MCS_START | I2C_MCS_RUN;
 
 	/* Wait until write has been completed */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
@@ -230,38 +273,37 @@ uint8_t I2C1_Burst_Transmit(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t*
 	if(error){
 		I2C1_MCS_R = I2C_MCS_STOP;
 		while(I2C1_MCS_R & I2C_MCS_BUSY){};
-		return error;
+		for(delay = 0; delay < 1000; delay++){}
+		return (uint8_t)error;
 	}
 
-	/* Loop to Burst Transmit what is stored in data buffer */
+	/* Loop to Burst Transmit data bytes */
 	while(size > 1){
-
-		//Deference Pointer from data array and load into data reg. Post-Increment the pointer after
-		I2C1_MDR_R = *data++; 
-		//Initiate I2C RUN CMD
-		I2C1_MCS_R = RUN_CMD; /* middle bytes, no START/STOP */
-		//Wait until transmit is complete
+		I2C1_MDR_R = *data++;
+		I2C1_MCS_R = I2C_MCS_RUN;  /* middle bytes, no START/STOP */
 		while(I2C1_MCS_R & I2C_MCS_BUSY){};
 		error = I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO);
 		if(error){
 			I2C1_MCS_R = I2C_MCS_STOP;
 			while(I2C1_MCS_R & I2C_MCS_BUSY){};
-			return error;
+			for(delay = 0; delay < 1000; delay++){}
+			return (uint8_t)error;
 		}
-		size--;																//Reduce size until 1 is left
-
+		size--;
 	}
 
-	//Deference Pointer from data array and load into data reg
+	/* Send last byte with STOP */
 	I2C1_MDR_R = *data;
-	//Initiate I2C STOP condition and RUN CMD
 	I2C1_MCS_R = I2C_MCS_STOP | I2C_MCS_RUN;
 
 	/* Wait until write has been completed */
 	while(I2C1_MCS_R & I2C_MCS_BUSY){};
 
-	/* Wait until bus isn't busy */
+	/* Wait until bus is free */
 	while(I2C1_MCS_R & I2C_MCS_BUSBSY){};
+
+	/* Small delay between transactions */
+	for(delay = 0; delay < 500; delay++){};
 
 	/* Check for any error */
 	return (I2C1_MCS_R & (I2C_MCS_ERROR | I2C_MCS_DATACK | I2C_MCS_ARBLST | I2C_MCS_CLKTO));

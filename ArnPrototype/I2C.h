@@ -12,7 +12,7 @@
 #define I2C_H_
 
 #include <stdint.h>
-#include "../inc/tm4c123gh6pm.h"
+#include "tm4c123gh6pm.h"
 #include "util.h"
 
 /* List of Fill In Macros */
@@ -36,12 +36,7 @@
 #define I2C1_SDA_PIN             (0x80)                    /* PA7 */
 #define I2C1_SCL_PIN             (0x40)                    /* PA6 */
 #define EN_I2C1_MASTER           do{ I2C1_MCR_R = 0x10; }while(0) /* MFE bit */
-// For this project the system clock is 16 MHz. Using the formula
-// TPR = (SysClk / (2 * (SCL_LP + SCL_HP) * SCL_CLK)) - 1 with
-// SCL_LP=6, SCL_HP=4.
-// For 100kHz I2C at 16MHz: TPR = (16MHz / (2 * 10 * 100kHz)) - 1 = 7
-// Standard speed for reliable PCA9685 communication
-#define I2C_MTPR_TPR_VALUE       (7)                      /* 100kHz @ 16MHz sysclk */
+#define I2C_MTPR_TPR_VALUE       (7)                      /* ~100kHz @ 16MHz sysclk */
 #define I2C_MTPR_STD_SPEED       (0)                      /* HS=0 for standard/fast mode */
 
 //Transmit/Receive helpers
@@ -92,20 +87,5 @@ void I2C1_Burst_Receive(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t* dat
  *	Output: None
  */
 uint8_t I2C1_Burst_Transmit(uint8_t slave_addr, uint8_t slave_reg_addr, uint8_t* data, uint32_t size);
-
-/*
- *	----------------I2C1_ProbeStatus-----------------
- *	Debug function: Returns raw MCS status after addressing a slave
- *	Input: Slave address (7-bit)
- *	Output: Raw MCS register value
- *	  Bit 0 (BUSY): Should be 0 after transaction
- *	  Bit 1 (ERROR): 1 = error occurred
- *	  Bit 2 (ADRACK): 1 = address was NOT acknowledged (no device)
- *	  Bit 3 (DATACK): 1 = data was NOT acknowledged
- *	  Bit 4 (ARBLST): 1 = lost arbitration
- *	  Bit 5 (IDLE): 1 = bus is idle
- *	  Bit 6 (BUSBSY): 1 = bus is busy
- */
-uint32_t I2C1_ProbeStatus(uint8_t slave_addr);
 
 #endif //I2C_H_
