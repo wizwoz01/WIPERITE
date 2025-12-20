@@ -33,7 +33,28 @@ static void show_menu(void){
 	UART0_OutString((uint8_t *)"S/s : Sweep pen channel reverse\r\n");
 	UART0_OutString((uint8_t *)"H/h : Home arm (pen/eraser up, mid angles)\r\n");
 	UART0_OutString((uint8_t *)"M/m : Show this menu\r\n");
+	UART0_OutString((uint8_t *)"T/t : PCA9685 register test (prints MODE1/PRESCALE, toggles CH0)\r\n");
 	UART0_OutString((uint8_t *)"\r\nAwaiting command> ");
+}
+
+static void print_hex8(uint8_t v){
+	char hex[3];
+	const char *hexchars = "0123456789ABCDEF";
+	hex[0] = hexchars[(v >> 4) & 0x0F];
+	hex[1] = hexchars[v & 0x0F];
+	hex[2] = '\0';
+	UART0_OutString((uint8_t *)hex);
+}
+
+static void print_hex16(uint16_t v){
+	char buf[5];
+	const char *hexchars = "0123456789ABCDEF";
+	buf[0] = hexchars[(v >> 12) & 0x0F];
+	buf[1] = hexchars[(v >> 8) & 0x0F];
+	buf[2] = hexchars[(v >> 4) & 0x0F];
+	buf[3] = hexchars[v & 0x0F];
+	buf[4] = '\0';
+	UART0_OutString((uint8_t *)buf);
 }
 
 int main(void){
@@ -126,6 +147,24 @@ int main(void){
 
 			case 'H': case 'h':{
 				WritingArm_Home();
+			} break;
+
+			case 'T': case 't':{
+				UART0_OutString((uint8_t *)"PCA9685 Test:\r\n");
+				uint8_t mode = PCA9685_read8(0x40, PCA9685_MODE1);
+				UART0_OutString((uint8_t *)"MODE1=0x"); print_hex8(mode); UART0_OutString((uint8_t *)"\r\n");
+				uint8_t mode2 = PCA9685_read8(0x40, PCA9685_MODE2);
+				UART0_OutString((uint8_t *)"MODE2=0x"); print_hex8(mode2); UART0_OutString((uint8_t *)"\r\n");
+				uint8_t pres = PCA9685_readPrescale(0x40);
+				UART0_OutString((uint8_t *)"PRESCALE=0x"); print_hex8(pres); UART0_OutString((uint8_t *)"\r\n");
+				UART0_OutString((uint8_t *)"Setting CH0 to 50% (test)\r\n");
+				PCA9685_SetPin(0x40, 0, 2048, 0);
+				// wait a bit for I2C write to complete and scope to see signal
+				SysTick_Wait(100 * T1ms);
+				uint16_t onv = PCA9685_getPWM(0x40, 0, 0);
+				UART0_OutString((uint8_t *)"CH0 ON read=0x"); print_hex16(onv); UART0_OutString((uint8_t *)"\r\n");
+				uint16_t off = PCA9685_getPWM(0x40, 0, 1);
+				UART0_OutString((uint8_t *)"CH0 OFF read=0x"); print_hex16(off); UART0_OutString((uint8_t *)"\r\n");
 			} break;
 
 			case 'M': case 'm':{
