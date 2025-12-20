@@ -21,6 +21,14 @@
 #define PEN_CH    2
 #define ERASER_CH 3
 
+#define ANGLE_STEP 5
+
+/* Per-servo current angle state (0-180). Kept in sync by commands and on Home. */
+static int baseAngle = 90;
+static int armAngle = 90;
+static int penAngle = 90;
+static int eraserAngle = 90;
+
 static void delay_ms(uint32_t ms){
 	while(ms--) SysTick_Wait(T1ms);
 }
@@ -31,6 +39,8 @@ static void show_menu(void){
 	UART0_OutString((uint8_t *)"D/d : Sweep base channel reverse\r\n");
 	UART0_OutString((uint8_t *)"W/w : Sweep pen channel forward\r\n");
 	UART0_OutString((uint8_t *)"S/s : Sweep pen channel reverse\r\n");
+	UART0_OutString((uint8_t *)"J/j : Sweep pen channel forward (PEN_CH)\r\n");
+	UART0_OutString((uint8_t *)"K/k : Sweep pen channel reverse (PEN_CH)\r\n");
 	UART0_OutString((uint8_t *)"H/h : Home arm (pen/eraser up, mid angles)\r\n");
 	UART0_OutString((uint8_t *)"M/m : Show this menu\r\n");
 	UART0_OutString((uint8_t *)"T/t : PCA9685 register test (prints MODE1/PRESCALE, toggles CH0)\r\n");
@@ -88,6 +98,9 @@ int main(void){
 	}
 	WritingArm_Home();
 
+	/* initialize local angle state to mid position to track incremental commands */
+	baseAngle = armAngle = penAngle = eraserAngle = 90;
+
 	show_menu();
  
 	for(;;){
@@ -98,51 +111,45 @@ int main(void){
 
 		switch(c){
 			case 'A': case 'a':{
-				// sweep base 0->180
-				for(int ang=0; ang<=180; ang+=5){
-					WritingArm_SetServoAngle(ARM_CH, ang);
-					delay_ms(25);
-				}
-				for(int ang=180; ang>=0; ang-=5){
-					WritingArm_SetServoAngle(ARM_CH, ang);
-					delay_ms(15);
-				}
+				/* step ARM_CH up */
+				armAngle += ANGLE_STEP;
+				if(armAngle > 180) armAngle = 180;
+				WritingArm_SetServoAngle(ARM_CH, armAngle);
 			} break;
 
 			case 'D': case 'd':{
-				// sweep base 180->0
-				for(int ang=180; ang>=0; ang-=5){
-					WritingArm_SetServoAngle(ARM_CH, ang);
-					delay_ms(25);
-				}
-				for(int ang=0; ang<=180; ang+=5){
-					WritingArm_SetServoAngle(ARM_CH, ang);
-					delay_ms(15);
-				}
+				/* step ARM_CH down */
+				armAngle -= ANGLE_STEP;
+				if(armAngle < 0) armAngle = 0;
+				WritingArm_SetServoAngle(ARM_CH, armAngle);
 			} break;
 
 			case 'W': case 'w':{
-				// sweep pen 0->180
-				for(int ang=0; ang<=180; ang+=5){
-					WritingArm_SetServoAngle(BASE_CH, ang);
-					delay_ms(25);
-				}
-				for(int ang=180; ang>=0; ang-=5){
-					WritingArm_SetServoAngle(BASE_CH, ang);
-					delay_ms(15);
-				}
+				/* step BASE_CH up */
+				baseAngle += ANGLE_STEP;
+				if(baseAngle > 180) baseAngle = 180;
+				WritingArm_SetServoAngle(BASE_CH, baseAngle);
 			} break;
 
 			case 'S': case 's':{
-				// sweep pen 180->0
-				for(int ang=180; ang>=0; ang-=5){
-					WritingArm_SetServoAngle(BASE_CH, ang);
-					delay_ms(25);
-				}
-				for(int ang=0; ang<=180; ang+=5){
-					WritingArm_SetServoAngle(BASE_CH, ang);
-					delay_ms(15);
-				}
+				/* step BASE_CH down */
+				baseAngle -= ANGLE_STEP;
+				if(baseAngle < 0) baseAngle = 0;
+				WritingArm_SetServoAngle(BASE_CH, baseAngle);
+			} break;
+
+			case 'J': case 'j':{
+				/* step PEN_CH up */
+				penAngle += ANGLE_STEP;
+				if(penAngle > 180) penAngle = 180;
+				WritingArm_SetServoAngle(PEN_CH, penAngle);
+			} break;
+
+			case 'K': case 'k':{
+				/* step PEN_CH down */
+				penAngle -= ANGLE_STEP;
+				if(penAngle < 0) penAngle = 0;
+				WritingArm_SetServoAngle(PEN_CH, penAngle);
 			} break;
 
 			case 'H': case 'h':{

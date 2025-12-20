@@ -8,7 +8,6 @@
 #define PCA9685_I2C_ADDRESS 0x40
 #endif
 
-// Backwards compatibility with older code
 #ifndef PCA9685_I2C_ADDR_DEFAULT
 #define PCA9685_I2C_ADDR_DEFAULT PCA9685_I2C_ADDRESS
 #endif

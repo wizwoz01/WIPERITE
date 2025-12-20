@@ -18,7 +18,7 @@ void PCA9685_write8(uint8_t addr, uint8_t reg, uint8_t data){
 }
 
 static void write4(uint8_t addr, uint8_t start, uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3){
-    // Use single-byte writes to avoid potential issues with burst helper implementation
+    // Use single-byte writes to avoid potential issues with burst trasmit implementation
     (void)I2C1_Transmit(addr, start + 0, b0);
     (void)I2C1_Transmit(addr, start + 1, b1);
     (void)I2C1_Transmit(addr, start + 2, b2);
