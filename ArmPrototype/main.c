@@ -49,7 +49,7 @@ static void show_menu(void){
 	UART0_OutString((uint8_t *)"K/k : Sweep pen channel reverse (PEN_CH)\r\n");
 	UART0_OutString((uint8_t *)"H/h : Home arm (pen/eraser up, mid angles)\r\n");
 	UART0_OutString((uint8_t *)"M/m : Show this menu\r\n");
-	UART0_OutString((uint8_t *)"T/t : PCA9685 register test (prints MODE1/PRESCALE, toggles CH0)\r\n");
+	UART0_OutString((uint8_t *)"T/t : PCA9685 register test (prints MODE1/PRESCALE, toggles CH8)\r\n");
 	UART0_OutString((uint8_t *)"\r\nAwaiting command> ");
 }
 
@@ -242,8 +242,10 @@ int main(void){
 				/* keep local state in sync with home positions */
 				baseAngle = 90;
 				armAngle = 90;
-				penAngle = 0;
+				penAngle = 90;
 				eraserAngle = 0;
+				/* set CH8(TEST), ensure it's cleared when homing */
+				PCA9685_SetPin(0x40, 8, 0, 0);
 			} break;
 
 			case 'T': case 't':{
@@ -254,14 +256,14 @@ int main(void){
 				UART0_OutString((uint8_t *)"MODE2=0x"); print_hex8(mode2); UART0_OutString((uint8_t *)"\r\n");
 				uint8_t pres = PCA9685_readPrescale(0x40);
 				UART0_OutString((uint8_t *)"PRESCALE=0x"); print_hex8(pres); UART0_OutString((uint8_t *)"\r\n");
-				UART0_OutString((uint8_t *)"Setting CH0 to 50% (test)\r\n");
-				PCA9685_SetPin(0x40, 0, 2048, 0);
+				UART0_OutString((uint8_t *)"Setting CH8 to 50% (test)\r\n");
+				PCA9685_SetPin(0x40, 8, 2048, 0);
 				// wait a bit for I2C write to complete and scope to see signal
 				SysTick_Wait(100 * T1ms);
-				uint16_t onv = PCA9685_getPWM(0x40, 0, 0);
-				UART0_OutString((uint8_t *)"CH0 ON read=0x"); print_hex16(onv); UART0_OutString((uint8_t *)"\r\n");
-				uint16_t off = PCA9685_getPWM(0x40, 0, 1);
-				UART0_OutString((uint8_t *)"CH0 OFF read=0x"); print_hex16(off); UART0_OutString((uint8_t *)"\r\n");
+				uint16_t onv = PCA9685_getPWM(0x40, 8, 0);
+				UART0_OutString((uint8_t *)"CH8 ON read=0x"); print_hex16(onv); UART0_OutString((uint8_t *)"\r\n");
+				uint16_t off = PCA9685_getPWM(0x40, 8, 1);
+				UART0_OutString((uint8_t *)"CH8 OFF read=0x"); print_hex16(off); UART0_OutString((uint8_t *)"\r\n");
 			} break;
 
 			case 'M': case 'm':{
