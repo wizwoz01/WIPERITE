@@ -47,13 +47,12 @@ void WritingArm_SetServoAngle(uint8_t channel, int16_t angle_deg){
 }
 
 void WritingArm_PenUp(void){
-    // Usually smaller pulse raises the pen; adjust if inverted
-    WritingArm_SetServoAngle(SERVO_PEN_CH, 0);
+    WritingArm_SetServoAngle(SERVO_PEN_CH, 90);
     delay_ms(300);
 }
 
 void WritingArm_PenDown(void){
-    WritingArm_SetServoAngle(SERVO_PEN_CH, 90);
+    WritingArm_SetServoAngle(SERVO_PEN_CH, 0);
     delay_ms(300);
 }
 
@@ -71,7 +70,7 @@ void WritingArm_Home(void){
     WritingArm_PenUp();
     WritingArm_EraserUp();
     WritingArm_SetServoAngle(SERVO_BASE_CH, 90);
-    WritingArm_SetServoAngle(SERVO_ARM_CH, 90);
+    WritingArm_SetServoAngle(SERVO_ARM_CH, 110);
     delay_ms(500);
 }
 

@@ -29,7 +29,7 @@ volatile uint32_t System_ms = 0;
 
 /* Per-servo current angle state (0-180). Kept in sync by commands and on Home. */
 static int baseAngle = 90;
-static int armAngle = 90;
+static int armAngle = 110;
 static int penAngle = 90;
 static int eraserAngle = 90;
 // write mode flag: 0 = normal, 1 = write-mode active
@@ -109,7 +109,7 @@ int main(void){
 
 	/* initialize local angle state to match WritingArm_Home() */
 	baseAngle = 90;
-	armAngle = 90;
+	armAngle = 110;
 	penAngle = 90;
 	eraserAngle = 0;
 
@@ -124,11 +124,21 @@ int main(void){
 				ButtonLED_SetColor(1,0,0); // indicate write mode (red)
 				UART0_OutString((uint8_t *)"\r\nEntering WRITE mode. Press button again to exit.\r\n");
 				WritingArm_Home();
+				/* keep local state consistent with homing: base stays 90, arm 110, pen fully up */
+				baseAngle = 90;
+				armAngle = 110;
+				penAngle = 90;
+				eraserAngle = 0;
 				UART0_OutString((uint8_t *)"Write> ");
 			} else {
 				ButtonLED_SetColor(0,0,0);
 				UART0_OutString((uint8_t *)"\r\nExiting WRITE mode.\r\n");
 				WritingArm_Home();
+				/* keep local state consistent with homing */
+				baseAngle = 90;
+				armAngle = 110;
+				penAngle = 90;
+				eraserAngle = 0;
 				show_menu();
 			}
 		}
@@ -146,6 +156,11 @@ int main(void){
 					ButtonLED_SetColor(0,0,0);
 					UART0_OutString((uint8_t *)"\r\nWrite mode canceled by button.\r\n");
 					WritingArm_Home();
+					/* keep local state consistent with homing */
+					baseAngle = 90;
+					armAngle = 110;
+					penAngle = 90;
+					eraserAngle = 0;
 					show_menu();
 					break;
 				}
@@ -241,7 +256,7 @@ int main(void){
 				WritingArm_Home();
 				/* keep local state in sync with home positions */
 				baseAngle = 90;
-				armAngle = 90;
+				armAngle = 110;
 				penAngle = 90;
 				eraserAngle = 0;
 				/* set CH8(TEST), ensure it's cleared when homing */
