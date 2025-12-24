@@ -15,6 +15,23 @@
 #define SERVO_PEN_CH       2  // linear pen
 #define SERVO_ERASER_CH    3  // linear eraser
 
+// IMPORTANT: these are *servo angles* (0..180).
+// Tune using your UART stepping commands in main.c:
+//   W/S = BASE_CH (0), A/D = ARM_CH (1), J/K = PEN_CH (2)
+
+#define BASE_LEFT_ANGLE     60
+#define BASE_RIGHT_ANGLE    120
+#define ARM_TOP_ANGLE       85
+#define ARM_BOTTOM_ANGLE    135
+
+#define PEN_UP_ANGLE        180
+#define PEN_DOWN_ANGLE      50
+
+// Flip these if letters are mirrored/upside-down:
+#define BASE_INVERT         0
+#define ARM_INVERT          0
+
+
 // Per-servo min/max pulse width (microseconds). Tune as needed
 static uint16_t s_min_us[4] = {500, 500, 600, 600};
 static uint16_t s_max_us[4] = {2500, 2500, 2400, 2400};
@@ -46,14 +63,23 @@ void WritingArm_SetServoAngle(uint8_t channel, int16_t angle_deg){
     PCA9685_SetServoAngle(s_addr, channel, angle_deg, min_us, max_us);
 }
 
+// void WritingArm_PenUp(void){
+//     WritingArm_SetServoAngle(SERVO_PEN_CH, 180);
+//     delay_ms(300);
+// }
+
+// void WritingArm_PenDown(void){
+//     WritingArm_SetServoAngle(SERVO_PEN_CH, 0);
+//     delay_ms(300);
+// }
 void WritingArm_PenUp(void){
-    WritingArm_SetServoAngle(SERVO_PEN_CH, 90);
-    delay_ms(300);
+    WritingArm_SetServoAngle(SERVO_PEN_CH, PEN_UP_ANGLE);
+    delay_ms(250);
 }
 
 void WritingArm_PenDown(void){
-    WritingArm_SetServoAngle(SERVO_PEN_CH, 0);
-    delay_ms(300);
+    WritingArm_SetServoAngle(SERVO_PEN_CH, PEN_DOWN_ANGLE);
+    delay_ms(250);
 }
 
 void WritingArm_EraserUp(void){
@@ -79,33 +105,6 @@ void WritingArm_MoveToAngles(int16_t base, int16_t arm){
     WritingArm_SetServoAngle(SERVO_ARM_CH, arm);
 }
 
-// Simple demonstration strokes for quick validation
-void WritingArm_DemoStrokes(void){
-    WritingArm_Home();
-
-    // Draw a short stroke
-    WritingArm_PenDown();
-    WritingArm_MoveToAngles(90, 100);
-    delay_ms(300);
-    WritingArm_MoveToAngles(90, 110);
-    delay_ms(300);
-    WritingArm_PenUp();
-
-    // Move right and tap
-    WritingArm_MoveToAngles(110, 95);
-    delay_ms(200);
-    WritingArm_PenDown();
-    delay_ms(200);
-    WritingArm_PenUp();
-
-    // Try eraser down/up
-    WritingArm_MoveToAngles(80, 90);
-    delay_ms(200);
-    WritingArm_EraserDown();
-    delay_ms(300);
-    WritingArm_EraserUp();
-}
-
 // Optional quick self-test for all 4 channels
 void WritingArm_ServoSweepTest(void){
     for(uint8_t ch = 0; ch < 4; ++ch){
@@ -120,11 +119,11 @@ void WritingArm_ServoSweepTest(void){
     }
 }
 
-// --- Basic 5x7 font drawing implementation ---------------------------------
-// Each character is 5 columns wide, 7 rows high. Columns are L-to-R, bits
+// --- Basic 5x5 font drawing implementation ---------------------------------
+// Each character is 5 columns wide, 5 rows high. Columns are L-to-R, bits
 // low-to-high represent top-to-bottom rows (bit0 = top row).
 
-static const uint8_t font5x7[26][5] = {
+static const uint8_t font5x5[26][5] = {
     {0x0E,0x11,0x1F,0x11,0x11}, // A
     {0x1E,0x11,0x1E,0x11,0x1E}, // B
     {0x0E,0x11,0x10,0x11,0x0E}, // C
@@ -153,70 +152,101 @@ static const uint8_t font5x7[26][5] = {
     {0x1F,0x02,0x04,0x08,0x1F}  // Z
 };
 
-// Grid mapping: X columns and Y rows
-#define GRID_COLS_PER_CHAR 6 // 5 cols + 1 spacing
-#define GRID_MAX_X 60
-#define GRID_MAX_Y 6
+#define FONT_W 5
+#define FONT_H 5
+#define GRID_COLS_PER_CHAR (FONT_W + 1)
+#define GRID_ROWS_PER_LINE (FONT_H + 2)
 
-// Tune these ranges to fit your workspace; they map grid coordinates to servo
-// angles. base: left/right, arm: up/down.
-#define GRID_BASE_MIN 60
-#define GRID_BASE_MAX 120
-#define GRID_ARM_MIN 80
-#define GRID_ARM_MAX 120
+// allow longer text / multiple lines
+#define GRID_MAX_X 90
+#define GRID_MAX_Y 35
+
+#define GRID_BASE_MIN BASE_LEFT_ANGLE
+#define GRID_BASE_MAX BASE_RIGHT_ANGLE
+#define GRID_ARM_MIN  ARM_TOP_ANGLE
+#define GRID_ARM_MAX  ARM_BOTTOM_ANGLE
+
+static int lerp_int(int a, int b, int t, int tmax){
+    if(t < 0) t = 0;
+    if(t > tmax) t = tmax;
+    return a + (t * (b - a)) / tmax;
+}
 
 static void moveToGrid(int gx, int gy){
     if(gx < 0) gx = 0;
     if(gy < 0) gy = 0;
+    if(gx > GRID_MAX_X) gx = GRID_MAX_X;
     if(gy > GRID_MAX_Y) gy = GRID_MAX_Y;
 
-    // clamp gx to a reasonable span
-    if(gx > GRID_MAX_X) gx = GRID_MAX_X;
+    int base = lerp_int(GRID_BASE_MIN, GRID_BASE_MAX, gx, GRID_MAX_X);
+    int arm  = lerp_int(GRID_ARM_MIN,  GRID_ARM_MAX,  gy, GRID_MAX_Y);
 
-    int base = GRID_BASE_MIN + (gx * (GRID_BASE_MAX - GRID_BASE_MIN)) / GRID_MAX_X;
-    int arm  = GRID_ARM_MIN + (gy * (GRID_ARM_MAX - GRID_ARM_MIN)) / GRID_MAX_Y;
+    if(BASE_INVERT) base = GRID_BASE_MIN + GRID_BASE_MAX - base;
+    if(ARM_INVERT)  arm  = GRID_ARM_MIN  + GRID_ARM_MAX  - arm;
+
     WritingArm_MoveToAngles(base, arm);
-    delay_ms(80);
+    delay_ms(120);
 }
 
-void WritingArm_DrawChar(char c, int x_origin){
+static void WritingArm_DrawCharAt(char c, int x0, int y0){
+    WritingArm_PenUp();
+
     if(c >= 'a' && c <= 'z') c = c - 'a' + 'A';
     if(c < 'A' || c > 'Z'){
-        // treat as space: advance pen without drawing
-        // move baseline to end of char width
-        moveToGrid(x_origin + GRID_COLS_PER_CHAR - 1, GRID_MAX_Y/2);
+        // space / unsupported char
+        moveToGrid(x0 + GRID_COLS_PER_CHAR, y0);
         return;
     }
 
-    const uint8_t *glyph = font5x7[c - 'A'];
+    const uint8_t *rows = font5x5[c - 'A'];
 
-    // For each column in glyph
-    for(int col = 0; col < 5; ++col){
-        uint8_t colbits = glyph[col];
-        int gx = x_origin + col;
-        // For each row (0 = top)
-        for(int row = 0; row <= GRID_MAX_Y; ++row){
-            if(colbits & (1 << row)){
-                // move above the dot, then pen down, tap, pen up
-                moveToGrid(gx, row);
-                WritingArm_PenDown();
-                delay_ms(80);
-                WritingArm_PenUp();
-                delay_ms(30);
-            }
+    // Draw horizontal “runs” (cleaner than tapping dots)
+    for(int r = 0; r < FONT_H; r++){
+        uint8_t bits = rows[r];
+        int col = 0;
+
+        while(col < FONT_W){
+            while(col < FONT_W && (bits & (1U << (FONT_W-1-col))) == 0) col++;
+            if(col >= FONT_W) break;
+
+            int start = col;
+            while(col < FONT_W && (bits & (1U << (FONT_W-1-col))) != 0) col++;
+            int end = col - 1;
+
+            moveToGrid(x0 + start, y0 + r);
+            WritingArm_PenDown();
+            moveToGrid(x0 + end,   y0 + r);
+            WritingArm_PenUp();
         }
     }
+}
 
-    // small gap after char
-    moveToGrid(x_origin + GRID_COLS_PER_CHAR, GRID_MAX_Y/2);
+void WritingArm_DrawChar(char c, int x_origin){
+    WritingArm_DrawCharAt(c, x_origin, 0);
+    moveToGrid(x_origin + GRID_COLS_PER_CHAR, 0);
 }
 
 void WritingArm_DrawString(const char *s, int x_origin){
     int x = x_origin;
+    int y = 0;
+
     while(s && *s){
-        WritingArm_DrawChar(*s, x);
+        char c = *s++;
+
+        if(c == '\n' || c == '\r'){
+            x = x_origin;
+            y += GRID_ROWS_PER_LINE;
+            continue;
+        }
+
+        if(x + GRID_COLS_PER_CHAR > GRID_MAX_X){
+            x = x_origin;
+            y += GRID_ROWS_PER_LINE;
+        }
+        if(y + FONT_H > GRID_MAX_Y) break;
+
+        WritingArm_DrawCharAt(c, x, y);
         x += GRID_COLS_PER_CHAR;
-        s++;
     }
 }
-
+// --- End of font drawing implementation ------------------------------------

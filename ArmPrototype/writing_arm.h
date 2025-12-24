@@ -15,7 +15,6 @@ void WritingArm_MoveToAngles(int16_t base, int16_t arm);
 void WritingArm_SetServoUs(uint8_t channel, uint16_t pulse_us);
 void WritingArm_SetServoAngle(uint8_t channel, int16_t angle_deg);
 
-void WritingArm_DemoStrokes(void);
 void WritingArm_ServoSweepTest(void);
 
 // Draw a single character at the current baseline X offset (grid columns).
