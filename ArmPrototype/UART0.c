@@ -61,6 +61,26 @@ void UART0_OutString(uint8_t *pt){
   }
 }
 
+//------------UART0_OutUDec------------
+// Output unsigned decimal to serial port
+// Input: integer
+// Output: unsigned integer
+void UART0_OutUDec(uint32_t n){
+  if(n >= 10){
+    UART0_OutUDec(n/10);
+  }
+  UART0_OutChar((uint8_t)('0' + (n % 10)));
+}
+
+/* Signed Decimal */
+void UART0_OutSDec(int32_t n){
+  if(n < 0){
+    UART0_OutChar('-');
+    n = -n;
+  }
+  UART0_OutUDec((uint32_t)n);
+}
+
 //------------UART0_InChar------------
 // Wait for new serial port input
 // Input: none
