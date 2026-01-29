@@ -112,11 +112,5 @@ Note: masks are post-processed with a (5,5) elliptical kernel using morphologica
 
 ## License & Contact
 
-Add your preferred license and author/contact information here.
 
 ---
-
-If you want I can also:
-
-- add a `requirements.txt` with pinned versions, or
-- inject quick-start examples into `tracker.py` as usage comments.
